@@ -2,8 +2,10 @@ package llc.ufwa.activities.injecting;
 
 import java.util.concurrent.Executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import llc.ufwa.concurrency.SerialExecutor;
-import llc.ufwa.convenience.WeakInterface;
 
 /**
  * This is the controller to manage displays being injected into it. 
@@ -15,7 +17,9 @@ import llc.ufwa.convenience.WeakInterface;
  * @param <T>
  */
 public abstract class InjectableController<T extends InjectingDisplay> {
-	
+    
+    private static final Logger logger = LoggerFactory.getLogger(InjectableController.class);
+    
     private final AllDisplays<T> displays;
     private final Class<T> displayClass;
     private final Executor configureRunner;
@@ -40,6 +44,8 @@ public abstract class InjectableController<T extends InjectingDisplay> {
     
 	@SuppressWarnings("unchecked")
 	protected final void addDisplay(final InjectingDisplay display) {
+	    
+	    logger.debug("Add display: " + display);
 	    
 		if(displayClass.isInstance(display)) {
 		    
@@ -66,6 +72,8 @@ public abstract class InjectableController<T extends InjectingDisplay> {
 	@SuppressWarnings("unchecked")
     protected final void removeDisplay(InjectingDisplay display) {
 	    
+	    logger.debug("remove display: " + display);
+	    
 	    if(displayClass.isInstance(display)) {            
             displays.removeDisplay((T)display);
         }
@@ -81,5 +89,6 @@ public abstract class InjectableController<T extends InjectingDisplay> {
 	protected boolean hasDisplays() {
 	    return displays.hasDisplays();
 	}
+	
 	
 }
