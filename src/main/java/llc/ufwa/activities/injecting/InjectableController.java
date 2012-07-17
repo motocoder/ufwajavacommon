@@ -45,8 +45,6 @@ public abstract class InjectableController<T extends InjectingDisplay> {
 	@SuppressWarnings("unchecked")
 	protected final void addDisplay(final InjectingDisplay display) {
 	    
-	    logger.debug("Add display: " + display);
-	    
 		if(displayClass.isInstance(display)) {
 		    
 		    displays.addDisplay((T)display);
@@ -72,14 +70,13 @@ public abstract class InjectableController<T extends InjectingDisplay> {
 	@SuppressWarnings("unchecked")
     protected final void removeDisplay(InjectingDisplay display) {
 	    
-	    logger.debug("remove display: " + display);
-	    
-	    if(displayClass.isInstance(display)) {            
+	    if(displayClass.isInstance(display)) { 
+	        
             displays.removeDisplay((T)display);
+            onDisplayRemoved();
+            
         }
 	    
-	    onDisplayRemoved();
-
 	}
 	
 	protected T getAllDisplays() {
