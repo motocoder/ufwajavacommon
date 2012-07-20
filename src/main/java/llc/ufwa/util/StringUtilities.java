@@ -5,7 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
 
 import llc.ufwa.data.beans.ParsedProperty;
 
@@ -55,6 +58,24 @@ public final class StringUtilities {
 		return hour + "hrs " + (min % 60) + "mins " + (sec %60) + "secs";
 		
 	}
+	
+    public static Set<String> getAllSubstrings(final String original) {
+
+        final Set<String> returnVals = new HashSet<String>();
+
+        final int length = original.length();
+
+        for (int c = 0; c < length; c++) {
+
+            for (int i = 1; i <= length - c; i++) {
+                returnVals.add(original.substring(c, c + i));
+            }
+
+        }
+
+        return returnVals;
+
+    }
 	
 	public static boolean isEmpty(String check) {
 
