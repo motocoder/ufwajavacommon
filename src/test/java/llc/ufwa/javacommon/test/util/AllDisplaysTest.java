@@ -17,7 +17,7 @@ public class AllDisplaysTest {
         
         final List<ParallelControl<String>> controllers = new ArrayList<ParallelControl<String>>();
         
-        final AllDisplays<MyDisplay> allDisplays = new AllDisplays<MyDisplay>(MyDisplay.class);
+        final AllDisplays<MyDisplay> allDisplays = new AllDisplays<MyDisplay>(MyDisplay.class, getClass().getClassLoader());
         
         for(int i = 0; i < controllers.size(); i++) {
             

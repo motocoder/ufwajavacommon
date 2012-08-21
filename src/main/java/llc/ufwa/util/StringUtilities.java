@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
 
 import llc.ufwa.data.beans.ParsedProperty;
@@ -39,6 +38,7 @@ public final class StringUtilities {
     public static String formatShortDateTime( Date date ) {
         return shortFormat.format( date );
     }
+    
     
     public static String join(Object [] values, String joinString) {
         StringBuilder build = new StringBuilder();        

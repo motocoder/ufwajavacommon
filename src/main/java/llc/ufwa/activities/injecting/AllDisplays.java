@@ -26,13 +26,11 @@ public class AllDisplays<Display extends InjectingDisplay> {
      * @param clazz - class of your displays to wrap.
      */
     @SuppressWarnings("unchecked")
-    public AllDisplays(Class<Display> clazz) {
+    public AllDisplays(Class<Display> clazz, ClassLoader classloader) {
         
         if(clazz == null) {
             throw new NullPointerException("Class cannot be null");
         }
-        
-        final ClassLoader classloader = this.getClass().getClassLoader();
         
         final InvocationHandler handler = new InvocationHandler() {
 

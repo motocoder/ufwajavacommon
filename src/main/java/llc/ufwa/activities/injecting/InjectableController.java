@@ -24,21 +24,19 @@ public abstract class InjectableController<T extends InjectingDisplay> {
     private final Class<T> displayClass;
     private final Executor configureRunner;
     
-    /**
-     * 
-     * @param clazz
-     * @param configureRunner - must be single thread executors...
-     */
+    
     public InjectableController(
         final Class<T> clazz,
         final SerialExecutor configureRunner
+     
     ) {
         
         this.configureRunner = configureRunner;        
         this.displayClass = clazz;        
-        displays = new AllDisplays<T>(clazz);
+        displays = new AllDisplays<T>(clazz, getClass().getClassLoader());
         
     }
+
     
     protected abstract void configureDisplay(T display);
     
@@ -79,11 +77,11 @@ public abstract class InjectableController<T extends InjectingDisplay> {
 	    
 	}
 	
-	protected T getAllDisplays() {
+	public T getAllDisplays() {
 	    return displays.getAllDisplays();
 	}
 	
-	protected boolean hasDisplays() {
+	public boolean hasDisplays() {
 	    return displays.hasDisplays();
 	}
 	
