@@ -1,9 +1,18 @@
 package llc.ufwa.data.beans;
 
-public class Entry<Key, Value> {
+import java.io.Serializable;
+
+public class Entry<Key, Value> implements Serializable {
+
+    private static final long serialVersionUID = -4369912094445839931L;
     
-    private final Key key;
-    private final Value value;
+    private Key key;
+    private Value value;
+    
+    @SuppressWarnings("unused")
+    private Entry() {
+        
+    }
 
     public Entry(final Key key, final Value value) {
         
@@ -18,6 +27,14 @@ public class Entry<Key, Value> {
 
     public Value getValue() {
         return value;
+    }
+
+    void setKey(Key key) {
+        this.key = key;
+    }
+
+    void setValue(Value value) {
+        this.value = value;
     }
    
 }

@@ -62,13 +62,13 @@ public class WebUtil {
         catch (MalformedURLException e) {
             
             logger.error("ERROR:", e);
-            throw new IOException("ERROR:", e);
+            throw new IOException("ERROR:");
             
         }
         catch (ProtocolException e) {
             
             logger.error("ERROR:", e);
-            throw new IOException("Error:", e);
+            throw new IOException("Error:");
             
         } 
     }
@@ -135,13 +135,13 @@ public class WebUtil {
         catch (MalformedURLException e) {
             
             logger.error("ERROR:", e);
-            throw new IOException("ERROR:", e);
+            throw new IOException("ERROR:");
             
         }
         catch (ProtocolException e) {
             
             logger.error("ERROR:", e);
-            throw new IOException("Error:", e);
+            throw new IOException("Error:");
             
         } 
         
@@ -190,13 +190,13 @@ public class WebUtil {
             catch (MalformedURLException e) {
                 
                 logger.error("ERROR:", e);
-                throw new IOException("ERROR:", e);
+                throw new IOException("ERROR:");
                 
             }
             catch (ProtocolException e) {
                 
                 logger.error("ERROR:", e);
-                throw new IOException("Error:", e);
+                throw new IOException("Error:");
                 
             } 
             
@@ -223,13 +223,13 @@ public class WebUtil {
         catch (MalformedURLException e) {
             
             logger.error("ERROR:", e);
-            throw new IOException("ERROR:", e);
+            throw new IOException("ERROR:");
             
         }
         catch (ProtocolException e) {
             
             logger.error("ERROR:", e);
-            throw new IOException("Error:", e);
+            throw new IOException("Error:");
             
         } 
     }

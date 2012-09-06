@@ -44,12 +44,19 @@ public class FifoCache<Item> implements Queue<Item> {
         
         long largest = 0;
         
-        for(final Long id : idQueueProvider.provide()) {
+        try {
             
-            if(id > largest) {
-                largest = id;
+            for(final Long id : idQueueProvider.provide()) {
+                
+                if(id > largest) {
+                    largest = id;
+                }
+                
             }
             
+        } 
+        catch (ResourceException e) {
+            throw new RuntimeException("There is something wrong with your provider");
         }
         
         final long largestFinal = largest;
@@ -74,17 +81,37 @@ public class FifoCache<Item> implements Queue<Item> {
     
     @Override
     public int size() {
-        return idQueueProvider.provide().size();
+        
+        try {
+            return idQueueProvider.provide().size();
+        } 
+        catch (ResourceException e) {
+            throw new RuntimeException("There is something wrong with your provider");
+        }
+        
     }
 
     @Override
     public boolean isEmpty() {
-        return idQueueProvider.provide().isEmpty();
+        
+        try {
+            return idQueueProvider.provide().isEmpty();
+        } 
+        catch (ResourceException e) {
+            throw new RuntimeException("There is something wrong with your provider");
+        }
+        
     }
 
     @Override
     public boolean contains(Object o) {
-        return idQueueProvider.provide().contains(o);
+        try {
+            return idQueueProvider.provide().contains(o);
+        } 
+        catch (ResourceException e) {
+            throw new RuntimeException("There is something wrong with your provider");
+        }
+        
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -96,22 +123,29 @@ public class FifoCache<Item> implements Queue<Item> {
     @Override
     public Object[] toArray() {
         
-        final Object [] array = new Object[idQueueProvider.provide().size()];
-        
-        for(int i = 0; i < array.length; i++) {
+        try {
             
-            try {
-                array[i] = cache.get(idQueueProvider.provide().get(i));
-            }
-            catch (ResourceException e) {
+            final Object [] array = new Object[idQueueProvider.provide().size()];
+            
+            for(int i = 0; i < array.length; i++) {
                 
-                logger.error("ERROR:", e);
-                throw new RuntimeException(e);
-                
+                try {
+                    array[i] = cache.get(idQueueProvider.provide().get(i));
+                }
+                catch (ResourceException e) {
+                    
+                    logger.error("ERROR:", e);
+                    throw new RuntimeException(e);
+                    
+                }
             }
+            
+            return array;
+            
+        } 
+        catch (ResourceException e) {
+            throw new RuntimeException("There is something wrong with your provider");
         }
-        
-        return array;
         
     }
 
@@ -153,27 +187,41 @@ public class FifoCache<Item> implements Queue<Item> {
     @Override
     public void clear() {
         
-        final LinkedList<Long> idQueue = idQueueProvider.provide();
-        
-        cache.clear();
-        idQueue.clear();
-        
-        idQueueProvider.push(idQueue);
+        try {
+            
+            final LinkedList<Long> idQueue = idQueueProvider.provide();
+            
+            cache.clear();
+            idQueue.clear();
+            
+            idQueueProvider.push(idQueue);
+            
+        } 
+        catch (ResourceException e) {
+            throw new RuntimeException("There is something wrong with your provider");
+        }
         
     }
 
     @Override
     public boolean add(Item e) {
         
-        final long id = idProvider.provide();
-        final LinkedList<Long> idQueue = idQueueProvider.provide();
-        
-        cache.put(id, e);
-        idQueue.add(id);
-        
-        idQueueProvider.push(idQueue);
-        
-        return true;
+        try {
+            
+            final long id = idProvider.provide();
+            final LinkedList<Long> idQueue = idQueueProvider.provide();
+            
+            cache.put(id, e);
+            idQueue.add(id);
+            
+            idQueueProvider.push(idQueue);
+            
+            return true;
+            
+        } 
+        catch (ResourceException t) {
+            throw new RuntimeException("There is something wrong with your provider");
+        }
         
     }
 
@@ -203,32 +251,40 @@ public class FifoCache<Item> implements Queue<Item> {
     @Override
     public Item poll() {
         
-        final LinkedList<Long> idQueue = idQueueProvider.provide();
-        
-        if(idQueue.size() > 0) {
+        try {
             
-            final Long id = idQueue.remove(0);
+            final LinkedList<Long> idQueue = idQueueProvider.provide();
             
-            idQueueProvider.push(idQueue);
-            
-            try {
+            if(idQueue.size() > 0) {
                 
-                final Item item = cache.get(id);
+                final Long id = idQueue.remove(0);
                 
-                cache.remove(id);
+                idQueueProvider.push(idQueue);
                 
-                return item;
+                try {
+                    
+                    final Item item = cache.get(id);
+                    
+                    cache.remove(id);
+                    
+                    return item;
+                    
+                } 
+                catch (ResourceException e) {
+                    throw new RuntimeException(e);
+                }
                 
-            } 
-            catch (ResourceException e) {
-                throw new RuntimeException(e);
+                
+            }
+            else {
+                return null;
             }
             
-            
+        } 
+        catch (ResourceException e) {
+            throw new RuntimeException("There is something wrong with your provider");
         }
-        else {
-            return null;
-        }
+       
         
     }
 
@@ -249,28 +305,35 @@ public class FifoCache<Item> implements Queue<Item> {
     @Override
     public Item peek() {
         
-        final LinkedList<Long> idQueue = idQueueProvider.provide();
-        
-        if(idQueue.size() > 0) {
+        try {
+           
+            final LinkedList<Long> idQueue = idQueueProvider.provide();
             
-            final Long id = idQueue.get(0);
-            
-            idQueueProvider.push(idQueue);
-            
-            try {
+            if(idQueue.size() > 0) {
                 
-                final Item item = cache.get(id);
-
-                return item;
+                final Long id = idQueue.get(0);
                 
-            } 
-            catch (ResourceException e) {
-                throw new RuntimeException(e);
+                idQueueProvider.push(idQueue);
+                
+                try {
+                    
+                    final Item item = cache.get(id);
+    
+                    return item;
+                    
+                } 
+                catch (ResourceException e) {
+                    throw new RuntimeException(e);
+                }
+                
+            }
+            else {
+                return null;
             }
             
-        }
-        else {
-            return null;
+        } 
+        catch (ResourceException e) {
+            throw new RuntimeException("There is something wrong with your provider");
         }
         
     }

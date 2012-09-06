@@ -21,7 +21,12 @@ public class FifoTest {
         final Cache<Long, String> cache = new MemoryCache<Long, String>();
         final PushProvider<LinkedList<Long>> provider = new SettableResourceProvider<LinkedList<Long>>();
         
-        provider.push(new LinkedList<Long>());
+        try {
+            provider.push(new LinkedList<Long>());
+        } catch (ResourceException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
         
         final FifoCache<String> fifo = new FifoCache<String>(provider, cache);
         
@@ -30,6 +35,7 @@ public class FifoTest {
         try {
             
             TestCase.assertEquals(1, provider.provide().size());
+            TestCase.assertEquals(fifo.size(), provider.provide().size());
             TestCase.assertEquals("1", cache.get(provider.provide().get(0)));
             
             fifo.offer("2");
@@ -74,6 +80,9 @@ public class FifoTest {
             TestCase.assertEquals(0, provider.provide().size());            
             TestCase.assertNull(fifo.poll());            
             TestCase.assertEquals(0, provider.provide().size());
+            
+            TestCase.assertTrue(provider.provide().isEmpty());
+            TestCase.assertTrue(fifo.isEmpty());
             
         } 
         catch (ResourceException e) {

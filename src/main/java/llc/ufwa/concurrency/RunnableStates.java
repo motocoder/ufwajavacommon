@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import llc.ufwa.concurrency.RunnableStates.SequencedRunnable;
+import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.provider.ResourceProvider;
 
 public class RunnableStates {
@@ -67,7 +68,14 @@ public class RunnableStates {
     @SuppressWarnings("rawtypes")
     public synchronized void launched(Future future, SequencedRunnable runnable) {
 
-        final Integer id = idProvider.provide();
+        final Integer id;
+        
+        try {
+            id = idProvider.provide();
+        } 
+        catch (ResourceException e) {
+            throw new RuntimeException("This should never happen");
+        }
         
         if(combined.contains(runnable)) {
             

@@ -119,6 +119,8 @@ public class SequentialJobRunnerTest {
             complete.blockOnce();
             TestCase.assertTrue(complete.getValue());
             
+            TestCase.assertFalse(jobRunner.hasJobs());
+            
         
         } 
         catch (InterruptedException e) {
