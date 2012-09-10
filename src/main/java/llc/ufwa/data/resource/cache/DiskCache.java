@@ -20,10 +20,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Suitable for small files. Thumbnail images. (byte [])
  * 
+ * @deprecated - Use NewDiskCache
+ * 
  * @author seanwagner
  *
  * @param <TKey>
  */
+@Deprecated
 public final class DiskCache<TKey> implements Cache<TKey, byte []> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(DiskCache.class);
