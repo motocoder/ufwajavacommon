@@ -271,4 +271,68 @@ public class NewDiskCacheTest {
         
     }
     
+    @Test
+    public void testExpires() {
+        
+        File root = new File("./temp4/");
+        
+        root.delete();
+        
+        final Cache<String, byte []> cache = 
+            new ValueConvertingCache<String, byte [], InputStream>(
+                new KeyEncodingCache<InputStream>(
+                    new NewDiskCache(root, 20, 1000)
+                ),
+                new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+            );
+//        
+//        final Cache<String, String> cache = 
+//                new MemoryCache<String, String>(
+//                        new StringSizeConverter() {
+//                        }, 
+//                        100);
+        
+        try {
+            
+            cache.put("1", TEN_BYTES);
+        
+            Thread.sleep(50);
+        
+            cache.put("2", TEN_BYTES);
+            
+            Thread.sleep(50);
+            
+            cache.put("3", TEN_BYTES);
+            
+            Thread.sleep(50);
+            
+            cache.put("4", TEN_BYTES);
+            
+            Thread.sleep(50);
+            
+            cache.put("5", TEN_BYTES);
+            
+            Thread.sleep(1200);
+        
+        }
+        catch (InterruptedException e1) {
+            TestCase.fail();
+        }
+        
+        try {
+            
+            TestCase.assertNull(cache.get("1"));
+            TestCase.assertNull(cache.get("2"));
+            TestCase.assertNull(cache.get("3"));
+            TestCase.assertNull(cache.get("4"));
+            TestCase.assertNull(cache.get("5"));
+            
+        } 
+        catch (ResourceException e) {
+            
+            TestCase.fail("cant get here");
+            e.printStackTrace();
+            
+        }
+    }
 }
