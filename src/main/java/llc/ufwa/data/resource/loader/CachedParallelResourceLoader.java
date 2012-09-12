@@ -474,8 +474,9 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
      * 
      * @param internal
      * @param threads
+     * @param callbackThreads
+     * @param getAllRunner
      * @param depth
-     * @param uniqueCallLimit
      * @param loggingTag
      * @param cache
      * @param searchCache

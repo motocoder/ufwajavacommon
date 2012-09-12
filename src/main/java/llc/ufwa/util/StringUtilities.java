@@ -2,14 +2,10 @@ package llc.ufwa.util;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-
-import llc.ufwa.data.beans.ParsedProperty;
 
 
 public final class StringUtilities {
@@ -132,41 +128,41 @@ public final class StringUtilities {
 	    return money.toString();
 	}
 	
-	/**
-	 * 
-	 * @param toParse
-	 * @return
-	 * @throws FormatException
-	 */
-	public static List<ParsedProperty> parseProperties(String toParse) throws FormatException {
-		
-		final List<ParsedProperty> returnVal =
-			new ArrayList<ParsedProperty>();
-		
-		int index = toParse.indexOf("${");
-		
-		while(true) {
-
-			if(index < 0) {
-				break;
-			}
-			
-			int stopIndex = toParse.indexOf("}", index);
-			
-			if(stopIndex < 0) {
-				throw new FormatException("Invalid Format " + toParse);
-			}
-			
-			final String propName = toParse.substring(index + 2, stopIndex);
-			
-			returnVal.add(new ParsedProperty(index, propName));
-			
-			index += 2;			
-			index = toParse.indexOf("${", index);
-		}
-		
-		return returnVal;
-	}
+//	/**
+//	 * 
+//	 * @param toParse
+//	 * @return
+//	 * @throws FormatException
+//	 */
+//	public static List<ParsedProperty> parseProperties(String toParse) throws FormatException {
+//		
+//		final List<ParsedProperty> returnVal =
+//			new ArrayList<ParsedProperty>();
+//		
+//		int index = toParse.indexOf("${");
+//		
+//		while(true) {
+//
+//			if(index < 0) {
+//				break;
+//			}
+//			
+//			int stopIndex = toParse.indexOf("}", index);
+//			
+//			if(stopIndex < 0) {
+//				throw new FormatException("Invalid Format " + toParse);
+//			}
+//			
+//			final String propName = toParse.substring(index + 2, stopIndex);
+//			
+//			returnVal.add(new ParsedProperty(index, propName));
+//			
+//			index += 2;			
+//			index = toParse.indexOf("${", index);
+//		}
+//		
+//		return returnVal;
+//	}
 	
 	public static String generateSpaces(int size) {
 		StringBuilder returnVal = new StringBuilder();

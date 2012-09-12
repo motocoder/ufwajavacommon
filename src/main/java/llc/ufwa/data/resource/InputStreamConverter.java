@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.omg.CORBA_2_3.portable.OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
