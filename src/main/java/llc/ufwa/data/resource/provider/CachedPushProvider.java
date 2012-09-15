@@ -81,8 +81,6 @@ public class CachedPushProvider<T> implements PushProvider<T> {
         final T returnVal;
         
         final T temp = cache.get(KEY);
-        
-        logger.debug("temp:" + temp);
                 
         if(temp != null) {
             returnVal = temp;            

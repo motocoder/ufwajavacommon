@@ -48,7 +48,7 @@ public class RetryingOnNullResourceLoader<Key, Value> extends DefaultResourceLoa
                 
                 if(!onRetrying.call(null, key)) {
                     
-                    logger.info("Retry callback decided not to continue");
+                    logger.info("Retry callback decided not to continue.");
                     break;
                     
                 }
@@ -75,7 +75,7 @@ public class RetryingOnNullResourceLoader<Key, Value> extends DefaultResourceLoa
                 
                 if(!onRetrying.call(null, key)) {
                     
-                    logger.info("Retry callback decided not to continue");
+                    logger.info("Retry callback decided not to continue.");
                     break;
                     
                 }

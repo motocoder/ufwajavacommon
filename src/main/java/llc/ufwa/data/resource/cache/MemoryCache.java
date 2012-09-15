@@ -212,9 +212,7 @@ public class MemoryCache<Key, Value> extends DefaultResourceLoader<Key, Value> i
         }
         
         if(currentSize > maxSize && maxSize >= 0) {
-        
-        	logger.debug("cleaning");
-        	
+
         	final StopWatch watch = new StopWatch();
         	watch.start();
 	        	
@@ -241,7 +239,6 @@ public class MemoryCache<Key, Value> extends DefaultResourceLoader<Key, Value> i
 	            
 	        }
         
-            logger.debug("Cleaned in:" + watch.getTime());
         }
         
     }

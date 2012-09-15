@@ -52,8 +52,6 @@ public abstract class SequentialJobRunner<Job> {
     
     public void start() {
         
-        logger.debug("Attempting to start job pool");
-        
         synchronized (jobCache) {
             
             if (!running && jobCache.size() > 0) {
@@ -145,9 +143,7 @@ public abstract class SequentialJobRunner<Job> {
                 );
                 
             } 
-            else {
-                logger.info("Job pool cannot start " + this.running + " " + this.jobCache.size() + " " + this.getClass());
-            }
+
         }
         
     }
@@ -181,18 +177,8 @@ public abstract class SequentialJobRunner<Job> {
     
     public boolean hasJobs() {
         
-        synchronized(jobCache) {
-            
-            final int size = jobCache.size();
-            
-            logger.debug("size: " + size);
-            
-            final int size2 = jobCache.size();
-            
-            logger.debug("size2: " + size2);
-            
-            return size > 0;
-            
+        synchronized(jobCache) {            
+            return jobCache.size() > 0;
         }
         
     }
