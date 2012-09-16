@@ -234,4 +234,78 @@ public class WebUtil {
         } 
     }
 
+    public static String doGetXML(
+        final URL url,
+        final Map<String, String> headers,
+        final String body
+    ) throws IOException {
+        
+        try {
+            
+            final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "application/xml");
+
+            connection.setReadTimeout(10000);
+            
+            for(final Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.addRequestProperty(entry.getKey(), entry.getValue());
+            }   
+            
+            connection.connect();
+            
+            {
+                
+                final OutputStream writing = connection.getOutputStream();
+                
+                try {
+                    
+                    final InputStream reading = new ByteArrayInputStream(body.getBytes("UTF-8"));
+                    
+                    StreamUtil.copyTo(reading, writing);
+                    
+                }
+                finally {
+                    writing.close();
+                }
+                
+            }
+            
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();            
+            final InputStream in = connection.getInputStream();
+            
+            if(in != null) {
+                
+                try {
+                    StreamUtil.copyTo(in, out);
+                }
+                finally {
+                    in.close();
+                }
+                
+            }
+            else {
+                throw new IOException("Failed to get response");
+            }
+            
+            return new String(out.toByteArray());
+                      
+        } 
+        catch (MalformedURLException e) {
+            
+            logger.error("ERROR:", e);
+            throw new IOException("ERROR:");
+            
+        }
+        catch (ProtocolException e) {
+            
+            logger.error("ERROR:", e);
+            throw new IOException("Error:");
+            
+        } 
+    
+    }
+
 }

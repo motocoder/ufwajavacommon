@@ -16,7 +16,6 @@ import llc.ufwa.connection.stream.WrappingInputStream;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.util.StreamUtil;
 
-import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +30,8 @@ import org.slf4j.LoggerFactory;
  */
 public final class NewDiskCache implements Cache<String, InputStream> {
 	
+    private static final Logger logger = LoggerFactory.getLogger(NewDiskCache.class);
+    
 	private final TreeSet<File> sortedFiles = new TreeSet<File>(
         
 	    new Comparator<File>() {
@@ -48,6 +49,8 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 	private final long expiresTimeout;
 	private final States states = new States();
     private final long maxSize;
+
+    private boolean isInit;
 	
 	/**
 	 * 
@@ -71,24 +74,49 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 	    }
 	    
 	    if(parent.exists()) {
+	        
 	        if(!parent.isDirectory()) {
 	            throw new IllegalArgumentException("Cache location already exists and it is not a directory");
 	        }
-	    }
-	    else {
-	    	throw new IllegalArgumentException("Cache location already exists and it is not a directory");
-	    }
-	    
-	    for(File child : parent.listFiles()) {
 	        
-	        states.setCurrentSize(states.getCurrentSize() + child.length());
-	        sortedFiles.add(child);
+	        isInit = true;
+	        
+	        for(File child : parent.listFiles()) {
+	            
+	            states.setCurrentSize(states.getCurrentSize() + child.length());
+	            sortedFiles.add(child);
+	            
+	        }
 	        
 	    }
 	    
 	}
 	
 	private void clean() {
+	    
+	    if(!isInit) {
+	        
+	        if(parent.exists()) {
+	            
+	            if(!parent.isDirectory()) {
+	                throw new IllegalArgumentException("Cache location already exists and it is not a directory");
+	            }
+	            
+	            isInit = true;
+	            
+	            for(File child : parent.listFiles()) {
+	                
+	                states.setCurrentSize(states.getCurrentSize() + child.length());
+	                sortedFiles.add(child);
+	                
+	            }
+	            
+	        }
+	        else {
+	            return;
+	        }
+	        
+	    }
 	    
 	    System.out.println("Cleaning: " + states.getCurrentSize());
 	    
@@ -147,6 +175,10 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 	public InputStream get(String key) throws ResourceException {
 	    
 	    clean();
+	    
+	    if(!isInit) {
+	        return null;
+	    }
 	    
 	    final File inCache = buildCachedImagePath(parent, key);
 	    
@@ -243,6 +275,10 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 	    
 	    clean();
 	    
+	    if(!isInit) {
+            return;
+        }
+	    
 	    final File inCache = buildCachedImagePath(parent, key);
 	    	    
 	    try {
@@ -257,7 +293,7 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 	        final FileOutputStream out = new FileOutputStream(inCache, false);
 	        
 	        try {
-	            
+
 	            StreamUtil.copyTo(in, out);
 	            
 	            out.flush();	            
@@ -284,6 +320,10 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 	    
 	    clean();
 	    
+	    if(!isInit) {
+            return false;
+        }
+	    
 	    return buildCachedImagePath(parent, key).exists();
 	    
 	}
@@ -292,6 +332,10 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 	public void remove(String key) {
 		
 	    clean();
+	    
+	    if(!isInit) {
+            return;
+        }
 	    
 	    final File file = buildCachedImagePath(parent, key);
 	    
@@ -305,6 +349,18 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 	public List<InputStream> getAll(List<String> keys) throws ResourceException {
 		
 	    clean();
+	    
+	    if(!isInit) {
+	        
+	        final List<InputStream> returnVals = new ArrayList<InputStream>();
+	        
+	        for(final String key : keys) {
+	            returnVals.add(null);
+	        }
+	        
+            return returnVals;
+            
+        }
 	    
 		final List<InputStream> returnVals = new ArrayList<InputStream>();
 		
