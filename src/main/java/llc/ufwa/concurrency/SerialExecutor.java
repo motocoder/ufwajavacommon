@@ -14,31 +14,49 @@ public class SerialExecutor implements Executor {
     private final Queue<Runnable> tasks = new LinkedList<Runnable>();
     private final Executor executor;
     private Runnable active;
+    private final boolean noQueue;
 
-    public SerialExecutor(Executor executor) {
+    /**
+     * 
+     * @param executor
+     * @param noQueue will not allow anything to queue
+     */
+    public SerialExecutor(Executor executor, boolean noQueue) {
+        
+        this.noQueue = noQueue;
         this.executor = executor;
+        
+    }
+    
+    public SerialExecutor(Executor executor) {
+        
+        this.noQueue = false;
+        this.executor = executor;
+        
     }
 
     public synchronized void execute(final Runnable r) {
         
-        tasks.offer(
-                
-            new Runnable() {
-                
-                public void run() {
-                
-                    try {
-                        r.run();
-                    }
-                    finally {
-                        scheduleNext();
+        if(!noQueue || active == null) {
+            tasks.offer(
+                    
+                new Runnable() {
+                    
+                    public void run() {
+                    
+                        try {
+                            r.run();
+                        }
+                        finally {
+                            scheduleNext();
+                        }
+                        
                     }
                     
                 }
                 
-            }
-            
-        );  
+            );  
+        }
         
         if (active == null) {
             scheduleNext();
