@@ -215,12 +215,12 @@ public class ListResourceLoaderTest {
 		}
 		
 		List<String> keys = new ArrayList<String>();
-		List<String> expected_results = new ArrayList<String>();
-		List<String> actual_results;
+		List<String> expectedResults = new ArrayList<String>();
+		List<String> actualResults;
 		
 		// Look for null key list.
 		try {
-			expected_results = mListResourceLoader.getAll(null);
+			expectedResults = mListResourceLoader.getAll(null);
 			TestCase.fail();
 		} catch (Exception e) {
 			// OK, the exception was expected.
@@ -230,7 +230,7 @@ public class ListResourceLoaderTest {
 		keys.clear();
 		keys.add(null);
 		try {
-			expected_results = mListResourceLoader.getAll(keys);
+			expectedResults = mListResourceLoader.getAll(keys);
 			TestCase.fail();
 		} catch (Exception e) {
 			// OK, the exception was expected.
@@ -238,71 +238,77 @@ public class ListResourceLoaderTest {
 		
 		// Look for non-existent key (neither loader).
 		keys.clear();
-		expected_results.clear();
+		expectedResults.clear();
 		keys.add("non-existent key");
-		expected_results.add(null);
+		expectedResults.add(null);
 		try {
-			actual_results = mListResourceLoader.getAll(keys);
-			TestCase.assertTrue(checkGetAllResults(expected_results, actual_results));
+			actualResults = mListResourceLoader.getAll(keys);
+			TestCase.assertTrue(checkGetAllResults(expectedResults, actualResults));
 		} catch (Exception e) {
 			TestCase.fail();
 		}
 		
 		// Look for existing key in the first loader.
 		keys.clear();
-		expected_results.clear();
+		expectedResults.clear();
 		keys.add("root 1 key");
-		expected_results.add("root 1 value");
+		expectedResults.add("root 1 value");
 		try {
-			actual_results = mListResourceLoader.getAll(keys);
-			TestCase.assertTrue(checkGetAllResults(expected_results, actual_results));
+			actualResults = mListResourceLoader.getAll(keys);
+			TestCase.assertTrue(checkGetAllResults(expectedResults, actualResults));
 		} catch (Exception e) {
 			TestCase.fail();
 		}
 		
 		// Look for existing key in the second loader.
 		keys.clear();
-		expected_results.clear();
+		expectedResults.clear();
 		keys.add("root 2 key");
-		expected_results.add("root 2 value");
+		expectedResults.add("root 2 value");
 		try {
-			actual_results = mListResourceLoader.getAll(keys);
-			TestCase.assertTrue(checkGetAllResults(expected_results, actual_results));
+			actualResults = mListResourceLoader.getAll(keys);
+			TestCase.assertTrue(checkGetAllResults(expectedResults, actualResults));
 		} catch (Exception e) {
 			TestCase.fail();
 		}
 		
 		// Look for existing key in both loaders.
 		keys.clear();
-		expected_results.clear();
+		expectedResults.clear();
 		keys.add("root 1 key");
-		expected_results.add("root 1 value");
+		expectedResults.add("root 1 value");
 		keys.add("root 2 key");
-		expected_results.add("root 2 value");
+		expectedResults.add("root 2 value");
 		try {
-			actual_results = mListResourceLoader.getAll(keys);
-			TestCase.assertTrue(checkGetAllResults(expected_results, actual_results));
+			actualResults = mListResourceLoader.getAll(keys);
+			TestCase.assertTrue(checkGetAllResults(expectedResults, actualResults));
 		} catch (Exception e) {
 			TestCase.fail();
 		}
 		
 	}
 	
-	private boolean checkGetAllResults (List<String> expected_results, List<String> actual_results) {
+	private boolean checkGetAllResults (List<String> expectedResults, List<String> actualResults) {
 		// Compare the size first.
-		if (expected_results.size() != actual_results.size()) {
+		if (expectedResults.size() != actualResults.size()) {
 			return false;
 		}
 		
 		// Now delete each actual result as it is found.  I chose this method
 		// to account for duplicated result values.
-		for (String expected_value: expected_results) {
-			if (actual_results.contains(expected_value)){
-				actual_results.remove(expected_value);
+		for (int ii = 0; ii < expectedResults.size(); ii++) {
+			String expectedValue = expectedResults.get(ii);
+			String actualValue = actualResults.get(ii);
+			// Check for null cases.
+			if (expectedValue == null) {
+				if (actualValue != null) {
+					return false;
+				}
+			} else if (!expectedValue.equals(actualValue)) {
+				return false;
 			}
 		}
-		// If all the strings matched, results will be cleaned out.
-		return actual_results.size() == 0;
+		return true;
 	}
 
 }
