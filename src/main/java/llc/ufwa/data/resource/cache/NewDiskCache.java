@@ -95,7 +95,6 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 
 		if (parent.lastModified() != cacheLastModified) {
 
-			System.out.println("Start size = " + states.getCurrentSize());
 			states.setCurrentSize(0);
 			sortedFiles.clear();
 
@@ -103,7 +102,6 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 				states.setCurrentSize(states.getCurrentSize() + child.length());
 				sortedFiles.add(child);
 			}
-			System.out.println("Refreshed size = " + states.getCurrentSize());
 		}
 	}
 
