@@ -19,6 +19,10 @@ public class ListResourceLoader<Key, Value> implements ResourceLoader<Key, Value
             throw new NullPointerException("Caches cannot be null");
         }
         
+        if(caches.isEmpty()) {
+            throw new IllegalArgumentException("Caches cannot be empty");
+        }
+        
         if(caches.contains(null)) {
             throw new NullPointerException("caches cannot contain null");
         }      
