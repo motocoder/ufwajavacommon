@@ -16,9 +16,6 @@ import llc.ufwa.connection.stream.WrappingInputStream;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.util.StreamUtil;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * File cache. Uses temp files when reading from the cache.
  * 
@@ -29,29 +26,27 @@ import org.slf4j.LoggerFactory;
  *
  */
 public final class NewDiskCache implements Cache<String, InputStream> {
-	
-    private static final Logger logger = LoggerFactory.getLogger(NewDiskCache.class);
-    
-	private final TreeSet<File> sortedFiles = new TreeSet<File>(
-        
-	    new Comparator<File>() {
 
-            @Override
-            public int compare(File item1, File item2) {
-                return (int)(item2.lastModified() - item1.lastModified());                
-            }
-        
-        }
-        
-    );
-	
+	private final TreeSet<File> sortedFiles = new TreeSet<File>(
+
+			new Comparator<File>() {
+
+				@Override
+				public int compare(File item1, File item2) {
+					return (int)(item2.lastModified() - item1.lastModified());                
+				}
+
+			}
+
+			);
+
 	private final File parent;    
 	private final long expiresTimeout;
 	private final States states = new States();
-    private final long maxSize;
+	private final long maxSize;
 
-    private boolean isInit;
-	
+	private long cacheLastModified = 0;
+
 	/**
 	 * 
 	 * @param parent
@@ -60,107 +55,97 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 	 * 
 	 */
 	public NewDiskCache(
-	    final File parent,
-	    final long maxSize,
-	    final long expiresTimeout
-	) {
-	    
-	    this.parent = parent;
-	    this.expiresTimeout = expiresTimeout;
-	    this.maxSize = maxSize;
-	    
-	    if(!parent.exists()) {
-	    	parent.mkdirs();
-	    }
-	    
-	    if(parent.exists()) {
-	        
-	        if(!parent.isDirectory()) {
-	            throw new IllegalArgumentException("Cache location already exists and it is not a directory");
-	        }
-	        
-	        isInit = true;
-	        
-	        for(File child : parent.listFiles()) {
-	            
-	            states.setCurrentSize(states.getCurrentSize() + child.length());
-	            sortedFiles.add(child);
-	            
-	        }
-	        
-	    }
-	    
+			final File parent,
+			final long maxSize,
+			final long expiresTimeout
+			) {
+
+		this.parent = parent;
+		this.expiresTimeout = expiresTimeout;
+		this.maxSize = maxSize;
+
 	}
-	
+
+	private boolean isCacheDirValid(){
+
+		boolean retVal;
+
+		if(parent.exists()) {
+
+			if (parent.isDirectory()) {
+				refreshMetadata();
+				retVal = true;
+			} else {
+				// Something very wrong has occurred, PANIC!.
+				throw new IllegalArgumentException("Cache location already exists and it is not a directory");
+			}
+		} else {
+			retVal = false;
+		}
+
+		return retVal;
+	}
+
+	private void refreshMetadata() {
+		// This function will check the cache dir's time against the the 
+		// time saved during initialization or the most recent put or remove,
+		// and if not matching will assume that some external actor has 
+		// modified the cache outside this system and will re-initialize
+		// the cache metadata.
+
+		if (parent.lastModified() != cacheLastModified) {
+
+			System.out.println("Start size = " + states.getCurrentSize());
+			states.setCurrentSize(0);
+			sortedFiles.clear();
+
+			for(File child : parent.listFiles()) {
+				states.setCurrentSize(states.getCurrentSize() + child.length());
+				sortedFiles.add(child);
+			}
+			System.out.println("Refreshed size = " + states.getCurrentSize());
+		}
+	}
+
 	private void clean() {
-	    
-	    if(!isInit) {
-	        
-	        if(parent.exists()) {
-	            
-	            if(!parent.isDirectory()) {
-	                throw new IllegalArgumentException("Cache location already exists and it is not a directory");
-	            }
-	            
-	            isInit = true;
-	            
-	            for(File child : parent.listFiles()) {
-	                
-	                states.setCurrentSize(states.getCurrentSize() + child.length());
-	                sortedFiles.add(child);
-	                
-	            }
-	            
-	        }
-	        else {
-	            return;
-	        }
-	        
-	    }
-	    
-	    System.out.println("Cleaning: " + states.getCurrentSize());
-	    
-	    if(maxSize >= 0) {            
-                                            
-            while(states.getCurrentSize() > maxSize) {
-                
-                System.out.println("currentSize: " + states.getCurrentSize());
-            
-                if(sortedFiles.size() == 0)  {
-                    throw new RuntimeException("Cache thinks it is bigger than max size but contains zero files.");
-                }
-                    
-                final File last = sortedFiles.last();
-                
-                System.out.println("Removing: " + last.getName());
-                
-                sortedFiles.remove(last);
-                
-                final long length = last.length();
-                
-                states.removeFromSize(length);
-                
-                last.delete();
-                 
-            }
-            
-	    }
-	    
+
+		if(maxSize >= 0) {            
+
+			while(states.getCurrentSize() > maxSize) {
+
+				if(sortedFiles.size() <= 0)  {
+					throw new RuntimeException("Cache thinks it is bigger than max size but contains zero files.");
+				}
+
+				final File last = sortedFiles.last();
+
+				sortedFiles.remove(last);
+
+				final long length = last.length();
+
+				states.removeFromSize(length);
+
+				last.delete();
+
+			}
+		}
 	}
-	
+
 	@Override
 	public void clear() {
-	        
-        states.setCurrentSize(0);
-        
-        for(File file : sortedFiles) {              
-            file.delete();            
-        }
-        
-        sortedFiles.clear();
-	     
+
+		states.setCurrentSize(0);
+
+		for(File file : sortedFiles) {              
+			file.delete();            
+		}
+
+		sortedFiles.clear();
+
+		cacheLastModified = parent.lastModified();
+
 	}
-	
+
 	/**
 	 * 
 	 * @param cacheRoot
@@ -168,234 +153,229 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 	 * @return
 	 */
 	private static final File buildCachedImagePath(final File cacheRoot, final String key) {
-	    return (new File(cacheRoot, key));
+		return (new File(cacheRoot, key));
 	}
-	
+
 	@Override
 	public InputStream get(String key) throws ResourceException {
-	    
-	    clean();
-	    
-	    if(!isInit) {
-	        return null;
-	    }
-	    
-	    final File inCache = buildCachedImagePath(parent, key);
-	    
-	    final InputStream returnVal;
-	    
-	    try {
-	        
-	        final long age = System.currentTimeMillis() - inCache.lastModified();
-	        
-	        // If the file exists load it then convert it to a <TValue> 
-	        if(inCache.exists() && (expiresTimeout <= 0 || age < expiresTimeout )) {
-	              
-	            //Reader from file
-	            try {
-	                    
-                    if(inCache.exists()) {
-                        
-                        final InputStream in = new FileInputStream(inCache);
-                        
-                        try {
-                        
-                            inCache.setLastModified(System.currentTimeMillis());
-                            
-                            sortedFiles.add(inCache);
-                            
-                            final File tempFile = buildCachedImagePath(parent, key + "TeMPoRaRy_FILE");
-                        
-                            final OutputStream tempOut= new FileOutputStream(tempFile);
-                            
-                            StreamUtil.copyTo(in, tempOut);
-                            
-                            tempOut.flush();
-                            tempOut.close();
-                            
-                            final InputStream tempIn = new FileInputStream(tempFile);
-                            
-                            returnVal = new WrappingInputStream(tempIn) {
 
-                                @Override
-                                public void close() throws IOException {
-                                    super.close();
-                                    
-                                    tempFile.delete();
-                                    
-                                }
-                                  
-                            };
-                            
-                            
-                        }
-                        finally {
-                            in.close();
-                        }
-                        
-                    }
-                    else {
-                        returnVal = null;
-                    }
-	                
-	            } 
-	            catch(FileNotFoundException e) {
-	                throw new RuntimeException("This cannot happen");	                
-	            }
-	            
-	        }
-	        else if(expiresTimeout >= 0 && age > expiresTimeout) {
-	            
-                states.removeFromSize(inCache.length());
-	            
-	            synchronized(sortedFiles) {
-	                sortedFiles.remove(inCache);
-	            }
-	            
-	            inCache.delete();
-	            
-	            returnVal = null;
-	            
-	        }
-	        else {
-	            returnVal = null;
-	        }
-	        
-	        return returnVal;
-	        
-	    }
-	    catch(IOException e) {
-	        throw new RuntimeException("This shouldn't happen", e);    
-	    }
-	    
+		if(!isCacheDirValid()) {
+			return null;
+		}
+
+		final File inCache = buildCachedImagePath(parent, key);
+
+		final InputStream returnVal;
+
+		try {
+
+			final long age = System.currentTimeMillis() - inCache.lastModified();
+
+			// If the file exists load it then convert it to a <TValue> 
+			if(inCache.exists() && (expiresTimeout <= 0 || age < expiresTimeout )) {
+
+				//Reader from file
+				try {
+
+					final InputStream in = new FileInputStream(inCache);
+
+					try {
+
+						inCache.setLastModified(System.currentTimeMillis());
+
+						sortedFiles.add(inCache);
+
+						final File tempFile = buildCachedImagePath(parent, key + "TeMPoRaRy_FILE");
+
+						final OutputStream tempOut= new FileOutputStream(tempFile);
+
+						StreamUtil.copyTo(in, tempOut);
+
+						tempOut.flush();
+						tempOut.close();
+
+						final InputStream tempIn = new FileInputStream(tempFile);
+
+						returnVal = new WrappingInputStream(tempIn) {
+
+							@Override
+							public void close() throws IOException {
+								super.close();
+
+								tempFile.delete();
+
+							}
+
+						};
+
+
+					}
+					finally {
+						in.close();
+					}
+
+				} 
+				catch(FileNotFoundException e) {
+					throw new RuntimeException("This cannot happen");	                
+				}
+
+			}
+			else if(inCache.exists() && expiresTimeout > 0 && age > expiresTimeout) {
+
+				// Delete the file if it's expired.
+				states.removeFromSize(inCache.length());
+				sortedFiles.remove(inCache);
+				inCache.delete();
+
+				returnVal = null;
+
+			}
+			else {
+				returnVal = null;
+			}
+
+			return returnVal;
+
+		}
+		catch(IOException e) {
+			throw new RuntimeException("This shouldn't happen", e);    
+		}
+
 	}
-	
+
 	@Override
 	public void put(String key, InputStream in) {
-	    
-	    clean();
-	    
-	    if(!isInit) {
-            return;
-        }
-	    
-	    final File inCache = buildCachedImagePath(parent, key);
-	    	    
-	    try {
-    	    
-	        if(inCache.exists()) {
-	            
-	            states.removeFromSize(inCache.length());
-	            inCache.delete();
-	            
-	        }
-	        
-	        final FileOutputStream out = new FileOutputStream(inCache, false);
-	        
-	        try {
+		
+		// NOTE: The current implementation of put() assumes that the object 
+		// being stored is smaller than the cache size.  If you try to 
+		// store a large object the cache will be empty.
+		
+		// NOTE: The current implementation of put() allows the cache to grow
+		// above the max size temporarily because it cleans out old files only
+		// after the put() is complete.
 
-	            StreamUtil.copyTo(in, out);
-	            
-	            out.flush();	            
-	            
-	        }
-	        finally {
-	            out.close();
-	        }    
-	        
-	        final File wroteFile = buildCachedImagePath(parent, key);
-	        
-            states.addSize(wroteFile.length());
-            sortedFiles.add(wroteFile);
-	        
-	    }
-	    catch (IOException e) {
-	        throw new RuntimeException("This shouldn't happen", e);
-	    }
-	    
+		if(!isCacheDirValid()) {
+
+			// Put is the only function that truly needs the cache directory
+			// if one hasn't been created yet, so it is created here now.
+
+			boolean dirCreatedOk = parent.mkdirs();
+
+			if (!dirCreatedOk){
+				// The directory could not be created.  This can occur whenever
+				// a phone is connected to a PC as an external storage device.
+				return;
+			}
+		}
+
+		final File inCache = buildCachedImagePath(parent, key);
+
+		try {
+			if(inCache.exists()) {
+
+				states.removeFromSize(inCache.length());
+				sortedFiles.remove(inCache);
+				inCache.delete();
+
+			}
+
+			final FileOutputStream out = new FileOutputStream(inCache, false);
+
+			try {
+				StreamUtil.copyTo(in, out);
+				out.flush();	            
+			}
+			finally {
+				out.close();
+				cacheLastModified = parent.lastModified();
+			}    
+
+			final File wroteFile = buildCachedImagePath(parent, key);
+
+			states.addSize(wroteFile.length());
+			sortedFiles.add(wroteFile);
+
+		}
+		catch (IOException e) {
+			throw new RuntimeException("This shouldn't happen", e);
+		}
+
+		clean();
+
 	}
-	
+
 	@Override
 	public boolean exists(String key) {
-	    
-	    clean();
-	    
-	    if(!isInit) {
-            return false;
-        }
-	    
-	    return buildCachedImagePath(parent, key).exists();
-	    
+
+		if(!isCacheDirValid()) {
+			return false;
+		}
+
+		return buildCachedImagePath(parent, key).exists();
+
 	}
-	
+
 	@Override
 	public void remove(String key) {
-		
-	    clean();
-	    
-	    if(!isInit) {
-            return;
-        }
-	    
-	    final File file = buildCachedImagePath(parent, key);
-	    
-        if(file.exists()) {
-            file.delete();
-        }
-	     
+
+		final File file = buildCachedImagePath(parent, key);
+
+		if(file.exists()) {
+			file.delete();
+			cacheLastModified = parent.lastModified();
+		}
+
 	}
 
 	@Override
 	public List<InputStream> getAll(List<String> keys) throws ResourceException {
-		
-	    clean();
-	    
-	    if(!isInit) {
-	        
-	        final List<InputStream> returnVals = new ArrayList<InputStream>();
-	        
-	        for(final String key : keys) {
-	            returnVals.add(null);
-	        }
-	        
-            return returnVals;
-            
-        }
-	    
+
+		if(!isCacheDirValid()) {
+
+			final List<InputStream> returnVals = new ArrayList<InputStream>();
+
+			for(int ii = 0; ii < keys.size(); ii++) {
+				returnVals.add(null);
+			}
+
+			return returnVals;
+
+		}
+
 		final List<InputStream> returnVals = new ArrayList<InputStream>();
-		
+
 		for(String key : keys) {
 			returnVals.add(get(key));
 		}
-		
+
 		return returnVals;
-		
+
 	}
-	
+
 	private static final class States {
-	    
-	    private long currentSize;
-	    
-	    public States() {
-	        
-	    }
 
-        public void addSize(long length) {
-            this.currentSize += length;
-        }
+		private long currentSize;
 
-        public long getCurrentSize() {
-            return currentSize;
-        }
+		public States() {
 
-        public void setCurrentSize(long currentSize) {
-            this.currentSize = currentSize;
-        }
-        
-        public void removeFromSize(long remove) {
-            this.currentSize -= remove;
-        }
-        
+		}
+
+		public void addSize(long length) {
+			this.currentSize += length;
+		}
+
+		public long getCurrentSize() {
+			return currentSize;
+		}
+
+		public void setCurrentSize(long currentSize) {
+			this.currentSize = currentSize;
+		}
+
+		public void removeFromSize(long remove) {
+			this.currentSize -= remove;
+		}
+
 	}
-	
+
 }
