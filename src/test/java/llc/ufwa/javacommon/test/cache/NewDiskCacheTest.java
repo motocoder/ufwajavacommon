@@ -1,6 +1,7 @@
 package llc.ufwa.javacommon.test.cache;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,9 @@ public class NewDiskCacheTest {
     public void testDiskCache() {
         
         File root = new File("./temp1/");
-        root.delete();
+        deleteRoot(root);
+        
+        // TODO: add test case for putting a value that's too big for the cache.  
         
         try {
             
@@ -41,10 +44,19 @@ public class NewDiskCacheTest {
                 );
             
             {
-                
+                cache.put("duplicate", "first one");
+                TestCase.assertEquals("first one", cache.get("duplicate"));
+        		System.out.println("got here4");
+                cache.put("duplicate", "second one");
+        		System.out.println("got here5");
+                TestCase.assertEquals("second one", cache.get("duplicate"));
+        		System.out.println("got here6");
+
+        		// Cache is empty, get() and exists() should return null.
                 TestCase.assertNull(cache.get("hi"));
                 TestCase.assertFalse(cache.exists("hi"));
                 
+                // Still empty, test getAll().
                 final List<String> keys = new ArrayList<String>();
                 
                 keys.add("hi1");
@@ -56,11 +68,13 @@ public class NewDiskCacheTest {
                 TestCase.assertNull(results.get(0));
                 TestCase.assertNull(results.get(1));
                 
+                // Add one item to the cache and test exists() and get().
                 cache.put("hi", "test");
                 
                 TestCase.assertTrue(cache.exists("hi"));
                 TestCase.assertEquals("test", cache.get("hi"));
                 
+                // Add two items and test get all. 
                 cache.put("hi1", "test1");
                 cache.put("hi2", "test2");
                 
@@ -69,12 +83,16 @@ public class NewDiskCacheTest {
                 TestCase.assertEquals(results2.get(0), "test1");
                 TestCase.assertEquals(results2.get(1), "test2");
                 
+                
+                // TODO: Add two more getAll() tests with two keys, one of which is null, null first then null second.
+                
                 cache.clear();
                 
             }
             
             {
-                TestCase.assertNull(cache.get("hi"));
+                // Not sure about this one, appears to be a duplicate of the getAll() test above.
+            	TestCase.assertNull(cache.get("hi"));
                 TestCase.assertFalse(cache.exists("hi"));
                 
                 final List<String> keys = new ArrayList<String>();
@@ -92,7 +110,8 @@ public class NewDiskCacheTest {
             
             {
                 
-                cache.put("hi", "test");
+                // Test remove()
+            	cache.put("hi", "test");
                 
                 TestCase.assertEquals("test", cache.get("hi"));
                 
@@ -115,11 +134,11 @@ public class NewDiskCacheTest {
     @Test 
     public void testMemoryCache() {
  
-        try {
+		try {
             
             File root = new File("./temp2/");
             
-            root.delete();
+            deleteRoot(root);
        
             final Cache<String, String> cache = 
                 new ValueConvertingCache<String, String, byte []>(
@@ -134,7 +153,8 @@ public class NewDiskCacheTest {
             
             {
                 
-                TestCase.assertNull(cache.get("hi"));
+                String testStr = cache.get("hi");
+            	TestCase.assertNull(testStr);
                 TestCase.assertFalse(cache.exists("hi"));
                 
                 final List<String> keys = new ArrayList<String>();
@@ -209,7 +229,7 @@ public class NewDiskCacheTest {
         
         File root = new File("./temp3/");
         
-        root.delete();
+        deleteRoot(root);
         
         final Cache<String, byte []> cache = 
             new ValueConvertingCache<String, byte [], InputStream>(
@@ -218,12 +238,7 @@ public class NewDiskCacheTest {
                 ),
                 new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
             );
-//        
-//        final Cache<String, String> cache = 
-//                new MemoryCache<String, String>(
-//                        new StringSizeConverter() {
-//                        }, 
-//                        100);
+		System.out.println("got here");
         
         try {
             
@@ -249,7 +264,6 @@ public class NewDiskCacheTest {
         
         }
         catch (InterruptedException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
         
@@ -276,7 +290,7 @@ public class NewDiskCacheTest {
         
         File root = new File("./temp4/");
         
-        root.delete();
+        deleteRoot(root);
         
         final Cache<String, byte []> cache = 
             new ValueConvertingCache<String, byte [], InputStream>(
@@ -285,12 +299,6 @@ public class NewDiskCacheTest {
                 ),
                 new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
             );
-//        
-//        final Cache<String, String> cache = 
-//                new MemoryCache<String, String>(
-//                        new StringSizeConverter() {
-//                        }, 
-//                        100);
         
         try {
             
@@ -334,5 +342,64 @@ public class NewDiskCacheTest {
             e.printStackTrace();
             
         }
+    }
+    
+    @Test
+    public void testCacheCorruption() {
+        
+        File root = new File("./temp4/");
+        
+        deleteRoot(root);
+        
+        // Create a bogus file that's not a directory but has the same name.
+        try {
+        	final FileOutputStream out = new FileOutputStream(root, false);
+        	String temp = "ABCD";
+        	out.write(temp.getBytes());
+        	out.close();
+        } catch (Exception e) {
+        	TestCase.fail();
+        }
+        
+        final Cache<String, byte []> cache = 
+            new ValueConvertingCache<String, byte [], InputStream>(
+                new KeyEncodingCache<InputStream>(
+                    new NewDiskCache(root, 20, 1000)
+                ),
+                new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+            );
+        
+        try {
+            // Should fail because a non-directory file exists.
+            cache.put("1", TEN_BYTES);
+            TestCase.fail();
+        }
+        catch (RuntimeException e1) {
+            // This exception was expected.
+        }
+        
+        root.delete();
+        
+        // Now put a file and delete it externally.
+        cache.put("deleteme", TEN_BYTES);
+        
+        File fileToDelete = new File(root, "deleteme");
+        fileToDelete.delete();
+        
+        try {
+        	TestCase.assertNull(cache.get("deleteme"));
+        } catch (Exception e){
+        	TestCase.fail();
+        }
+        
+    }
+
+    void deleteRoot (File root) {
+    	if (root.exists()) {
+    		for (File cacheFile: root.listFiles()){
+    			cacheFile.delete();
+    		}
+    		root.delete();
+    	}
     }
 }
