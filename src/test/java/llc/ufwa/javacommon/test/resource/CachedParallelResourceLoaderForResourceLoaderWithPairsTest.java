@@ -47,7 +47,6 @@ public class CachedParallelResourceLoaderForResourceLoaderWithPairsTest {
                     Executors.newFixedThreadPool(10),
                     Executors.newFixedThreadPool(10),
                     10,
-                    10,
                     "",
                     pairs
                 );
@@ -129,7 +128,6 @@ public class CachedParallelResourceLoaderForResourceLoaderWithPairsTest {
                     new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
                     Executors.newFixedThreadPool(10),
                     Executors.newFixedThreadPool(10),
-                    10,
                     10,
                     "",
                     pairs
@@ -289,7 +287,6 @@ public class CachedParallelResourceLoaderForResourceLoaderWithPairsTest {
                     Executors.newFixedThreadPool(10),
                     Executors.newFixedThreadPool(10),
                     10,
-                    10,
                     "",
                     pairs
                 );
@@ -371,7 +368,6 @@ public class CachedParallelResourceLoaderForResourceLoaderWithPairsTest {
                     new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
                     Executors.newFixedThreadPool(10),
                     Executors.newFixedThreadPool(10),
-                    10,
                     10,
                     "",
                     pairs
