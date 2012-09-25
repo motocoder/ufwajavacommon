@@ -1,0 +1,89 @@
+package llc.ufwa.util;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
+
+public class StreamUtil {
+    
+    public static final int DEFAULT_BUFFER_SIZE = 10000;
+    
+    private StreamUtil() {
+        
+    }
+    
+    /**
+     * 
+     * @param in
+     * @param outs
+     * @param bufferSize
+     * @throws IOException
+     */
+    public static void copyTo(
+        final InputStream in,
+        final Set<OutputStream> outs,
+        final int bufferSize
+    ) throws IOException {
+        
+        if(in == null) {
+            throw new NullPointerException("In cannot be null");
+        }
+        
+        if(outs == null) {
+            throw new NullPointerException("Out cannot be null");
+        }
+        
+        if(outs.contains(null)) {
+            throw new NullPointerException("outs cannot contain null");
+        }
+        
+        final byte [] buffer = new byte[bufferSize];
+        
+        while(true) {
+            
+            final int read = in.read(buffer);
+            
+            if(read <= 0) {
+                break;
+            }
+            
+            for(final OutputStream out : outs) {
+                out.write(buffer, 0, read);     
+            }
+            
+        }
+        
+        for(final OutputStream out : outs) {
+            out.flush();
+        }
+        
+    }
+
+    /**
+     * 
+     * @param in
+     * @param out
+     * @param bufferSize
+     * @throws IOException
+     */
+    public static void copyTo(
+        final InputStream in, 
+        final OutputStream out,
+        final int bufferSize
+    ) throws IOException {
+        
+        final Set<OutputStream> outs = new HashSet<OutputStream>();
+        outs.add(out);
+        
+        copyTo(in, outs, bufferSize);
+        
+    }
+
+    public static void copyTo(InputStream is, OutputStream out) throws IOException {
+        copyTo(is, out, DEFAULT_BUFFER_SIZE);
+    }
+
+}
