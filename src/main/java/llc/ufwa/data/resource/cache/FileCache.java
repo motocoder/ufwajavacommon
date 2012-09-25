@@ -25,7 +25,7 @@ import llc.ufwa.util.StreamUtil;
  * @author swagner
  *
  */
-public final class NewDiskCache implements Cache<String, InputStream> {
+public final class FileCache implements Cache<String, InputStream> {
 
 	private final TreeSet<File> sortedFiles = new TreeSet<File>(
 
@@ -54,7 +54,7 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 	 * @param expiresTimeout -1 for never expiring
 	 * 
 	 */
-	public NewDiskCache(
+	public FileCache(
 			final File parent,
 			final long maxSize,
 			final long expiresTimeout
