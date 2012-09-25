@@ -13,12 +13,12 @@ import llc.ufwa.data.resource.ReverseConverter;
 import llc.ufwa.data.resource.SerializingConverter;
 import llc.ufwa.data.resource.cache.Cache;
 import llc.ufwa.data.resource.cache.KeyEncodingCache;
-import llc.ufwa.data.resource.cache.NewDiskCache;
+import llc.ufwa.data.resource.cache.FileCache;
 import llc.ufwa.data.resource.cache.ValueConvertingCache;
 
 import org.junit.Test;
 
-public class NewDiskCacheTest {
+public class FileCacheTest {
 
 	private static final byte [] TEN_BYTES = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
@@ -32,7 +32,7 @@ public class NewDiskCacheTest {
 
 		try {
 
-			final NewDiskCache diskCache = new NewDiskCache(root, 500000, 50000);
+			final FileCache diskCache = new FileCache(root, 500000, 50000);
 			final Cache<String, String> cache = 
 					new ValueConvertingCache<String, String, byte []>(
 							new ValueConvertingCache<String, byte [], InputStream>(
@@ -143,7 +143,7 @@ public class NewDiskCacheTest {
 					new ValueConvertingCache<String, String, byte []>(
 							new ValueConvertingCache<String, byte [], InputStream>(
 									new KeyEncodingCache<InputStream>(
-											new NewDiskCache(root, -1, -1)
+											new FileCache(root, -1, -1)
 											),
 											new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
 									),
@@ -233,7 +233,7 @@ public class NewDiskCacheTest {
 		final Cache<String, byte []> cache = 
 				new ValueConvertingCache<String, byte [], InputStream>(
 						new KeyEncodingCache<InputStream>(
-								new NewDiskCache(root, 20, -1)
+								new FileCache(root, 20, -1)
 								),
 								new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
 						);
@@ -291,7 +291,7 @@ public class NewDiskCacheTest {
 		final Cache<String, byte []> cache = 
 				new ValueConvertingCache<String, byte [], InputStream>(
 						new KeyEncodingCache<InputStream>(
-								new NewDiskCache(root, 20, 1000)
+								new FileCache(root, 20, 1000)
 								),
 								new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
 						);
@@ -357,7 +357,7 @@ public class NewDiskCacheTest {
 			TestCase.fail();
 		}
 
-		final NewDiskCache diskCache = new NewDiskCache(root, 20, 1000);
+		final FileCache diskCache = new FileCache(root, 20, 1000);
 		final Cache<String, byte []> cache = 
 				new ValueConvertingCache<String, byte [], InputStream>(
 						new KeyEncodingCache<InputStream>(
@@ -400,7 +400,7 @@ public class NewDiskCacheTest {
 
 		deleteRoot(root);
 
-		final NewDiskCache diskCache = new NewDiskCache(root, 200, 60000);
+		final FileCache diskCache = new FileCache(root, 200, 60000);
 		final Cache<String, byte []> cache = 
 				new ValueConvertingCache<String, byte [], InputStream>(
 						new KeyEncodingCache<InputStream>(
