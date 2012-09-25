@@ -56,7 +56,6 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
                 10,
-                10,
                 "",
                 pairs
             );
@@ -109,7 +108,6 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
-                10,
                 10,
                 "",
                 pairs
@@ -177,7 +175,6 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
                 10,
-                10,
                 "",
                 pairs
             );
@@ -237,7 +234,6 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
                 10,
-                10,
                 "",
                 pairs
             );
@@ -287,7 +283,6 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
-                10,
                 10,
                 "",
                 pairs
@@ -361,7 +356,6 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
                 10,
-                10,
                 "",
                 pairs
             );
@@ -422,7 +416,6 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
-                10,
                 10,
                 "",
                 pairs
@@ -486,7 +479,6 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),1),
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
-                10,
                 1,
                 "",
                 pairs
@@ -564,7 +556,6 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
-                1,
                 10,
                 "",
                 pairs
@@ -662,7 +653,6 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
             new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
             Executors.newFixedThreadPool(10),
             Executors.newFixedThreadPool(10),
-            1,
             10,
             "",
             pairs
