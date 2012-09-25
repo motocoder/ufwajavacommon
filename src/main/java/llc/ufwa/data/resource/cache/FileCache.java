@@ -25,7 +25,7 @@ import llc.ufwa.util.StreamUtil;
  * @author swagner
  *
  */
-public final class NewDiskCache implements Cache<String, InputStream> {
+public final class FileCache implements Cache<String, InputStream> {
 
 	private final TreeSet<File> sortedFiles = new TreeSet<File>(
 
@@ -54,7 +54,7 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 	 * @param expiresTimeout -1 for never expiring
 	 * 
 	 */
-	public NewDiskCache(
+	public FileCache(
 			final File parent,
 			final long maxSize,
 			final long expiresTimeout
@@ -70,13 +70,13 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 
 		boolean retVal;
 
-		if(parent.exists()) {
+		if(parent.exists()) { // .exists throws SecurityException
 
-			if (parent.isDirectory()) {
+			if (parent.isDirectory()) { // .isDirectory throws SecurityException
 				refreshMetadata();
 				retVal = true;
 			} else {
-				// Something very wrong has occurred, PANIC!.
+				// Something very wrong has occurred, PANIC!
 				throw new IllegalArgumentException("Cache location already exists and it is not a directory");
 			}
 		} else {
@@ -93,14 +93,14 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 		// modified the cache outside this system and will re-initialize
 		// the cache metadata.
 
-		if (parent.lastModified() != cacheLastModified) {
+		if (parent.lastModified() != cacheLastModified) {  // .lastModified throws SecurityException
 
 			states.setCurrentSize(0);
 			sortedFiles.clear();
 
 			for(File child : parent.listFiles()) {
 				states.setCurrentSize(states.getCurrentSize() + child.length());
-				sortedFiles.add(child);
+				sortedFiles.add(child);  // .add throws ClassCastException and NullPointerException
 			}
 		}
 	}
@@ -151,7 +151,7 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 	 * @return
 	 */
 	private static final File buildCachedImagePath(final File cacheRoot, final String key) {
-		return (new File(cacheRoot, key));
+		return (new File(cacheRoot, key));  // Constructor will throw NullPointerException
 	}
 
 	@Override
@@ -167,21 +167,21 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 
 		try {
 
-			final long age = System.currentTimeMillis() - inCache.lastModified();
+			final long age = System.currentTimeMillis() - inCache.lastModified(); // lastModified throws SecurityException
 
 			// If the file exists load it then convert it to a <TValue> 
-			if(inCache.exists() && (expiresTimeout <= 0 || age < expiresTimeout )) {
+			if(inCache.exists() && (expiresTimeout <= 0 || age < expiresTimeout )) {  // .exists throws SecurityException
 
 				//Reader from file
 				try {
 
-					final InputStream in = new FileInputStream(inCache);
+					final InputStream in = new FileInputStream(inCache);  // Throws SecurityException and FileNotFoundException
 
 					try {
 
-						inCache.setLastModified(System.currentTimeMillis());
+						inCache.setLastModified(System.currentTimeMillis());  // setLastModified throws IllegalArgumentException and SecurityException
 
-						sortedFiles.add(inCache);
+						sortedFiles.add(inCache); // add throws ClassCastException and NullPointerException
 
 						final File tempFile = buildCachedImagePath(parent, key + "TeMPoRaRy_FILE");
 
@@ -348,6 +348,10 @@ public final class NewDiskCache implements Cache<String, InputStream> {
 
 		return returnVals;
 
+	}
+	
+	public long size() {
+		return states.getCurrentSize();
 	}
 
 	private static final class States {
