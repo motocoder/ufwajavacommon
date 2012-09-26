@@ -50,7 +50,6 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         final ExecutorService callbackThreads,
         final Executor getAllRunner,
         final int depth,
-        final int uniqueCallLimit,
         final String loggingTag,
         final List<CacheLoaderPair<Key, Value>> pairs
     ) {
