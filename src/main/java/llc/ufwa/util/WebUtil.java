@@ -31,7 +31,6 @@ public class WebUtil {
             final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             
             connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
             connection.setReadTimeout(10000);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
@@ -157,7 +156,7 @@ public class WebUtil {
                 final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
                 
                 connection.setRequestMethod("PUT");
-                connection.setDoOutput(false);
+                connection.setDoOutput(true);
 
                 connection.setReadTimeout(10000);
                 
@@ -209,7 +208,6 @@ public class WebUtil {
             final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             
             connection.setRequestMethod("GET");
-            connection.setDoOutput(false);
             connection.setReadTimeout(10000);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
@@ -245,7 +243,6 @@ public class WebUtil {
             final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             
             connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "application/xml");
 
             connection.setReadTimeout(10000);
