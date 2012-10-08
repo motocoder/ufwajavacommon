@@ -1,9 +1,11 @@
 package llc.ufwa.util;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -84,6 +86,30 @@ public class StreamUtil {
 
     public static void copyTo(InputStream is, OutputStream out) throws IOException {
         copyTo(is, out, DEFAULT_BUFFER_SIZE);
+    }
+
+    public static byte [] getDigest(InputStream in) throws NoSuchAlgorithmException, IOException {
+        
+        final MessageDigest md = MessageDigest.getInstance("MD5");
+        
+        final DigestInputStream is = new DigestInputStream(in, md);
+        
+        try {
+            
+            final byte [] buffer = new byte[1024];
+            
+            // read stream to EOF as normal...
+            while(is.read(buffer) >= 0) {
+                
+            }           
+                        
+        }
+        finally {
+          is.close();
+        }
+        
+        return is.getMessageDigest().digest();
+        
     }
 
 }
