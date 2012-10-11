@@ -66,12 +66,21 @@ public abstract class InjectableController<T extends InjectingDisplay> {
     protected abstract void onDisplayRemoved();
     
 	@SuppressWarnings("unchecked")
-    protected final void removeDisplay(InjectingDisplay display) {
+    protected final void removeDisplay(final InjectingDisplay display) {
 	    
 	    if(displayClass.isInstance(display)) { 
 	        
-            displays.removeDisplay((T)display);
             onDisplayRemoved();
+            
+            configureRunner.execute(
+                new Runnable() {
+    
+                    @Override
+                    public void run() {
+                        displays.removeDisplay((T)display);
+                    }
+                }
+            );
             
         }
 	    
