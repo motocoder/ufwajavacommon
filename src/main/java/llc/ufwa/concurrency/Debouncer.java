@@ -2,6 +2,10 @@ package llc.ufwa.concurrency;
 
 import java.util.concurrent.Executor;
 
+import llc.ufwa.data.exception.ResourceException;
+import llc.ufwa.data.resource.provider.PushProvider;
+import llc.ufwa.data.resource.provider.ResourceProvider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,24 +23,55 @@ public class Debouncer {
 	
 	private final Callback<Object, Object> callback;
 	private final Executor executor;
-
-	private boolean signalOut;
 	private final long delay;
-	
-	private Object lock = new Object();
+	private final Object lock = new Object();
+    private final PushProvider<Boolean> shouldRun;
+    
+    private boolean signalOut;
+    
+	public Debouncer(
+        final Callback<Object, Object> callback,
+        final Executor executor,
+        final long delay
+    ) {
+	    this(
+	        callback, 
+	        executor,
+	        delay, 
+	        new PushProvider<Boolean>() {
+
+                @Override
+                public boolean exists() throws ResourceException {
+                    return true;
+                }
+    
+                @Override
+                public Boolean provide() throws ResourceException {
+                    return true;
+                }
+
+                @Override
+                public void push(Boolean value) throws ResourceException {                    
+                }
+            }
+	    );
+	}
 	
 	/**
 	 * 
 	 * @param callback - This is run when signaled after the delay
 	 * @param executor - Runs the callback call on this.
 	 * @param delay - runs the callback after this delay.
+	 * @param shouldRun - returns boolean if should run
 	 */
 	public Debouncer(
 	    final Callback<Object, Object> callback,
 	    final Executor executor,
-	    final long delay
+	    final long delay,
+	    final PushProvider<Boolean> shouldRun
 	) {
 	    
+	    this.shouldRun = shouldRun;
 		this.callback = callback;
 		this.executor = executor;
 		this.delay = delay;
@@ -49,40 +84,52 @@ public class Debouncer {
 	public synchronized void signal() {
 	
 		if(!signalOut) {
-			
-			signalOut = true;
-			
-			executor.execute(
-				new Runnable() {
-
-					@Override
-					public void run() {
-						
-						synchronized(lock) {
-						    
-						    try {
-                                lock.wait(delay);
-                            }
-						    catch (InterruptedException e) {
-                                logger.error("Error:", e);
-                            }
-						    
-						}
-						
-						synchronized(Debouncer.this) {
-							signalOut = false;
-						}
-						
-						executor.execute(
-							new Runnable() {
-								public void run() {
-									callback.call(null, null);
-								}
-							}
-						);
-					}
-				}
-		    );
+		    
+		    try {
+		        
+                if(shouldRun.provide()) {
+                
+                    shouldRun.push(true);
+                    
+                	signalOut = true;
+                	
+                	executor.execute(
+                		new Runnable() {
+   
+                			@Override
+                			public void run() {
+                				
+                				synchronized(lock) {
+                				    
+                				    try {
+                                        lock.wait(delay);
+                                    }
+                				    catch (InterruptedException e) {
+                                        logger.error("Error:", e);
+                                    }
+                				    
+                				}
+                				
+                				synchronized(Debouncer.this) {
+                					signalOut = false;
+                				}
+                				
+                				executor.execute(
+                					new Runnable() {
+                						public void run() {
+                							callback.call(null, null);
+                						}
+                					}
+                				);
+                			}
+                		}
+                    );
+                
+                }
+            }
+		    catch (ResourceException e) {
+                throw new RuntimeException("this shouldn't happen", e);
+            }
 		}
 	}
 
