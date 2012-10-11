@@ -83,11 +83,17 @@ public class Debouncer {
 	 */
 	public synchronized void signal() {
 	
+	    logger.debug("signal");
+	    
 		if(!signalOut) {
+		    
+		    logger.debug("signalOut");
 		    
 		    try {
 		        
                 if(shouldRun.provide()) {
+                    
+                    logger.debug("provided");
                 
                     shouldRun.push(true);
                     
@@ -98,6 +104,8 @@ public class Debouncer {
    
                 			@Override
                 			public void run() {
+                			    
+                			    logger.debug("run");
                 				
                 				synchronized(lock) {
                 				    
@@ -110,14 +118,18 @@ public class Debouncer {
                 				    
                 				}
                 				
-                				synchronized(Debouncer.this) {
-                					signalOut = false;
-                				}
+                				logger.debug("calling");
                 				
                 				executor.execute(
                 					new Runnable() {
                 						public void run() {
+                						    
+                						    logger.debug("called");
                 							callback.call(null, null);
+                							
+                							synchronized(Debouncer.this) {
+                                                signalOut = false;
+                                            }
                 						}
                 					}
                 				);
@@ -131,6 +143,9 @@ public class Debouncer {
                 throw new RuntimeException("this shouldn't happen", e);
             }
 		}
+		
+		logger.debug("done");
+		
 	}
 
 	/**
