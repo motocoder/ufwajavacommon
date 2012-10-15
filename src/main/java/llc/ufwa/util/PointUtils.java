@@ -1,5 +1,6 @@
 package llc.ufwa.util;
 
+import llc.ufwa.collections.geospatial.GeoItem;
 import llc.ufwa.geo.RawPoint;
 
 import org.slf4j.Logger;
@@ -42,7 +43,7 @@ public class PointUtils {
 		
 	}
 	
-	public static double computeDistance(RawPoint point1, RawPoint point2) {
+	public static double computeDistance(GeoItem point1, GeoItem point2) {
 		
 		final double zDelta = Math.abs(point1.getAltitude() - point2.getAltitude());
 	
