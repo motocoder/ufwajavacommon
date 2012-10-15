@@ -88,7 +88,7 @@ public class StreamUtil {
         copyTo(is, out, DEFAULT_BUFFER_SIZE);
     }
 
-    public static byte [] getDigest(InputStream in) throws NoSuchAlgorithmException, IOException {
+    public static byte [] digest(InputStream in) throws NoSuchAlgorithmException, IOException {
         
         final MessageDigest md = MessageDigest.getInstance("MD5");
         
