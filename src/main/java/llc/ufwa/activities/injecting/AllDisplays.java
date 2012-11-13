@@ -17,6 +17,9 @@ import java.util.Set;
  * @param <Display>
  */
 public class AllDisplays<Display extends InjectingDisplay> {
+	//======================================
+	//KEH: Testing Jenkins build triggering.
+	//======================================
     
     private final Set<Display> displays = new HashSet<Display>();
     private final Display internalDisplay;
