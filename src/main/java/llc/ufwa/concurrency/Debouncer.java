@@ -4,7 +4,6 @@ import java.util.concurrent.Executor;
 
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.provider.PushProvider;
-import llc.ufwa.data.resource.provider.ResourceProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +112,7 @@ public class Debouncer {
                                         lock.wait(delay);
                                     }
                 				    catch (InterruptedException e) {
-                                        logger.error("Error:", e);
+                                        logger.error("Deboucer interrupted:", e);
                                     }
                 				    
                 				}
@@ -122,7 +121,8 @@ public class Debouncer {
                 				
                 				executor.execute(
                 					new Runnable() {
-                						public void run() {
+                						@Override
+                                        public void run() {
                 						    
                 						    logger.debug("called");
                 							callback.call(null, null);
