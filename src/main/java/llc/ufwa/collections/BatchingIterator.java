@@ -19,7 +19,7 @@ public class BatchingIterator<Key> implements Iterator<List<Key>> {
 
     /**
      * 
-     * @param items
+     * @param items 
      * @param batchSize
      */
     public BatchingIterator(
