@@ -16,6 +16,7 @@ import java.util.Set;
  *
  * @param <Display>
  */
+
 public class AllDisplays<Display extends InjectingDisplay> {
     
     private final Set<Display> displays = new HashSet<Display>();
