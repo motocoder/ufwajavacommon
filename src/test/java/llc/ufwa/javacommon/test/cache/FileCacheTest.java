@@ -399,6 +399,8 @@ public class FileCacheTest {
 		File root = new File("./temp5/");
 
 		deleteRoot(root);
+		
+		root.mkdirs();
 
 		final FileCache diskCache = new FileCache(root, 200, 60000);
 		final Cache<String, byte []> cache = 
