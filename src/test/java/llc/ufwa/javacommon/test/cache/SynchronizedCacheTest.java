@@ -100,7 +100,7 @@ public class SynchronizedCacheTest {
 		final ParallelControl<String> control2 = new ParallelControl<String>();
 			
 		final Cache<String, String> cache = 
-				new SynchronizedCache<String, String>(
+				new SynchronizedCache<String, String>( 
 					new Cache<String, String>() {
 
 						@Override
@@ -146,9 +146,37 @@ public class SynchronizedCacheTest {
 					
 				);
 		
+		
+		final Runnable thread2 = new Runnable() {
+            
+            @Override
+            public void run() {
+                
+                try {
+                    
+                    control1.unBlockOnce();
+                    TestCase.assertEquals(cache.get("key"), "key");
+                    TestCase.assertEquals(false, cache.exists("key"));
+                
+                    cache.put("key", "test");
+                    
+                    control1.unBlockOnce();
+                    
+                }
+                catch(ResourceException e) {
+                    TestCase.fail("failed");
+                }
+                
+            }
+            
+        };
+        
 		Runnable thread1 = new Runnable() {
 			
-		    public void run() {
+		    @Override
+            public void run() {
+		        
+		        new Thread(thread2).start();
 				
 		        try {
 					
@@ -171,41 +199,16 @@ public class SynchronizedCacheTest {
 			
 		};
 		
-		Runnable thread2 = new Runnable() {
-			
-		    public void run() {
-				
-		        try {
-					
-					control1.unBlockOnce();
-					TestCase.assertEquals(cache.get("key"), "key");
-					TestCase.assertEquals(false, cache.exists("key"));
-	            
-					cache.put("key", "test");
-					
-					control1.unBlockOnce();
-					
-				}
-				catch(ResourceException e) {
-		            TestCase.fail("failed");
-		        }
-				
-			}
-			
-		};
+		
 		
 		new Thread(thread1).start();
-		new Thread(thread2).start();
+		
 		
 		TestCase.assertNull(control2.getValue());
         
         control2.unBlockOnce();
         
-        Thread.yield();
-        Thread.sleep(30);
         
-        TestCase.assertNotNull(control2.getValue()); //might fail if thread.sleep doesn't work properly
-		
 	}
 	
 }

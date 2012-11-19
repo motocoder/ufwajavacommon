@@ -1,11 +1,7 @@
 package llc.ufwa.javacommon.test.resource;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
@@ -13,11 +9,6 @@ import llc.ufwa.concurrency.Callback;
 import llc.ufwa.concurrency.ParallelControl;
 import llc.ufwa.data.exception.CanceledResourceException;
 import llc.ufwa.data.exception.ResourceException;
-import llc.ufwa.data.resource.cache.Cache;
-import llc.ufwa.data.resource.cache.ExpiringCache;
-import llc.ufwa.data.resource.cache.MemoryCache;
-import llc.ufwa.data.resource.cache.SynchronizedCache;
-import llc.ufwa.data.resource.loader.CachedParallelResourceLoader;
 import llc.ufwa.data.resource.loader.DefaultResourceLoader;
 import llc.ufwa.data.resource.loader.ParallelResourceLoader;
 import llc.ufwa.data.resource.loader.ParallelResourceLoaderImpl;
@@ -65,7 +56,6 @@ public class ParellelResourceLoaderTest {
                 @Override
                 public boolean call(Object source, ResourceEvent<String> value) {
                     
-                    System.out.println("value " + value);
                     control.setValue(value);
                     control.unBlockOnce();
                     
@@ -81,16 +71,12 @@ public class ParellelResourceLoaderTest {
                 TestCase.fail();
             }
             
-            System.out.println("Blocking once");
-            
             try {
                 control.blockOnce();
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            
-            System.out.println("unblocked once");
             
             TestCase.assertEquals("Hi", ((ResourceEvent<String>)control.getValue()).getVal());
             
@@ -716,174 +702,171 @@ public class ParellelResourceLoaderTest {
     
     private int count;
     
-    @Test
-    public void testConcurrentCalls() {
-        
-        System.out.println("Starting concurrent");
-        
-        count = 0;
-        
-        final ParallelControl<Object> loaderControl = new ParallelControl<Object>();
-        
-        final Set<String> out = new HashSet<String>();
-        
-        
-        final ResourceLoader<String, String> internal = new DefaultResourceLoader<String, String>() {
-            
-            @Override
-            public String get(String key) throws ResourceException {
-                
-                System.out.println("load " + key);
-                synchronized(out) {
-                    if(out.contains(key)) {
-                        System.out.println("duplicates out");
-                    }
-                    out.add(key);
-                }
-                count++;
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                
-                synchronized(out) {
-                    out.remove(key);
-                }
-//                loaderControl.blockOnce();
-                
-                return key;
-                
-            }
-            
-        };
-        
-        final Cache<String, String> cache = new SynchronizedCache<String, String>(new ExpiringCache<String, String>(new MemoryCache<String, String>(), 2, 1000));
-        final Cache<String, Boolean> searchCache = new SynchronizedCache<String, Boolean>(new ExpiringCache<String, Boolean>(new MemoryCache<String, Boolean>(), 2, 1000));
-        
-        final CachedParallelResourceLoader<String, String> parellel =
-            new CachedParallelResourceLoader<String, String>(
-                internal, 
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
-                Executors.newFixedThreadPool(1000),
-                Executors.newFixedThreadPool(10), 
-                50, 
-                "",
-                cache, 
-                searchCache
-            );
-        
-        final List<String> keys = new ArrayList<String>();
-        
-        keys.add("hi");
-        keys.add("hi2");
-        keys.add("hi3");
-        keys.add("hi4");
-        keys.add("hi5");
-        keys.add("hi6");
-        keys.add("hi7");
-        keys.add("hi8");
-        keys.add("hi9");
-        keys.add("hi6");
-        keys.add("hi7");
-        keys.add("hi8");
-        keys.add("hi9");
-        keys.add("hi");
-        keys.add("hi2");
-        keys.add("hi3");
-        keys.add("hi4");
-        keys.add("hi5");
-        keys.add("hi6");
-        keys.add("hi7");
-        keys.add("hi8");
-        keys.add("hi9");
-        keys.add("hi6");
-        keys.add("hi7");
-        keys.add("hi8");
-        keys.add("hi9");
-        keys.add("hi");
-        keys.add("hi2");
-        keys.add("hi3");
-        keys.add("hi4");
-        keys.add("hi5");
-        keys.add("hi6");
-        keys.add("hi7");
-        keys.add("hi8");
-        keys.add("hi9");
-        keys.add("hi6");
-        keys.add("hi7");
-        keys.add("hi8");
-        keys.add("hi9");
-        
-        for(int i = 0; i < 10; i++) {
-//        while(true) {
-            
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-            new Thread() {
-                public void run() {
-                
-                    final Map<String, Callback<Object, ResourceEvent<String>>> callbacks = new HashMap<String, Callback<Object, ResourceEvent<String>>>();
-                    
-                    for(final String key : keys) {
-                        
-                        callbacks.put(key,
-                            new Callback<Object, ResourceEvent<String>>() {
-
-                                @Override
-                                public boolean call(
-                                    final Object source,
-                                    final ResourceEvent<String> value
-                                ) {
-                                    System.out.println("finished " + key);
-                                    return false;
-                                }
-                            }
-                        );  
-                        
-                    }
-                    
-                    try {
-						parellel.getAllParallel(callbacks);
-					} 
-                    catch (ResourceException e) {
-						TestCase.fail();
-					}
- 
-                }
-            }.start();
-            
-            new Thread() {
-                public void run() {
-                    
-                    for(final String key : keys) {
-                        
-                        parellel.getParallel(
-                            new Callback<Object, ResourceEvent<String>>() {
-
-                            @Override
-                            public boolean call(
-                                final Object source, 
-                                final ResourceEvent<String> value
-                            ) {
-                                System.out.println("finished2 " + key); 
-                                return false;
-                            }
-                        },
-                        key
-                        );
-                        
-                    }
-                   
-                }
-            }.start();
-               
-        }
+//    @Test
+//    public void testConcurrentCalls() {
+//        
+//        count = 0;
+//        
+//        final ParallelControl<Object> loaderControl = new ParallelControl<Object>();
+//        
+//        final Set<String> out = new HashSet<String>();
+//        
+//        
+//        final ResourceLoader<String, String> internal = new DefaultResourceLoader<String, String>() {
+//            
+//            @Override
+//            public String get(String key) throws ResourceException {
+//                
+//                synchronized(out) {
+//                    if(out.contains(key)) {
+//                        System.out.println("duplicates out");
+//                    }
+//                    out.add(key);
+//                }
+//                count++;
+//                try {
+//                    Thread.sleep(100);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                
+//                synchronized(out) {
+//                    out.remove(key);
+//                }
+////                loaderControl.blockOnce();
+//                
+//                return key;
+//                
+//            }
+//            
+//        };
+//        
+//        final Cache<String, String> cache = new SynchronizedCache<String, String>(new ExpiringCache<String, String>(new MemoryCache<String, String>(), 2, 1000));
+//        final Cache<String, Boolean> searchCache = new SynchronizedCache<String, Boolean>(new ExpiringCache<String, Boolean>(new MemoryCache<String, Boolean>(), 2, 1000));
+//        
+//        final CachedParallelResourceLoader<String, String> parellel =
+//            new CachedParallelResourceLoader<String, String>(
+//                internal, 
+//                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+//                Executors.newFixedThreadPool(1000),
+//                Executors.newFixedThreadPool(10), 
+//                50, 
+//                "",
+//                cache, 
+//                searchCache
+//            );
+//        
+//        final List<String> keys = new ArrayList<String>();
+//        
+//        keys.add("hi");
+//        keys.add("hi2");
+//        keys.add("hi3");
+//        keys.add("hi4");
+//        keys.add("hi5");
+//        keys.add("hi6");
+//        keys.add("hi7");
+//        keys.add("hi8");
+//        keys.add("hi9");
+//        keys.add("hi6");
+//        keys.add("hi7");
+//        keys.add("hi8");
+//        keys.add("hi9");
+//        keys.add("hi");
+//        keys.add("hi2");
+//        keys.add("hi3");
+//        keys.add("hi4");
+//        keys.add("hi5");
+//        keys.add("hi6");
+//        keys.add("hi7");
+//        keys.add("hi8");
+//        keys.add("hi9");
+//        keys.add("hi6");
+//        keys.add("hi7");
+//        keys.add("hi8");
+//        keys.add("hi9");
+//        keys.add("hi");
+//        keys.add("hi2");
+//        keys.add("hi3");
+//        keys.add("hi4");
+//        keys.add("hi5");
+//        keys.add("hi6");
+//        keys.add("hi7");
+//        keys.add("hi8");
+//        keys.add("hi9");
+//        keys.add("hi6");
+//        keys.add("hi7");
+//        keys.add("hi8");
+//        keys.add("hi9");
+//        
+//        for(int i = 0; i < 10; i++) {
+////        while(true) {
+//            
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//            
+//            new Thread() {
+//                @Override 
+//                public void run() {
+//                
+//                    final Map<String, Callback<Object, ResourceEvent<String>>> callbacks = new HashMap<String, Callback<Object, ResourceEvent<String>>>();
+//                    
+//                    for(final String key : keys) {
+//                        
+//                        callbacks.put(key,
+//                            new Callback<Object, ResourceEvent<String>>() {
+//
+//                                @Override
+//                                public boolean call(
+//                                    final Object source,
+//                                    final ResourceEvent<String> value
+//                                ) {
+//                                    return false;
+//                                }
+//                            }
+//                        );  
+//                        
+//                    }
+//                    
+//                    try {
+//						parellel.getAllParallel(callbacks);
+//					} 
+//                    catch (ResourceException e) {
+//						TestCase.fail();
+//					}
+// 
+//                }
+//            }.start();
+//            
+//            new Thread() {
+//                @Override
+//                public void run() {
+//                    
+//                    for(final String key : keys) {
+//                        
+//                        parellel.getParallel(
+//                            new Callback<Object, ResourceEvent<String>>() {
+//
+//                            @Override
+//                            public boolean call(
+//                                final Object source, 
+//                                final ResourceEvent<String> value
+//                            ) {
+//                                return false;
+//                            }
+//                        },
+//                        key
+//                        );
+//                        
+//                    }
+//                   
+//                }
+//            }.start();
+//               
+//        }
         
 //        try {
 //            Thread.sleep(1000);
@@ -903,6 +886,6 @@ public class ParellelResourceLoaderTest {
 //        TestCase.assertEquals(2, count);
         
         
-    }
+//    }
   
 }

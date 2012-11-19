@@ -12,11 +12,11 @@ import llc.ufwa.data.resource.cache.AlwaysNullCache;
 import llc.ufwa.data.resource.cache.Cache;
 import llc.ufwa.data.resource.cache.MemoryCache;
 import llc.ufwa.data.resource.loader.CachedParallelResourceLoader;
+import llc.ufwa.data.resource.loader.CachedParallelResourceLoader.CacheLoaderPair;
 import llc.ufwa.data.resource.loader.DefaultResourceLoader;
 import llc.ufwa.data.resource.loader.ParallelResourceLoader;
 import llc.ufwa.data.resource.loader.ResourceEvent;
 import llc.ufwa.data.resource.loader.ResourceLoader;
-import llc.ufwa.data.resource.loader.CachedParallelResourceLoader.CacheLoaderPair;
 import llc.ufwa.javacommon.test.JavaCommonLimitingExecutorService;
 
 import org.junit.Test;
@@ -452,7 +452,7 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
             @Override
             public String get(String key) throws ResourceException { 
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(100);
                     return key;
                 } 
                 catch (InterruptedException e) {
@@ -526,7 +526,7 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 if(key.equals("block")) {
                     
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(100);
                     } 
                     catch (InterruptedException e) {
                         e.printStackTrace();
@@ -556,7 +556,7 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
-                10,
+                1,
                 "",
                 pairs
             );
@@ -602,8 +602,8 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
             TestCase.assertNotNull(((ResourceEvent)control1.getValue()).getThrowable());
             
         } 
-        catch (ResourceException e) {
-            //expected behavior
+        catch(ResourceException e) {
+            TestCase.fail();
         }
         
     }
@@ -614,6 +614,8 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
     @SuppressWarnings("rawtypes")
     @Test
     public void testOtherFailingDepth() {
+
+        final ParallelControl<Object> control3 = new ParallelControl<Object>();
         
         final ResourceLoader<String, String> internal = new DefaultResourceLoader<String, String>() {
 
@@ -623,10 +625,10 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 if(key.equals("block")) {
                     
                     try {
-                        Thread.sleep(2000);
+                        control3.blockOnce();
                     } 
                     catch (InterruptedException e) {
-                        e.printStackTrace();
+                        throw new ResourceException("fail");
                     }
                     
                 }
@@ -653,7 +655,7 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
             new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
             Executors.newFixedThreadPool(10),
             Executors.newFixedThreadPool(10),
-            10,
+            1,
             "",
             pairs
         );
@@ -662,6 +664,7 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
         
         new Thread() {
             
+            @Override
             public void run() {
                 
                 final List<String> keys = new ArrayList<String>();
@@ -683,6 +686,7 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                     control1.setValue(e);
                 }
                 
+                                
                 control1.unBlockOnce();
                 
                 
@@ -690,6 +694,14 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
             }
             
         }.start();
+        
+        try {
+            Thread.sleep(100);
+        }
+        catch (InterruptedException e2) {
+            // TODO Auto-generated catch block
+            e2.printStackTrace();
+        }
         
         final ParallelControl<Object> control2 = new ParallelControl<Object>();
         
@@ -714,12 +726,16 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
             TestCase.fail();
         }
         
+        
+        control3.unBlockOnce();
+        
         try {
             control1.blockOnce();
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+                
         try {
             control2.blockOnce();
         } catch (InterruptedException e) {

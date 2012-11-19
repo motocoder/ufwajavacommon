@@ -1,15 +1,12 @@
 package llc.ufwa.javacommon.test.resource;
 
-import java.util.ArrayList; 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
-
-import org.junit.Test;
-
 import llc.ufwa.concurrency.Callback;
 import llc.ufwa.concurrency.ParallelControl;
 import llc.ufwa.data.exception.ResourceException;
@@ -25,6 +22,8 @@ import llc.ufwa.data.resource.loader.ResourceEvent;
 import llc.ufwa.data.resource.loader.ResourceLoader;
 import llc.ufwa.javacommon.test.JavaCommonLimitingExecutorService;
 import llc.ufwa.util.StopWatch;
+
+import org.junit.Test;
 
 public class BatchingParallelResourceLoaderTest {
     
@@ -106,48 +105,45 @@ public class BatchingParallelResourceLoaderTest {
             
             new Thread() {
                 
+                @Override
                 public void run() {
+                        
+                    final int i = rand.nextInt()  % keys.size();
+                    final String key = keys.get(i);
                     
-                    while(true) {
+                    try {
                         
-                        final int i = rand.nextInt()  % keys.size();
-                        final String key = keys.get(i);
-                        
-                        try {
-                            
-                            batched.getParallel(
-                                new Callback <Object, ResourceEvent <String> > () {
+                        batched.getParallel(
+                            new Callback <Object, ResourceEvent <String> > () {
 
-                                    @Override
-                                    public boolean call(Object source,
-                                        final ResourceEvent<String> value
-                                    ) {
-                                        
-                                        cache.put(key, "lkjdslkjeiodckdslkdjsflkcmwe;eoiweorcomeiooaijoeckmo" + i);
-                                        return false;
-                                        
-                                    }
+                                @Override
+                                public boolean call(Object source,
+                                    final ResourceEvent<String> value
+                                ) {
                                     
-                                } , 
-                                key
-                            );
-                            
-                        }
-                        catch (ResourceException e) {
-                            e.printStackTrace();
+                                    cache.put(key, "lkjdslkjeiodckdslkdjsflkcmwe;eoiweorcomeiooaijoeckmo" + i);
+                                    return false;
+                                    
+                                }
+                                
+                            } , 
+                            key
+                        );
+                        
+                    }
+                    catch (ResourceException e) {
+                        e.printStackTrace();
+                    }
+                    
+                    synchronized(hashset) {
+                        
+                        hashset.add(String.valueOf(i));
+                        
+                        if(hashset.size() == 50) {
+                            hashset.notifyAll();
                         }
                         
                     }
-                    
-//                    synchronized(hashset) {
-//                        
-//                        hashset.add(String.valueOf(i));
-//                        
-//                        if(hashset.size() == 50) {
-//                            hashset.notifyAll();
-//                        }
-//                        
-//                    }
                     
                 }
                 
@@ -161,6 +157,7 @@ public class BatchingParallelResourceLoaderTest {
             
             new Thread() {
                 
+                @Override
                 public void run() {
                     
                     Random rand = new Random(); 
@@ -229,8 +226,11 @@ public class BatchingParallelResourceLoaderTest {
         
         synchronized(hashset) {
             
-            while ((hashset.size() < 100) && (stop.getTime() < 10000)){
-               
+            int last = 0;
+            int sameFor = 0;
+            
+            while ((hashset.size() < 100) && sameFor < 7){
+                
                 try {
                     hashset.wait(100);
                 }
@@ -238,12 +238,16 @@ public class BatchingParallelResourceLoaderTest {
                     e.printStackTrace();
                 }
                 
+                if(last == hashset.size()) {
+                    sameFor++;
+                }
+                
+                last = hashset.size();
+                
+                
+                
             }
              
-        }
-        
-        synchronized(hashset) {
-            TestCase.assertEquals(100, hashset.size());
         }
         
     }

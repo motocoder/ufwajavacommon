@@ -431,7 +431,7 @@ public class ForParellelResourceLoaderWithCachedImplTest {
                 if(key.equals("block")) {
                     
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(100); 
                     } 
                     catch (InterruptedException e) {
                         e.printStackTrace();
@@ -518,7 +518,7 @@ public class ForParellelResourceLoaderWithCachedImplTest {
                 if(key.equals("block")) {
                     
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(100);
                     } 
                     catch (InterruptedException e) {
                         e.printStackTrace();
@@ -546,6 +546,7 @@ public class ForParellelResourceLoaderWithCachedImplTest {
         
         new Thread() {
             
+            @Override
             public void run() {
                 
                 final List<String> keys = new ArrayList<String>();

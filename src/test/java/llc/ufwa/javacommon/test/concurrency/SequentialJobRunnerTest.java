@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
-
 import llc.ufwa.concurrency.ParallelControl;
 import llc.ufwa.concurrency.SequentialJobRunner;
 import llc.ufwa.data.exception.JobRunningException;
@@ -32,8 +31,6 @@ public class SequentialJobRunnerTest {
     
                     @Override
                     protected void doJob(TestJob job) throws JobRunningException {
-                        
-                        System.out.println("running job " + job.getType());
                         
                         if(job.getType().equals("1")) {
                             
@@ -75,7 +72,6 @@ public class SequentialJobRunnerTest {
                     @Override
                     protected void onAllJobsComplete() {
                         
-                        System.out.println("all complete");
                         complete.setValue(true);
                         complete.unBlockOnce();
                         

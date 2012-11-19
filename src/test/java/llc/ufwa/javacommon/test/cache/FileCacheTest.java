@@ -12,8 +12,8 @@ import llc.ufwa.data.resource.InputStreamConverter;
 import llc.ufwa.data.resource.ReverseConverter;
 import llc.ufwa.data.resource.SerializingConverter;
 import llc.ufwa.data.resource.cache.Cache;
-import llc.ufwa.data.resource.cache.KeyEncodingCache;
 import llc.ufwa.data.resource.cache.FileCache;
+import llc.ufwa.data.resource.cache.KeyEncodingCache;
 import llc.ufwa.data.resource.cache.ValueConvertingCache;
 
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class FileCacheTest {
 			final FileCache diskCache = new FileCache(root, 500000, 50000);
 			final Cache<String, String> cache = 
 					new ValueConvertingCache<String, String, byte []>(
-							new ValueConvertingCache<String, byte [], InputStream>(
+							new ValueConvertingCache<String, byte [], InputStream>( 
 									new KeyEncodingCache<InputStream>(
 											diskCache
 											),
@@ -442,13 +442,10 @@ public class FileCacheTest {
 			File[] filesLeft = root.listFiles();
 			if (filesLeft == null) {
 			
-				System.out.println("root has no files" + root);
 			
 			} else {
 
-				System.out.println("Files left:");
 				for (File cacheFile: filesLeft){
-					System.out.println(cacheFile);
 					actualSize += 10;
 				}
 			}
@@ -456,7 +453,7 @@ public class FileCacheTest {
 			System.out.println(e);
 		}
 
-		System.out.println(String.format("Actual: %d, Cache reports: %d, Result: %b", actualSize, cacheSize, actualSize == cacheSize));
+//		System.out.println(String.format("Actual: %d, Cache reports: %d, Result: %b", actualSize, cacheSize, actualSize == cacheSize));
 
 		TestCase.assertEquals(cacheSize, actualSize);
 
@@ -471,7 +468,8 @@ public class FileCacheTest {
 			root = rootDir;
 		}
 
-		public void run()
+		@Override
+        public void run()
 		{
 			runTask = true;
 		
@@ -488,13 +486,11 @@ public class FileCacheTest {
 			{
 				//Do some file creates and deletes directly with the file system.
 				randomIndex = (int)(Math.random()*5);
-				System.out.println("Writing " + randomIndex);
 				writeTestFile (files[randomIndex]);
 
 				try {Thread.sleep(10);} catch (Exception e){}
 				
 				randomIndex = (int)(Math.random()*5);
-				System.out.println("Deleting " + randomIndex);
 				files[randomIndex].delete();
 				
 				try {Thread.sleep(10);} catch (Exception e){}
@@ -529,7 +525,8 @@ public class FileCacheTest {
 			cache = inCache;
 		}
 
-		public void run()
+		@Override
+        public void run()
 		{
 			String[] keys = new String[5];
 			keys[0] = "File1";
@@ -544,14 +541,12 @@ public class FileCacheTest {
 			{
 				//Do a random put and get with the cache.
 				randomIndex = (int)(Math.random()*5);
-				System.out.println("Putting " + randomIndex);
 				cache.put(keys[randomIndex], TEN_BYTES);
 				
 				try {Thread.sleep(10);} catch (Exception e){}
 				
 				try {
 					randomIndex = (int)(Math.random()*5);
-					System.out.println("Getting " + randomIndex);
 					cache.get(keys[randomIndex]);
 				} catch (Exception e) {
 					System.out.println(e);
