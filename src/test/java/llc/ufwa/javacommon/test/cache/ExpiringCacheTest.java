@@ -2,13 +2,10 @@ package llc.ufwa.javacommon.test.cache;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import junit.framework.TestCase;
-import llc.ufwa.concurrency.ParallelControl;
 import llc.ufwa.data.beans.Entry;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.cache.Cache;
@@ -26,7 +23,10 @@ public class ExpiringCacheTest {
         
         //final ParallelControl<String> control1 = new ParallelControl<String>();
          
-        final HashSet<String> hs = new HashSet<String>();
+        final StopWatch watch = new StopWatch();
+        watch.start();
+        
+        final HashSet<String> completedThreads = new HashSet<String>();
         
         final Cache<String, String> cache = 
                 new SynchronizedCache<String, String>(
@@ -37,19 +37,23 @@ public class ExpiringCacheTest {
                     100
                 )
             ); 
+        
+        final int THREAD_COUNT = 50;
             
-        for (int x = 0; x < 100; x++){
+        for (int x = 0; x < THREAD_COUNT; x++){
             
             final int i = x;
             
             new Thread() {
                 
+                @Override
                 public void run() {
                     
                     try {
                         
+                        // just add/remove a bunch of stuff.
                         final Random rand = new Random(); 
-                        final int size = 10000;
+                        final int size = 5000;
                         
                         final List<String> keys = new ArrayList<String>();
                         
@@ -67,6 +71,7 @@ public class ExpiringCacheTest {
                             
                         } 
                         
+                        //add/get a bunch of stuff
                         final List<String> keys2 = new ArrayList<String>();
                         
                         for (int x=0; x < size; x++) {  
@@ -78,7 +83,7 @@ public class ExpiringCacheTest {
                         
                         final List<String> results = cache.getAll(keys2);
                         
-                        hs.add(String.valueOf(i));
+                        completedThreads.add(String.valueOf(i)); //we are done, tell stuff it has completed.
                         
                     }
                     catch(ResourceException e) {
@@ -89,26 +94,17 @@ public class ExpiringCacheTest {
             }.start();
         }
         
-        try { 
-            
-            Thread.sleep(10000);
-            
-        } 
-        catch (InterruptedException e) {
-            e.printStackTrace();
+        while(completedThreads.size() < THREAD_COUNT && watch.getTime() < 10000) {
+            try {
+                Thread.sleep(10);
+            } 
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         
-        Iterator<String> itr = hs.iterator();
-        String thread;
-        int total = 0;
-        
-        while (itr.hasNext()){
-            thread = itr.next();
-            total++;
-        }
-        
-        System.out.println(100-total);
-        
+        TestCase.assertEquals(THREAD_COUNT, completedThreads.size());
+                
     } 
     
 //	@Test

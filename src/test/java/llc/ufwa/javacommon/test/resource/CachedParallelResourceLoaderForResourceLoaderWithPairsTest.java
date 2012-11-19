@@ -140,8 +140,6 @@ public class CachedParallelResourceLoaderForResourceLoaderWithPairsTest {
                     @Override
                     public boolean call(Object source, ResourceEvent<String> value) {
                         
-                        System.out.println("Value " + value.getVal());
-                        
                         control.setValue(value.getVal());
                         control.unBlockOnce();
                         

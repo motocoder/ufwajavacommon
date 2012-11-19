@@ -369,7 +369,7 @@ public class GeoPlot <T extends GeoItem> implements GeoGraph<T> {
 		final ClosestNavigator<T> zNav = new ClosestNavigator<T>(zSorted, item, ClosestNavigator.Axis.Z);
 		
 		final Set<T> closestX = new HashSet<T>();		
-		final T firstX = xNav.getNextClosest();
+		final T firstX = xNav.getNextClosest(); 
 		closestX.add(firstX);		
 		double closestXDelta = getDelta(item, firstX);
 		
@@ -665,7 +665,7 @@ public class GeoPlot <T extends GeoItem> implements GeoGraph<T> {
 	}
 	
 	public static final double getDelta(GeoItem item1, GeoItem item2) {
-		return PointUtils.computeDistance(item1, item2);		        
+		return PointUtils.computeDistance(item1, item2);		         
 	}
 
 	@Override

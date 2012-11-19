@@ -227,9 +227,8 @@ public class ForParellelResourceLoaderTest {
             keys.add("Hi3");
             keys.add("Hi2");
             
-            System.out.println("Getting all");
             final List<String> values = parallelLoader.getAll(keys);
-            System.out.println("Got all");
+            
             for(int i = 0; i < values.size(); i++) {
                 
                 final String val = values.get(i);
@@ -421,7 +420,7 @@ public class ForParellelResourceLoaderTest {
                 if(key.equals("block")) {
                     
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(100);
                     } 
                     catch (InterruptedException e) {
                         e.printStackTrace();
@@ -506,10 +505,10 @@ public class ForParellelResourceLoaderTest {
                 if(key.equals("block")) {
                     
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(1000);
                     } 
                     catch (InterruptedException e) {
-                        e.printStackTrace();
+                        e.printStackTrace(); 
                     }
                     
                 }
@@ -533,6 +532,7 @@ public class ForParellelResourceLoaderTest {
         
         new Thread() {
             
+            @Override
             public void run() {
                 
                 final List<String> keys = new ArrayList<String>();
@@ -592,13 +592,13 @@ public class ForParellelResourceLoaderTest {
         );
         
         try {
-            control1.blockOnce();
+            control1.blockOnce(); 
             control2.blockOnce();
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-                
+                        
         TestCase.assertTrue(control1.getValue() instanceof Exception);
         TestCase.assertNotNull(((ResourceEvent)control2.getValue()).getVal());
         

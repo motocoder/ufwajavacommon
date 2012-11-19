@@ -206,8 +206,6 @@ public class CachedParellelResourceLoaderTest {
             TestCase.assertNull(val1.getVal());
             TestCase.assertEquals("Hi", val2.getVal());
             
-            
-            System.out.println(val1.getThrowable());
             TestCase.assertTrue(val1.getThrowable() instanceof CanceledResourceException);
             
         }

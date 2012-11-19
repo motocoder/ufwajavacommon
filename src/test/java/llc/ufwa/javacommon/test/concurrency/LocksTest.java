@@ -23,6 +23,7 @@ public class LocksTest {
                 
                 new Thread() {
                     
+                    @Override
                     public void run() {
                         
                         try {
@@ -49,6 +50,7 @@ public class LocksTest {
                 
                 new Thread() {
                     
+                    @Override
                     public void run() {
                         
                         try {
@@ -97,10 +99,8 @@ public class LocksTest {
                 
                 control2.unBlockOnce();
                 
-                System.out.println("last");
                 locks.getLock("lock");
             
-                System.out.println("last2");
                 
             }
             catch(Exception e) {

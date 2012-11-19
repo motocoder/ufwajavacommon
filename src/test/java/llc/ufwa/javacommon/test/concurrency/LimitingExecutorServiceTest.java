@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import junit.framework.TestCase;
-
 import llc.ufwa.concurrency.LimitingExecutorService;
 
 import org.junit.Test;
@@ -119,8 +118,6 @@ public class LimitingExecutorServiceTest {
             TestCase.fail();
         }
         
-        System.out.println("current " + current);
-        System.out.println("max " + max);
         
         TestCase.assertEquals(5, max);
         TestCase.assertEquals(5, current);
