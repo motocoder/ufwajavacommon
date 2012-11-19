@@ -9,8 +9,10 @@ import llc.ufwa.concurrency.Callback;
 import llc.ufwa.concurrency.ParallelControl;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.cache.AlwaysNullCache;
+import llc.ufwa.data.resource.cache.Cache;
 import llc.ufwa.data.resource.cache.MemoryCache;
 import llc.ufwa.data.resource.loader.CachedParallelResourceLoader;
+import llc.ufwa.data.resource.loader.CachedParallelResourceLoader.CacheLoaderPair;
 import llc.ufwa.data.resource.loader.DefaultResourceLoader;
 import llc.ufwa.data.resource.loader.ParallelResourceLoader;
 import llc.ufwa.data.resource.loader.ResourceEvent;
@@ -506,9 +508,14 @@ public class ForParellelResourceLoaderWithCachedImplTest {
     /**
      * Tests the depth property for failure.
      */
+    /**
+     * Tests the depth property for failure.
+     */
     @SuppressWarnings("rawtypes")
     @Test
     public void testOtherFailingDepth() {
+
+        final ParallelControl<Object> control3 = new ParallelControl<Object>();
         
         final ResourceLoader<String, String> internal = new DefaultResourceLoader<String, String>() {
 
@@ -518,10 +525,10 @@ public class ForParellelResourceLoaderWithCachedImplTest {
                 if(key.equals("block")) {
                     
                     try {
-                        Thread.sleep(500);
+                        control3.blockOnce();
                     } 
                     catch (InterruptedException e) {
-                        e.printStackTrace();
+                        throw new ResourceException("fail");
                     }
                     
                 }
@@ -530,16 +537,27 @@ public class ForParellelResourceLoaderWithCachedImplTest {
             }
             
         };
+        
+        final Cache<String, String> cache = new MemoryCache<String, String>();
+        final Cache<String, Boolean> searchCache = new MemoryCache<String, Boolean>();
+        
+        final List<CacheLoaderPair<String, String>> pairs = new ArrayList<CacheLoaderPair<String, String>>();
+        
+        pairs.add(
+            new CacheLoaderPair<String, String>(
+                internal,
+                cache,
+                searchCache
+            )
+        );
 
         final ParallelResourceLoader<String, String> parallelLoader = new CachedParallelResourceLoader<String, String>(
-            internal,
             new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
             Executors.newFixedThreadPool(10),
             Executors.newFixedThreadPool(10),
             1,
             "",
-            new AlwaysNullCache<String, String>(),
-            new AlwaysNullCache<String, Boolean>()
+            pairs
         );
         
         final ParallelControl<Object> control1 = new ParallelControl<Object>();
@@ -568,6 +586,7 @@ public class ForParellelResourceLoaderWithCachedImplTest {
                     control1.setValue(e);
                 }
                 
+                                
                 control1.unBlockOnce();
                 
                 
@@ -575,6 +594,14 @@ public class ForParellelResourceLoaderWithCachedImplTest {
             }
             
         }.start();
+        
+        try {
+            Thread.sleep(100);
+        }
+        catch (InterruptedException e2) {
+            // TODO Auto-generated catch block
+            e2.printStackTrace();
+        }
         
         final ParallelControl<Object> control2 = new ParallelControl<Object>();
         
@@ -594,10 +621,13 @@ public class ForParellelResourceLoaderWithCachedImplTest {
                 },
                 "block"
             );
-        } 
+        }
         catch (ResourceException e1) {
             TestCase.fail();
         }
+        
+        
+        control3.unBlockOnce();
         
         try {
             control1.blockOnce();
@@ -605,6 +635,7 @@ public class ForParellelResourceLoaderWithCachedImplTest {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+                
         try {
             control2.blockOnce();
         } catch (InterruptedException e) {
