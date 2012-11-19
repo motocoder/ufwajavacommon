@@ -379,6 +379,7 @@ public class FileCacheTest {
 
 		// Now put a file and delete it externally.
 		cache.put("deleteme", TEN_BYTES);
+		try {Thread.sleep(5);} catch (Exception e){System.out.println(e);}
 		TestCase.assertEquals(10, diskCache.size());
 
 		File fileToDelete = new File(root, "deleteme");
