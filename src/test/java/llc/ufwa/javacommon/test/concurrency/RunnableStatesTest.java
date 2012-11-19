@@ -1,18 +1,16 @@
 package llc.ufwa.javacommon.test.concurrency;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import llc.ufwa.concurrency.RunnableStates;
-import llc.ufwa.concurrency.RunnableStates.SequencedRunnable;
-import llc.ufwa.data.resource.provider.ResourceProvider;
-
 import org.junit.Test;
 
+
 public class RunnableStatesTest {
+    
+    public RunnableStatesTest() {}
+    
+    @Test
+    public void nullTest() {
+        
+    }
     
     
 //

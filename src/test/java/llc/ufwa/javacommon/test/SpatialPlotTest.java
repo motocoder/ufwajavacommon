@@ -1,16 +1,18 @@
 package llc.ufwa.javacommon.test;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import junit.framework.TestCase;
-import llc.ufwa.collections.spatial.AbstractSpatialItem;
-import llc.ufwa.collections.spatial.SpatialPlot;
-
 import org.junit.Test;
 
 
+
 public class SpatialPlotTest {
+    
+    public SpatialPlotTest() {}
+    
+    @Test
+    public void nullTest() {
+        
+    }
+    
 //	
 //	
 //	@Test
