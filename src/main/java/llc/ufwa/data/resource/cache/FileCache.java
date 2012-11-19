@@ -80,7 +80,10 @@ public final class FileCache implements Cache<String, InputStream> {
 				throw new IllegalArgumentException("Cache location already exists and it is not a directory");
 			}
 		} else {
-			retVal = false;
+		    
+		    parent.mkdirs();
+		    
+			retVal = true;
 		}
 
 		return retVal;
