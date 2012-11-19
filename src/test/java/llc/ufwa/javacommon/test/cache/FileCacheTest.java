@@ -359,12 +359,12 @@ public class FileCacheTest {
 
 		final FileCache diskCache = new FileCache(root, 20, 1000);
 		final Cache<String, byte []> cache = 
-				new ValueConvertingCache<String, byte [], InputStream>(
-						new KeyEncodingCache<InputStream>(
-								diskCache
-								),
-								new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
-						);
+			new ValueConvertingCache<String, byte [], InputStream>(
+				new KeyEncodingCache<InputStream>(
+					diskCache
+					),
+					new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+				);
 
 		try {
 			// Should fail because a non-directory file exists.
