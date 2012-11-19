@@ -1,13 +1,17 @@
 package llc.ufwa.javacommon.test;
 
-import junit.framework.TestCase;
-import llc.ufwa.geo.GeoPipe;
-import llc.ufwa.geo.RawPoint;
-import llc.ufwa.geo.RealPipe;
-
 import org.junit.Test;
 
+
 public class TestGeoPipe {
+    
+    public TestGeoPipe() {}
+    
+    @Test
+    public void nullTest() {
+        
+    }
+    
 //
 //	@Test
 //	public void testGeoPipeFlat() {
