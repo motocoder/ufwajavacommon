@@ -36,5 +36,32 @@ public class Entry<Key, Value> implements Serializable {
     void setValue(Value value) {
         this.value = value;
     }
+
+    @Override
+    public int hashCode() {
+        return this.key.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        
+        final boolean returnVal;
+        
+        if(obj instanceof Entry) {
+            
+            @SuppressWarnings("unchecked")
+            final Entry<Key, Value> compare = (Entry<Key, Value>) obj;
+            
+            returnVal = compare.key.equals(key) && compare.getValue().equals(value);
+            
+        }
+        else {
+            returnVal = false;
+        }
+        
+        return returnVal;
+    }
+    
+    
    
 }
