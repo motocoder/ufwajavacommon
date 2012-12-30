@@ -2,7 +2,6 @@ package llc.ufwa.javacommon.test.connection;
 
 import java.io.IOException;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,12 +27,11 @@ public class UDPServicesTest {
         try {
             
             final UDPReceiveService receive = new UDPReceiveService(SERVER_PORT, 50);
-            final UDPSendService send = new UDPSendService(CLIENT_PORT, "localhost", SERVER_PORT);
+            final UDPSendService send = new UDPSendService(CLIENT_PORT);
             
             final int MAX_SEND = 50000;
             
             receive.addListener(
-                String.class,
                 new Callback<Void, ReceivedData>() {
 
                         @Override
@@ -67,7 +65,7 @@ public class UDPServicesTest {
                     for(int i = 0; i < MAX_SEND; i++) {
                         
                         try {
-                            send.send(String.valueOf(i));
+                            send.send("localhost", SERVER_PORT, String.valueOf(i));
                         } 
                         catch (IOException e) {
                             e.printStackTrace();
@@ -103,9 +101,7 @@ public class UDPServicesTest {
         catch (SocketException e) {
             TestCase.fail();
         } 
-        catch (UnknownHostException e) {
-            TestCase.fail();
-        }
+
         
     }
     

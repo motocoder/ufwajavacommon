@@ -6,9 +6,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -25,8 +23,8 @@ public class UDPReceiveService {
     private static final int MAX_PACKET_SIZE = 1400;
     
     private final DatagramSocket serverSocket;
-    private final Map<Class<? extends Serializable>, Set<Callback<Void, ReceivedData>>> listeners = 
-        new HashMap<Class<? extends Serializable>, Set<Callback<Void, ReceivedData>>> ();
+    private final Set<Callback<Void, ReceivedData>> listeners = 
+        new HashSet<Callback<Void, ReceivedData>> ();
     private final Executor bulkThreads;
     
     /**
@@ -135,51 +133,27 @@ public class UDPReceiveService {
                 }
                 else {
                     
-                    //sort
-                    final Map<Class<? extends Serializable>, Set<Serializable>> sorted = new HashMap<Class<? extends Serializable>, Set<Serializable>>();
-                    
-                    for(final Serializable data : received) {
-                        
-                        Set<Serializable> allOfType = sorted.get(data.getClass());
-                        
-                        if(allOfType == null) {
-                            
-                            allOfType = new HashSet<Serializable>();
-                            sorted.put(data.getClass(), allOfType);
-                            
-                        }
-                        
-                        allOfType.add(data);
-                        
-                    }
-                    
                     //notify listeners
                     synchronized(listeners) {
-                        
-                        for(final Map.Entry<Class<? extends Serializable>, Set<Serializable>> entry : sorted.entrySet()) {
                             
-                            final Set<Callback<Void, ReceivedData>> callbacks = listeners.get(entry.getKey());
+                        for(final Callback<Void, ReceivedData> callback : listeners) {
                             
-                            for(final Callback<Void, ReceivedData> callback : callbacks) {
-                                
-                                final Set<Serializable> value = entry.getValue();
-                                
-                                //post on seperate threads;
-                                bulkThreads.execute(
-                                        
-                                    new Runnable() {
-    
-                                        @Override
-                                        public void run() {
-                                            callback.call(null, new ReceivedData(host, port, value));
-                                        }
-                                        
+                            final Collection<Serializable> value = received;
+                            
+                            //post on seperate threads;
+                            bulkThreads.execute(
+                                    
+                                new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        callback.call(null, new ReceivedData(host, port, value));
                                     }
                                     
-                                );
+                                }
                                 
-                            }
-                            
+                            );
+                                
                         }
                            
                     }
@@ -203,21 +177,10 @@ public class UDPReceiveService {
      * @param clazz
      * @param listener
      */
-    public void addListener(Class<? extends Serializable> clazz, Callback<Void, ReceivedData> listener) {
+    public void addListener(Callback<Void, ReceivedData> listener) {
         
         synchronized(listeners) {
-
-            Set<Callback<Void, ReceivedData>> listenersSet = listeners.get(clazz);
-            
-            if(listenersSet == null) {
-                
-                listenersSet = new HashSet<Callback<Void, ReceivedData>>();
-                listeners.put(clazz, listenersSet);
-                
-            }
-            
-            listenersSet.add(listener);
-            
+            listeners.add(listener);            
         }
         
     }

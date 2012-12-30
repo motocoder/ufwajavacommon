@@ -15,8 +15,6 @@ public class UDPSendService {
     private static final int MAX_PACKET_SIZE = 1400;
     
     private final DatagramSocket serverSocket;
-    private final int serverPort;
-    private final InetAddress serverHost;
 
     /**
      * 
@@ -27,14 +25,10 @@ public class UDPSendService {
      * @throws UnknownHostException
      */
     public UDPSendService(
-        final int clientPort,
-        final String serverHost,
-        final int serverPort
-    ) throws SocketException, UnknownHostException {
-        
-        this.serverHost = InetAddress.getByName(serverHost);
-        this.serverPort = serverPort;        
-        this.serverSocket = new DatagramSocket(clientPort);
+        final int localPort
+    ) throws SocketException {
+                
+        this.serverSocket = new DatagramSocket(localPort);
        
     }
     
@@ -43,7 +37,9 @@ public class UDPSendService {
      * @param data
      * @throws IOException
      */
-    public void send(final Serializable data) throws IOException {
+    public void send(final String remoteHost, final int remotePort, final Serializable data) throws IOException {
+        
+        final InetAddress serverHost = InetAddress.getByName(remoteHost);
         
         final byte [] dataBytes = DataUtils.serialize(data);
         
@@ -51,7 +47,7 @@ public class UDPSendService {
             throw new RuntimeException("Data exceeded max UDP size");
         }
         
-        final DatagramPacket packet = new DatagramPacket(dataBytes, dataBytes.length, serverHost, serverPort);
+        final DatagramPacket packet = new DatagramPacket(dataBytes, dataBytes.length, serverHost, remotePort);
         
         synchronized(serverSocket) {
             serverSocket.send(packet);
@@ -59,6 +55,4 @@ public class UDPSendService {
         
     }
     
-    
-
 }
