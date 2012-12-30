@@ -1,19 +1,21 @@
 package llc.ufwa.connection.udp;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class ReceivedData {
     
     private final String host;
     private final int port;
-    private final Set<Serializable> data;
+    private final List<Serializable> data;
 
-    public ReceivedData(final String host, final int port, final Set<Serializable> data) {
+    public ReceivedData(final String host, final int port, final Collection<Serializable> data) {
         
         this.host = host;
         this.port = port;
-        this.data = data;
+        this.data = new ArrayList<Serializable>(data);
         
     }
 
@@ -25,7 +27,7 @@ public class ReceivedData {
         return port;
     }
 
-    public Set<Serializable> getData() {
+    public List<Serializable> getData() {
         return data;
     }
     
