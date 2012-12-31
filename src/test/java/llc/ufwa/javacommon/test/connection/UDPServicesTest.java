@@ -77,7 +77,7 @@ public class UDPServicesTest {
             
             synchronized(receivedStrings) {
                 
-                while(receivedStrings.size() < MAX_SEND && watch.getTime() < 5000) {
+                while(receivedStrings.size() < MAX_SEND && watch.getTime() < 15000) {
                     
                     try {
                         receivedStrings.wait(5000);
