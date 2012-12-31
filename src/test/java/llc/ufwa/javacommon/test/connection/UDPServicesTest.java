@@ -29,7 +29,7 @@ public class UDPServicesTest {
             final UDPReceiveService receive = new UDPReceiveService(SERVER_PORT, 50);
             final UDPSendService send = new UDPSendService(CLIENT_PORT);
             
-            final int MAX_SEND = 50000;
+            final int MAX_SEND = 1000;
             
             receive.addListener(
                 new Callback<Void, ReceivedData>() {
@@ -77,7 +77,7 @@ public class UDPServicesTest {
             
             synchronized(receivedStrings) {
                 
-                while(receivedStrings.size() < MAX_SEND && watch.getTime() < 15000) {
+                while(receivedStrings.size() < MAX_SEND && watch.getTime() < 5000) {
                     
                     try {
                         receivedStrings.wait(5000);
