@@ -1,5 +1,6 @@
 package llc.ufwa.collections;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,10 +17,14 @@ import java.util.Set;
  *
  * @param <T>
  */
-public class IdentityHashSet<T> implements Set<T> {
+public class IdentityHashSet<T> implements Set<T>, Serializable {
+    
+    private static final long serialVersionUID = 7945618847840882705L;
     
     private final Map<T, String> internal = new HashMap<T, String>();
 
+    public IdentityHashSet() {};
+    
     public IdentityHashSet(Set<T> c) {
         
         this.addAll(c);
