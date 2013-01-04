@@ -20,6 +20,12 @@ public class IdentityHashSet<T> implements Set<T> {
     
     private final Map<T, String> internal = new HashMap<T, String>();
 
+    public IdentityHashSet(Set<T> c) {
+        
+        this.addAll(c);
+        
+    }
+
     @Override
     public int size() {
         return internal.size();
