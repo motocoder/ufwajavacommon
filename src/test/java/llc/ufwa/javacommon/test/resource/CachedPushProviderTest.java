@@ -68,7 +68,7 @@ public class CachedPushProviderTest {
         
         {
             
-            final File listCacheDir = new File("temp");
+            final File listCacheDir = new File("./target/test-files/temp");
             final Cache<String, byte []> listDiskCache = new DiskCache<String>(listCacheDir, -1L, -1L);
             
             listCache = 

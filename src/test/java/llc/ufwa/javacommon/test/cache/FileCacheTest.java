@@ -25,7 +25,7 @@ public class FileCacheTest {
 	@Test
 	public void testDiskCache() {
 
-		File root = new File("./temp1/");
+		File root = new File("./target/test-files/temp1/");
 		deleteRoot(root);
 
 		// TODO: add test case for putting a value that's too big for the cache.  
@@ -135,7 +135,7 @@ public class FileCacheTest {
 
 		try {
 
-			File root = new File("./temp2/");
+			File root = new File("./target/test-files/temp2/");
 
 			deleteRoot(root);
 
@@ -226,7 +226,7 @@ public class FileCacheTest {
 	@Test
 	public void testMemoryCacheSizeStuff() {
 
-		File root = new File("./temp3/");
+		File root = new File("./target/test-files/temp3/");
 
 		deleteRoot(root);
 
@@ -284,7 +284,7 @@ public class FileCacheTest {
 	@Test
 	public void testExpires() {
 
-		File root = new File("./temp4/");
+		File root = new File("./target/test-files/temp4/");
 
 		deleteRoot(root);
 
@@ -343,7 +343,7 @@ public class FileCacheTest {
 	@Test
 	public void testCacheCorruption() {
 
-		File root = new File("./temp4/");
+		File root = new File("./target/test-files/temp4/");
 
 		deleteRoot(root);
 
@@ -397,7 +397,7 @@ public class FileCacheTest {
 	@Test
 	public void testCacheCorruptionFreeRunning() {
 
-		File root = new File("./temp5/");
+		File root = new File("./target/test-files/temp5/");
 
 		deleteRoot(root);
 		
