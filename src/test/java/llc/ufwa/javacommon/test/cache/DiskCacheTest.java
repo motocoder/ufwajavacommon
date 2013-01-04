@@ -19,7 +19,7 @@ public class DiskCacheTest {
     @Test
     public void testDiskCache() {
         
-        File root = new File("./temp3/");
+        File root = new File("./target/test-files/temp3/");
         
         try {
             

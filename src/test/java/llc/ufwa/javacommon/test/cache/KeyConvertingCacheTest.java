@@ -28,7 +28,7 @@ public class KeyConvertingCacheTest {
 	private static ResourceLoader<String, byte[]> resourceLoader;
 	private static KeyConvertingCache<Long, String, byte[]> testCacheWithResourceLoader;
 
-	private static File rootDir = new File("./test1/");
+	private static File rootDir = new File("./target/test-files/test1/");
 	private static FileCache fileCache;
 	private static KeyConvertingCache<Long, String, byte[]> testCacheWithFileCache;
 
