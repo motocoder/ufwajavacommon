@@ -2,7 +2,7 @@ package llc.ufwa.collections;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -17,11 +17,11 @@ import java.util.Set;
  *
  * @param <T>
  */
-public class IdentityHashSet<T> implements Set<T>, Serializable {
+public class IdentityHashSet<T> implements Set<T>, Serializable, Iterable<T>, Collection<T> {
     
     private static final long serialVersionUID = 7945618847840882705L;
     
-    private final Map<T, String> internal = new HashMap<T, String>();
+    private final Map<T, String> internal = new IdentityHashMap<T, String>();
 
     public IdentityHashSet() {};
     
@@ -47,7 +47,7 @@ public class IdentityHashSet<T> implements Set<T>, Serializable {
     }
 
     @Override
-    public Iterator iterator() {
+    public Iterator<T> iterator() {
         return internal.keySet().iterator();
     }
 
@@ -95,7 +95,7 @@ public class IdentityHashSet<T> implements Set<T>, Serializable {
         boolean returnVal = false;
         
         for(Object ob : c) {
-            if(add(c)) {
+            if(add(ob)) {
                 returnVal = true;
             }
         }
