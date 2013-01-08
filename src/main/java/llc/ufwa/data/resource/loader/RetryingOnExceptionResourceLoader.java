@@ -1,14 +1,13 @@
 package llc.ufwa.data.resource.loader;
 
-import java.util.List;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import llc.ufwa.concurrency.Callback;
 import llc.ufwa.data.exception.OutOfRetriesException;
 import llc.ufwa.data.exception.ResourceException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RetryingOnExceptionResourceLoader<Key, Value> extends DefaultResourceLoader<Key, Value> {
 

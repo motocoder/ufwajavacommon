@@ -2,7 +2,6 @@ package llc.ufwa.concurrency;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 /**
  * Executor that runs on DaemonThreads.

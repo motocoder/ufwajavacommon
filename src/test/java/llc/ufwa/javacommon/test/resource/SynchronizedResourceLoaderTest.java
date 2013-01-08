@@ -1,8 +1,6 @@
 
 package llc.ufwa.javacommon.test.resource;
 
-import static org.junit.Assert.fail;
-
 import java.util.ArrayList;
 import java.util.List;
 

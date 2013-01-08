@@ -30,12 +30,9 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
     private static final Logger logger = LoggerFactory.getLogger(CachedParallelResourceLoader.class);
     
     private final String loggingTag;
-    private final Executor threads;
     private final ParallelResourceLoaderImpl<Key, Value> internal;
     private final Cache<Key, Boolean> searchCache;
     private final Cache<Key, Value> cache;
-
-    private Executor getAllRunner;
     
     /**
      * 
@@ -458,8 +455,6 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
             
         };
         
-        this.threads = threads;
-        this.getAllRunner = getAllRunner;
         this.internal = new ParallelResourceLoaderImpl<Key, Value>(
             wrapper,
             threads,
@@ -525,8 +520,6 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         }
         
         this.searchCache = searchCache;
-        this.getAllRunner = getAllRunner;
-        this.threads = threads;
         
         this.internal = 
             new ParallelResourceLoaderImpl<Key, Value>(

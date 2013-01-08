@@ -81,7 +81,7 @@ public class ExpiringCacheTest {
                             
                         }
                         
-                        final List<String> results = cache.getAll(keys2);
+                        cache.getAll(keys2);
                         
                         completedThreads.add(String.valueOf(i)); //we are done, tell stuff it has completed.
                         

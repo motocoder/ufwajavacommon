@@ -3,13 +3,8 @@ package llc.ufwa.util;
 import llc.ufwa.collections.geospatial.GeoItem;
 import llc.ufwa.geo.RawPoint;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class PointUtils {
-	
-	private static final Logger logger = LoggerFactory.getLogger(PointUtils.class);
 	
 	private PointUtils() {}
 	

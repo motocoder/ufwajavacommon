@@ -1,8 +1,5 @@
 package llc.ufwa.data.resource.provider;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.cache.Cache;
 import llc.ufwa.data.resource.cache.MemoryCache;
@@ -17,9 +14,7 @@ import llc.ufwa.data.resource.cache.MemoryCache;
  * @param <T>
  */
 public class CachedPushProvider<T> implements PushProvider<T> {
-
-    private static final Logger logger = LoggerFactory.getLogger(CachedPushProvider.class);
-    
+ 
     private final String KEY = String.valueOf(System.currentTimeMillis()) + this.hashCode();
     private final Cache<String, T> cache;
     private final ResourceProvider<T> notInCacheProvider;

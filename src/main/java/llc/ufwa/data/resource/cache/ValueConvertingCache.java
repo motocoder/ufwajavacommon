@@ -1,13 +1,11 @@
 package llc.ufwa.data.resource.cache;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.Converter;
 import llc.ufwa.data.resource.loader.ResourceLoader;
-import llc.ufwa.util.DataUtils;
 
 public class ValueConvertingCache<Key, Value, OldValue> implements Cache<Key, Value> {
     

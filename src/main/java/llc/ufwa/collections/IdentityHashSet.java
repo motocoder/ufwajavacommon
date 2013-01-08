@@ -56,11 +56,13 @@ public class IdentityHashSet<T> implements Set<T>, Serializable, Iterable<T>, Co
         return internal.keySet().toArray();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Object[] toArray(Object[] a) {
         return internal.keySet().toArray(a);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean add(Object e) {
         
@@ -84,11 +86,13 @@ public class IdentityHashSet<T> implements Set<T>, Serializable, Iterable<T>, Co
         return internal.remove(o) != null;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean containsAll(Collection c) {
         return internal.keySet().containsAll(c);
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean addAll(Collection c) {
         
@@ -104,11 +108,13 @@ public class IdentityHashSet<T> implements Set<T>, Serializable, Iterable<T>, Co
         
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean retainAll(Collection c) {
         return internal.keySet().retainAll(c);
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean removeAll(Collection c) {
         return internal.keySet().removeAll(c);

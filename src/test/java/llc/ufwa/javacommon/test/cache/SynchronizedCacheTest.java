@@ -78,7 +78,7 @@ public class SynchronizedCacheTest {
 	            keys.add("test1");
 	            keys.add("test2");
 	            
-	            final List<String> results = cache.getAll(keys);
+	            cache.getAll(keys);
 	            
 	            TestCase.assertEquals(cache.get("key"), "key");
 	            TestCase.assertEquals(false, cache.exists("key"));

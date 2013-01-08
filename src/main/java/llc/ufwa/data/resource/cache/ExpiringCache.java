@@ -8,15 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import llc.ufwa.data.beans.Entry;
 import llc.ufwa.data.exception.ResourceException;
 
 public class ExpiringCache<Key, Value> implements Cache<Key, Value>{
     
-    private static final Logger logger = LoggerFactory.getLogger(ExpiringCache.class);
+    
     
     private final LinkedList<Entry<Key, Long>> lastUpdated = new LinkedList<Entry<Key, Long>>();
     

@@ -2,16 +2,13 @@ package llc.ufwa.javacommon.test.cache;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
 import junit.framework.TestCase;
-import llc.ufwa.concurrency.ParallelControl;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.StringSizeConverter;
 import llc.ufwa.data.resource.cache.Cache;
-import llc.ufwa.data.resource.cache.ExpiringCache;
 import llc.ufwa.data.resource.cache.MemoryCache;
 import llc.ufwa.data.resource.cache.SynchronizedCache;
 import llc.ufwa.util.StopWatch;
@@ -149,6 +146,7 @@ public class MemoryCacheTest {
             
             new Thread() {
                 
+                @Override
                 public void run() {
                     
                     try {
@@ -196,6 +194,7 @@ public class MemoryCacheTest {
             
             new Thread() {
                 
+                @Override
                 public void run() {
                     
                     try {
@@ -210,7 +209,7 @@ public class MemoryCacheTest {
                             
                         }
                         
-                        final List<String> results = cache.getAll(keys2); //test results
+                        cache.getAll(keys2); //test results
                         
                         hashset.add(String.valueOf(i));
                         

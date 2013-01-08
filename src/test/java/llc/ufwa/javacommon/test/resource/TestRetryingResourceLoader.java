@@ -1,11 +1,9 @@
 package llc.ufwa.javacommon.test.resource;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
-
 import llc.ufwa.concurrency.Callback;
 import llc.ufwa.concurrency.ParallelControl;
 import llc.ufwa.data.exception.OutOfRetriesException;
@@ -223,6 +221,8 @@ public class TestRetryingResourceLoader {
     }
     
     private class TestException extends ResourceException {
+
+        private static final long serialVersionUID = 5818948637592911952L;
         
     }
     

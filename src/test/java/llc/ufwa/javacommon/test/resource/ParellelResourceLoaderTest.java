@@ -700,8 +700,6 @@ public class ParellelResourceLoaderTest {
         }
     }
     
-    private int count;
-    
 //    @Test
 //    public void testConcurrentCalls() {
 //        

@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
 import llc.ufwa.concurrency.Callback;
-import llc.ufwa.concurrency.ParallelControl;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.StringSizeConverter;
 import llc.ufwa.data.resource.cache.Cache;
@@ -29,8 +28,6 @@ public class BatchingParallelResourceLoaderTest {
     
     @Test
     public void testBatchingParallelResourceLoaderStress() {
-        
-        final ParallelControl<Boolean> allDone = new ParallelControl<Boolean>();
         
         final Random rand = new Random(); 
         final HashSet<String> hashset = new HashSet<String>();
@@ -100,8 +97,6 @@ public class BatchingParallelResourceLoaderTest {
                 );
         
         for (int x = 0; x < 50; x++){
-            
-            final int i = x;
             
             new Thread() {
                 
@@ -198,7 +193,7 @@ public class BatchingParallelResourceLoaderTest {
                     }
                     
                     try {
-                        final List<String> results = cache.getAll(keys2);
+                        cache.getAll(keys2);
                     } 
                     catch (ResourceException e) {
                         e.printStackTrace();

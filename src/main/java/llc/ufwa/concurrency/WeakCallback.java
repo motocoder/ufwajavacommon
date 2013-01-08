@@ -5,8 +5,6 @@ import java.lang.ref.WeakReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import llc.ufwa.data.exception.GarbageCollectedReferenceException;
-
 public class WeakCallback<Caller, Value> implements Callback<Caller, Value>{
 
     private static final Logger logger = LoggerFactory.getLogger(WeakCallback.class);

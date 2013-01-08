@@ -2,9 +2,6 @@ package llc.ufwa.activities.injecting;
 
 import java.util.concurrent.Executor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import llc.ufwa.concurrency.SerialExecutor;
 
 /**
@@ -17,8 +14,6 @@ import llc.ufwa.concurrency.SerialExecutor;
  * @param <T>
  */
 public abstract class InjectableController<T extends InjectingDisplay> {
-    
-    private static final Logger logger = LoggerFactory.getLogger(InjectableController.class);
     
     private final AllDisplays<T> displays;
     private final Class<T> displayClass;

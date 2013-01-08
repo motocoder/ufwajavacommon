@@ -9,12 +9,11 @@ import java.util.TreeSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import llc.ufwa.concurrency.RunnableStates.SequencedRunnable;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.provider.ResourceProvider;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RunnableStates {
     
@@ -98,6 +97,7 @@ public class RunnableStates {
      * @return
      * @throws InterruptedException 
      */
+    @SuppressWarnings("rawtypes")
     public synchronized Future getTask(SequencedRunnable runnable) {
             
         Integer id = runnableToID.get(runnable);
@@ -110,6 +110,7 @@ public class RunnableStates {
      * @throws InterruptedException 
      * 
      */
+    @SuppressWarnings("rawtypes")
     public synchronized void cancel() {
         
         final SequencedRunnable returnVal;

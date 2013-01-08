@@ -27,11 +27,11 @@ import llc.ufwa.util.PointUtils;
  */
 public class GeoPlot <T extends GeoItem> implements GeoGraph<T> {
     
-    private static final double LATITUDE_MIN = -80000000;
-    private static final double LATITUDE_MAX = 80000000;
-    
-    private static final double LONGITUDE_MIN = -180000000;
-    private static final double LONGITUDE_MAX = 180000000;
+//    private static final double LATITUDE_MIN = -80000000;
+//    private static final double LATITUDE_MAX = 80000000;
+//    
+//    private static final double LONGITUDE_MIN = -180000000;
+//    private static final double LONGITUDE_MAX = 180000000;
     
 	private final TreeMap<Double, Set<T>> xSorted = new TreeMap<Double, Set<T>>();
 	private final TreeMap<Double, Set<T>> ySorted = new TreeMap<Double, Set<T>>();
