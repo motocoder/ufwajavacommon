@@ -34,15 +34,15 @@ public class FileCacheTest {
 
 			final FileCache diskCache = new FileCache(root, 500000, 50000);
 			final Cache<String, String> cache = 
-					new ValueConvertingCache<String, String, byte []>(
-							new ValueConvertingCache<String, byte [], InputStream>( 
-									new KeyEncodingCache<InputStream>(
-											diskCache
-											),
-											new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
-									),
-									new SerializingConverter<String>()
-							);
+				new ValueConvertingCache<String, String, byte []>(
+					new ValueConvertingCache<String, byte [], InputStream>( 
+						new KeyEncodingCache<InputStream>(
+							diskCache
+							),
+							new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+						),
+						new SerializingConverter<String>()
+					);
 
 
 					{
@@ -449,6 +449,9 @@ public class FileCacheTest {
 			} else {
 
 				for (File cacheFile: filesLeft){
+				    
+				    System.out.println("file left " + cacheFile);
+				    
 					actualSize += 10;
 				}
 			}

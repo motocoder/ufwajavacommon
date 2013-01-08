@@ -158,6 +158,8 @@ public class CacheResourceLoaderTest {
     }
 
     private static class TestException extends ResourceException {
+
+        private static final long serialVersionUID = -1489520539223059786L;
         
     }
 }

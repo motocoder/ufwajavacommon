@@ -1,19 +1,16 @@
 package llc.ufwa.data.resource.cache;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import llc.ufwa.data.beans.Entry;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.Converter;
 import llc.ufwa.data.resource.loader.DefaultResourceLoader;
 import llc.ufwa.util.StopWatch;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 

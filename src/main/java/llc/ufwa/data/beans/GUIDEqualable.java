@@ -16,6 +16,7 @@ public abstract class GUIDEqualable<T> implements Serializable {
         this.id = id;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean equals(Object obj) {
         

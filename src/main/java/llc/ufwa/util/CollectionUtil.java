@@ -1,12 +1,8 @@
 package llc.ufwa.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import llc.ufwa.concurrency.Callback;
-import llc.ufwa.data.resource.loader.ResourceEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

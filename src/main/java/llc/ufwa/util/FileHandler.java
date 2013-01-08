@@ -3,7 +3,6 @@
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -20,7 +19,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Deprecated
+/**
+ * this class is deprecated and really old.
+ * 
+ * @author littleboy
+ *
+ */
 public class FileHandler {
     private static Logger logger = LoggerFactory.getLogger(FileHandler.class);    
   
@@ -193,26 +198,6 @@ public class FileHandler {
         return gatheredFiles;
         
     }
-    public static boolean copyLocalFile( File sourceFile, File destinationFile  ) {
-
-        try {
-         
-          sourceFile.getParentFile().mkdirs();
-          FileInputStream fis = new FileInputStream( sourceFile );
-          
-          destinationFile.getParentFile().mkdirs();
-          FileOutputStream fos = new FileOutputStream( destinationFile );
-
-          int oneChar = 0;
-          while( (oneChar=fis.read()) != -1 )  fos.write( oneChar );
-          fos.close();
-
-        } catch ( Exception ex ) {
-          logger.error("Exception copying file ", ex);
-          return false;
-        }
-        return true;
-      }
     
     /**
      * creates image icon from png image in the com/cefd/th/images directory

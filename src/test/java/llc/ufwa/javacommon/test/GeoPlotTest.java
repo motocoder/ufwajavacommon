@@ -127,8 +127,6 @@ public class GeoPlotTest {
 		
 		final Set<TestItem> inside = new HashSet<TestItem>();
 		
-		final long start = System.currentTimeMillis();
-		
 		for(int i = 0; i < 15000; i++) {
 			
 		    final double newX = ((Math.random() - 0.5) * 100);

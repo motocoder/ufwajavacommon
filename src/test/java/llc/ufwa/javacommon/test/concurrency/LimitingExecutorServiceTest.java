@@ -17,7 +17,7 @@ import org.junit.Test;
 public class LimitingExecutorServiceTest {
 
     private final Object lock = new Object();
-    private int total = 0;
+    
     private int current = 0;
     private int max = 0;
     
@@ -55,8 +55,6 @@ public class LimitingExecutorServiceTest {
         };
         
         for(int i = 0; i < 1000; i++) {
-    
-            final int finalI = i;
             
             Runnable runnable = new Runnable() {
 
@@ -65,7 +63,6 @@ public class LimitingExecutorServiceTest {
                     
                     synchronized(lock) { 
                         
-                        total++;
                         current++;
                         
                         if(current > max) {

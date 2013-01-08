@@ -1,13 +1,16 @@
 package llc.ufwa.javacommon.test.resource;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.LinkedList;
 
 import junit.framework.TestCase;
 import llc.ufwa.data.exception.ResourceException;
+import llc.ufwa.data.resource.InputStreamConverter;
+import llc.ufwa.data.resource.ReverseConverter;
 import llc.ufwa.data.resource.SerializingConverter;
 import llc.ufwa.data.resource.cache.Cache;
-import llc.ufwa.data.resource.cache.DiskCache;
+import llc.ufwa.data.resource.cache.FileCache;
 import llc.ufwa.data.resource.cache.KeyEncodingCache;
 import llc.ufwa.data.resource.cache.MemoryCache;
 import llc.ufwa.data.resource.cache.SynchronizedCache;
@@ -69,7 +72,17 @@ public class CachedPushProviderTest {
         {
             
             final File listCacheDir = new File("./target/test-files/temp");
-            final Cache<String, byte []> listDiskCache = new DiskCache<String>(listCacheDir, -1L, -1L);
+            
+            final FileCache diskCache = new FileCache(listCacheDir, -1, -1);
+            
+            final Cache<String, byte []> listDiskCache = 
+                new ValueConvertingCache<String, byte [], InputStream>( 
+                    new KeyEncodingCache<InputStream>(
+                            diskCache
+                        ),
+                        new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+                    );
+                    
             
             listCache = 
                 new SynchronizedCache<String, LinkedList<Long>>(

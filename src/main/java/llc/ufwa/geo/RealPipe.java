@@ -8,12 +8,7 @@ import java.util.Set;
 import llc.ufwa.util.PointUtils;
 import llc.ufwa.util.PointUtils.InsideOutside;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class RealPipe implements GeoPipe {	
-	
-	private static final Logger logger = LoggerFactory.getLogger(RealPipe.class);
 		
 	private RawPoint lastPoint;
 	private final Set<RawPoint> allPoints = new HashSet<RawPoint>();

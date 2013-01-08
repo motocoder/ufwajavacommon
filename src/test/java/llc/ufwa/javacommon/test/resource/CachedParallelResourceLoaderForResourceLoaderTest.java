@@ -247,8 +247,6 @@ public class CachedParallelResourceLoaderForResourceLoaderTest {
             
             internal.put("hi", "hi");
             
-            final ParallelControl<Object> control = new ParallelControl<Object>();
-            
             final MemoryCache<String, Boolean> searchCache = new MemoryCache<String, Boolean>();
             final MemoryCache<String, String> cache = new MemoryCache<String, String>();
             

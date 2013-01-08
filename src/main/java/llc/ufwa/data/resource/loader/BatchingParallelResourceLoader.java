@@ -11,12 +11,7 @@ import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.cache.Cache;
 import llc.ufwa.util.CollectionUtil;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class BatchingParallelResourceLoader<Key, Value> implements ParallelResourceLoader<Key, Value> {
-
-    private static final Logger logger = LoggerFactory.getLogger(BatchingParallelResourceLoader.class);
     
     private final ParallelResourceLoader<Key, Value> internal;
     private final int batchSize;

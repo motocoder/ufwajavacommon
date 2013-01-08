@@ -5,12 +5,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import llc.ufwa.data.exception.ResourceException;
-import llc.ufwa.data.resource.SerializingConverter;
 import llc.ufwa.data.resource.cache.AlwaysNullCache;
 import llc.ufwa.data.resource.cache.Cache;
-import llc.ufwa.data.resource.cache.DiskCache;
-import llc.ufwa.data.resource.cache.KeyEncodingCache;
-import llc.ufwa.data.resource.cache.ValueConvertingCache;
 
 import org.junit.Test;
 
