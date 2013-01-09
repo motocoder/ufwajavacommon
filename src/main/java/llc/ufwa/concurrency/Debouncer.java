@@ -82,63 +82,84 @@ public class Debouncer {
 	 */
 	public synchronized void signal() {
 	
+	    logger.debug("debouncer signaled");
+	    
 		if(!signalOut) {
+		    
+		    logger.debug("signal wasn't out");
 		    
 		    try {
 		        
-                if(shouldRun.provide()) {
-                
-                    shouldRun.push(true);
+		        synchronized(shouldRun) {
+		            
+                    if(shouldRun.provide()) {
+                        
+                        logger.debug("shouldRun");
                     
-                	signalOut = true;
-                	
-                	executor.execute(
-                		new Runnable() {
-   
-                			@Override
-                			public void run() {
-                			    
-                				synchronized(lock) {
-                				    
-                				    try {
-                                        lock.wait(delay);
-                                    }
-                				    catch (InterruptedException e) {
-                                        logger.error("Deboucer interrupted:", e);
-                                    }
-                				    
-                				}
-                				
-                				executor.execute(
-                					new Runnable() {
-                						@Override
-                                        public void run() {
-                						    
-                							callback.call(null, null);
-                							
-                							synchronized(Debouncer.this) {
-                                                signalOut = false;
+                        shouldRun.push(false);
+                        
+                    	signalOut = true;
+                    	
+                    	executor.execute(
+                    		new Runnable() {
+       
+                    			@Override
+                    			public void run() {
+                    			    
+                    			    logger.debug("debouncer waiting " + System.currentTimeMillis());
+                    			    
+                    				synchronized(lock) {
+                    				    
+                    				    try {
+                                            lock.wait(delay);
+                                        }
+                    				    catch (InterruptedException e) {
+                                            logger.error("Deboucer interrupted:", e);
+                                        }
+                    				    
+                    				}
+                    				
+                    				logger.debug("debouncer not waiting" + System.currentTimeMillis());
+
+        						    logger.debug("started debouncer");
+        						    
+        						    executor.execute(
+                                            
+                                        new Runnable() {
+
+                                            @Override
+                                            public void run() {
+                                                callback.call(null, null);                                                
                                             }
-                							
-                						}
-                						
-                					}
-                					
-                				);
-                				
-                			}
-                			
-                		}
-                		
-                    );
-                
-                }
+                                            
+                                        }
+                                        
+                                    );
+        						    
+        						    synchronized(Debouncer.this) {
+                                        signalOut = false;
+                                    }
+        						    			
+                    			}
+                    			
+                    		}
+                    		
+                        );
+                    
+                    }
+                    else {
+                        logger.debug("shouldn't run");
+                    }
+		        }
                 
             }
 		    catch (ResourceException e) {
                 throw new RuntimeException("this shouldn't happen", e);
             }
 		    
+		}
+		else {
+		    logger.debug("signal was out already doing nothing");
 		}
 		
 	}
@@ -151,6 +172,21 @@ public class Debouncer {
         
         synchronized(lock) {
             lock.notifyAll();
+        }
+        
+    }
+
+    public void push(boolean b) {
+        
+        synchronized(shouldRun) {
+            
+            try {
+                shouldRun.push(b);
+            }
+            catch (ResourceException e) {
+                throw new RuntimeException("Should never happen", e);
+            }
+            
         }
         
     }
