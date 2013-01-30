@@ -5,7 +5,6 @@ package llc.ufwa.concurrency;
 import java.util.LinkedList;
 import java.util.concurrent.Executor;
 
-import llc.ufwa.javacommon.test.concurrency.OneThroughLimitingExecutorTest;
 
 import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
@@ -13,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class OneThroughLimitingExecutor implements Executor {
 	
-	private static final Logger logger = LoggerFactory.getLogger(OneThroughLimitingExecutorTest.class);	
+	private static final Logger logger = LoggerFactory.getLogger(OneThroughLimitingExecutor.class);	
 
     private final Executor threads;
     private final LinkedList<Runnable> runList = new LinkedList<Runnable>();
