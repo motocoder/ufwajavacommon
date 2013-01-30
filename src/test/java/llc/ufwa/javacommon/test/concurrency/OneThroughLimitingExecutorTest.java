@@ -27,6 +27,7 @@ public class OneThroughLimitingExecutorTest {
 	static {
         BasicConfigurator.configure();
     }
+	
 	private static final Logger logger = LoggerFactory.getLogger(OneThroughLimitingExecutorTest.class);	
 	
 	@Test
@@ -62,9 +63,11 @@ public class OneThroughLimitingExecutorTest {
             }
         };
         
-        OneThroughLimitingExecutor oneThrough = new OneThroughLimitingExecutor(Executors.newFixedThreadPool(1), service);
+        OneThroughLimitingExecutor oneThrough = new OneThroughLimitingExecutor(Executors.newFixedThreadPool(1));
         
         final ParallelControl<String> control1 = new ParallelControl<String>();
+        final ParallelControl<String> control2 = new ParallelControl<String>();
+        final ParallelControl<String> control3 = new ParallelControl<String>();
         
         control1.setValue(null);
         
@@ -74,52 +77,125 @@ public class OneThroughLimitingExecutorTest {
             
         			@Override
         			public void run() {
-        				try{
+        			    
+        				try {
+        				    
         					logger.debug("first runnable before sleep");
         					control1.blockOnce();
+        					
         				}
         				catch(Exception e){
         					e.printStackTrace();
         				}
+        				
         			}
+        			
         		}
+        		
         );
         
         try {
 			Thread.sleep(300);
-		} catch (InterruptedException e2) {
+		}
+        catch(InterruptedException e2) {
 			e2.printStackTrace();
 		}
         
         oneThrough.execute(
         		
-        		new Runnable() {
+    		new Runnable() {
+        
+    			@Override
+    			public void run() {
+    			    
+    				try {
+    				    
+    					logger.debug("second runnable");
+    					
+    					control1.setValue("1");
+    					control2.unBlockOnce();
+    					
+    				}
+    				catch(Exception e){
+    					e.printStackTrace();
+    				}
+    				
+    			}
+    			
+    		}
+    		
+        );
+        
+        oneThrough.execute(
+                
+            new Runnable() {
+        
+                @Override
+                public void run() {
+                    
+                    try {
+                        
+                        logger.debug("second runnable");
+                        control2.setValue("2");
+                        control2.unBlockOnce();
+                        
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                    }
+                    
+                }
+                
+            }
             
-        			@Override
-        			public void run() {
-        				try{
-        					logger.debug("second runnable");
-        					control1.setValue("");
-        				}
-        				catch(Exception e){
-        					e.printStackTrace();
-        				}
-        			}
-        		}
+        );
+        
+        oneThrough.execute(
+                
+            new Runnable() {
+        
+                @Override
+                public void run() {
+                    
+                    try{
+                        
+                        logger.debug("second runnable");
+                        control3.setValue("3");
+                        control2.unBlockOnce();
+                        
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                    }
+                    
+                }
+                
+            }
+            
         );
         
         
         try {
 			Thread.sleep(500);
-		} catch (InterruptedException e1) {
+		} 
+        catch(InterruptedException e1) {
 			e1.printStackTrace();
 		}
         
-        if(control1.getValue() != null) {
-        	Assert.fail();
+        TestCase.assertNull(control1.getValue());
+                
+        control1.unBlockOnce();
+        
+        try {
+            control2.blockOnce();
+        } 
+        catch (InterruptedException e1) {
+            e1.printStackTrace();
         }
         
-        control1.unBlockOnce();
+        TestCase.assertEquals(null, control1.getValue());
+        TestCase.assertEquals(null, control2.getValue());
+        TestCase.assertEquals("3", control3.getValue());
         
         oneThrough.execute(
         		
@@ -127,27 +203,33 @@ public class OneThroughLimitingExecutorTest {
             
         			@Override
         			public void run() {
-        				try{
+        				
+        			    try{
+        				    
         					logger.debug("third runnable");
         					control1.setValue("");
         					control1.unBlockOnce();
+        					
         				}
         				catch(Exception e){
         					e.printStackTrace();
         				}
+        			    
         			}
+        			
         		}
+        		
         );
         
         try {
 			control1.blockOnce();
-		} catch (InterruptedException e) {
+		}
+        catch(InterruptedException e) {
 			e.printStackTrace();
 		}
         
-        if(control1.getValue() == null) {
-        	TestCase.fail();
-        }
+        TestCase.assertNotNull(control1.getValue());
+        
         
 	}
 
