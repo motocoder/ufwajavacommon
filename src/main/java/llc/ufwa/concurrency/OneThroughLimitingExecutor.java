@@ -1,14 +1,21 @@
 package llc.ufwa.concurrency;
 
-
-
 import java.util.LinkedList;
 import java.util.concurrent.Executor;
-
 
 import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+/**
+ * This class wraps an executor and limits the queue to 1.  
+ * 
+ * If you add another runnable it pushes the previously queued runnable out and becomes first in queue.
+ * 
+ * 
+ * @author michaelporter
+ *
+ */
 
 public class OneThroughLimitingExecutor implements Executor {
 	
