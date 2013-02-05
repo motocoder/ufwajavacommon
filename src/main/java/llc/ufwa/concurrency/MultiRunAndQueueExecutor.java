@@ -6,6 +6,13 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class wraps an executor and limits the runnables and queueables to given constructor values.  
+ * 
+ * @author michaelporter
+ *
+ */
+
 public class MultiRunAndQueueExecutor implements Executor {
     
     private static final Logger logger = LoggerFactory.getLogger(OneThroughLimitingExecutor.class); 
