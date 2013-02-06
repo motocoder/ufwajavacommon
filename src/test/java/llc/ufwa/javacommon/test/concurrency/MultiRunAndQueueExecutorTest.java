@@ -30,35 +30,14 @@ public class MultiRunAndQueueExecutorTest {
     @Test
     public void MultiRunAndQueueExecutorTest() {
         
-        LimitingExecutorService service = new LimitingExecutorService(Executors.newFixedThreadPool(1), Executors.newFixedThreadPool(1), 1) {
-
-            @Override
-            public <T> List<Future<T>> invokeAll(
-                    Collection<? extends Callable<T>> tasks)
-                    throws InterruptedException {
-                throw new RuntimeException("NOT SUPPORTED");
-            }
-
-            @Override
-            public <T> List<Future<T>> invokeAll(
-                    Collection<? extends Callable<T>> tasks, long timeout,
-                    TimeUnit unit) throws InterruptedException {
-                throw new RuntimeException("NOT SUPPORTED");
-            }
-
-            @Override
-            public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
-                    throws InterruptedException, ExecutionException {
-                throw new RuntimeException("NOT SUPPORTED"); 
-            }
-
-            @Override
-            public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
-                    long timeout, TimeUnit unit) throws InterruptedException,
-                    ExecutionException, TimeoutException {
-                throw new RuntimeException("NOT SUPPORTED");
-            }
-        };
+        //TODO Ok so now that you understand the dynamics of your test case,
+        //I want you to modify the test case so that it also stress tests your class,
+        //Basically what this will do is run a whole shit ton of runnables in your executor,
+        //and test to make sure only the right amount are ever running at one time,
+        //it should also test to make sure that amount and not less than that amount is running,
+        // if they have been added to the queue.
+        //Currently your test case only tests running once through, in the real world, thousands of threads will
+        // be running through this
         
         MultiRunAndQueueExecutor MultiRun = new MultiRunAndQueueExecutor(Executors.newFixedThreadPool(1), 4, 3);
         

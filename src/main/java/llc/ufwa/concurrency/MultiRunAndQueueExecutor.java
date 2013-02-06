@@ -20,8 +20,8 @@ public class MultiRunAndQueueExecutor implements Executor {
     private final Executor threads;
     private final LinkedList<Runnable> runList = new LinkedList<Runnable>();
     private final LinkedList<Runnable> queueList = new LinkedList<Runnable>();
-    private int runners;
-    private int queuers;
+    private final int runners;//TODO should be final
+    private final int queuers; //TODO Should be final
     
     
     public MultiRunAndQueueExecutor(
@@ -38,7 +38,8 @@ public class MultiRunAndQueueExecutor implements Executor {
     
     private void startIfAvailable() {
         
-        if(runList.size() > 0) {
+        
+        if(runList.size() > 0) { //TODO should be accessing runlist inside synchronized block.
             
             threads.execute(
                     
@@ -47,6 +48,9 @@ public class MultiRunAndQueueExecutor implements Executor {
                     @Override
                     public void run() {
     
+                        //TODO modify this into a loop, as long as there are runnables inside runlist,
+                        // run them and remove them after running them.
+                        //Move queued ones into the runlist if the runlist is too small too.
                         final Runnable toRun;
                         
                         synchronized(runList) {
@@ -59,6 +63,7 @@ public class MultiRunAndQueueExecutor implements Executor {
                             }
                             
                         }
+                        
                         
                         if(toRun != null) {
                             
@@ -75,6 +80,8 @@ public class MultiRunAndQueueExecutor implements Executor {
                                 runList.removeFirst();
                                 logger.debug("finally rerun startIfAvailable after pop run... after");
                                 
+                              //TODO pretty sure you need to modify this move queuers into the runlist
+                                //if the runlist is less than the runners constant.
                                 startIfAvailable();
                                 
                             }
@@ -103,7 +110,7 @@ public class MultiRunAndQueueExecutor implements Executor {
                     startIfAvailable();
                     logger.debug("");
 
-                    }
+                    } //TODO format is off
                 else if(runList.size() >= runners) {
                 
                     if(queueList.size() < queuers) {
