@@ -20,8 +20,8 @@ public class MultiRunAndQueueExecutor implements Executor {
     private final Executor threads;
     private final LinkedList<Runnable> runList = new LinkedList<Runnable>();
     private final LinkedList<Runnable> queueList = new LinkedList<Runnable>();
-    private final int runners;//TODO should be final
-    private final int queuers; //TODO Should be final
+    private final int runners;
+    private final int queuers; 
     
     
     public MultiRunAndQueueExecutor(
@@ -37,65 +37,62 @@ public class MultiRunAndQueueExecutor implements Executor {
     }
     
     private void startIfAvailable() {
-        
-        
-        if(runList.size() > 0) { //TODO should be accessing runlist inside synchronized block.
-            
-            threads.execute(
-                    
-                new Runnable() {
-    
-                    @Override
-                    public void run() {
-    
-                        //TODO modify this into a loop, as long as there are runnables inside runlist,
-                        // run them and remove them after running them.
-                        //Move queued ones into the runlist if the runlist is too small too.
-                        final Runnable toRun;
-                        
-                        synchronized(runList) {
-                            
-                            if(runList.size() != 0) {
-                                toRun = runList.getFirst();
+
+        synchronized (runList) {
+
+            if (runList.size() > 0) {
+
+                threads.execute(
+
+                        new Runnable() {
+
+                            @Override
+                            public void run() {
+
+                                final Runnable toRun;
+
+                                if (runList.size() != 0) {
+                                    toRun = runList.getFirst();
+                                } else if (runList.size() == 0 && queueList.size() > 0) {
+                                    
+                                    runList.add(queueList.pop());
+                                    toRun = runList.getFirst();
+                                    
+                                } else {
+                                    toRun = null;
+                                }
+
+                                if (toRun != null) {
+
+                                    try {
+
+                                        toRun.run();
+                                        logger.debug("if runList.size() >0  push and call startIfAvailable just ran");
+
+                                    } finally {
+
+                                        logger.debug("finally rerun startIfAvailable after pop run... before");
+                                        runList.removeFirst();
+                                        logger.debug("finally rerun startIfAvailable after pop run... after");
+
+                                        if (runList.size() < runners && queueList.size() > 0) {
+                                            runList.add(queueList.pop());
+                                        }
+
+                                        startIfAvailable();
+
+                                    }
+
+                                }
+
                             }
-                            else {
-                                toRun = null;
-                            }
-                            
+
                         }
-                        
-                        
-                        if(toRun != null) {
-                            
-                            try {
-                                
-                                toRun.run();
-                                
-                                logger.debug("if runList.size() >0  push and call startIfAvailable just ran");
-                                
-                            } 
-                            finally {
-                                
-                                logger.debug("finally rerun startIfAvailable after pop run... before");
-                                runList.removeFirst();
-                                logger.debug("finally rerun startIfAvailable after pop run... after");
-                                
-                              //TODO pretty sure you need to modify this move queuers into the runlist
-                                //if the runlist is less than the runners constant.
-                                startIfAvailable();
-                                
-                            }
-                            
-                        }
-    
-                    }
-                    
-                }
-                
-            );
-            
-        }
-        
+
+                    );
+              }
+          }
+
     }
 
     @Override
@@ -110,7 +107,7 @@ public class MultiRunAndQueueExecutor implements Executor {
                     startIfAvailable();
                     logger.debug("");
 
-                    } //TODO format is off
+                }
                 else if(runList.size() >= runners) {
                 
                     if(queueList.size() < queuers) {
