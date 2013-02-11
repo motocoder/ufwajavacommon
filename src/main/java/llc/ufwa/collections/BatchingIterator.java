@@ -15,7 +15,7 @@ import java.util.List;
 public class BatchingIterator<Key> implements Iterator<List<Key>> {
 
     private final List<Key> items;
-    private final int batchSize;
+    private final int batchSize; 
 
     /**
      * 
