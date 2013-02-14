@@ -39,7 +39,7 @@ public class MultiRunAndQueueExecutorTest {
         //Currently your test case only tests running once through, in the real world, thousands of threads will
         // be running through this
         
-        MultiRunAndQueueExecutor MultiRun = new MultiRunAndQueueExecutor(Executors.newFixedThreadPool(1), 4, 3);
+        MultiRunAndQueueExecutor multiRun = new MultiRunAndQueueExecutor(Executors.newFixedThreadPool(20), 4, 3);
         
         final ParallelControl<String> control1 = new ParallelControl<String>();
         final ParallelControl<String> control2 = new ParallelControl<String>();
@@ -51,7 +51,7 @@ public class MultiRunAndQueueExecutorTest {
         control3.setValue(null);
         control4.setValue(null);
         
-        MultiRun.execute(
+        multiRun.execute(
                 
                 new Runnable() {
             
@@ -78,7 +78,7 @@ public class MultiRunAndQueueExecutorTest {
         
   
         
-        MultiRun.execute(
+        multiRun.execute(
                 
             new Runnable() {
         
@@ -103,7 +103,7 @@ public class MultiRunAndQueueExecutorTest {
             
         );
         
-        MultiRun.execute(
+        multiRun.execute(
                 
             new Runnable() {
         
@@ -128,7 +128,7 @@ public class MultiRunAndQueueExecutorTest {
             
         );
         
-        MultiRun.execute(
+        multiRun.execute(
                 
             new Runnable() {
         
@@ -170,7 +170,7 @@ public class MultiRunAndQueueExecutorTest {
         
 
         
-        MultiRun.execute(
+        multiRun.execute(
                 
                 new Runnable() {
             
@@ -196,7 +196,7 @@ public class MultiRunAndQueueExecutorTest {
         
   
         
-        MultiRun.execute(
+        multiRun.execute(
                 
             new Runnable() {
         
@@ -219,7 +219,7 @@ public class MultiRunAndQueueExecutorTest {
             
         );
         
-        MultiRun.execute(
+        multiRun.execute(
                 
             new Runnable() {
         
@@ -242,7 +242,7 @@ public class MultiRunAndQueueExecutorTest {
             
         );
         
-        MultiRun.execute(
+        multiRun.execute(
                 
             new Runnable() {
         
