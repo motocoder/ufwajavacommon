@@ -20,7 +20,7 @@ public class DebouncerTest {
         final Debouncer debouncer = new Debouncer(new Callback<Object, Object>() {
 
             @Override
-            public boolean call(Object source, Object value) {
+            public Object call(Object value) {
                 
                 Integer val = control.getValue();
                 
@@ -33,7 +33,7 @@ public class DebouncerTest {
                 
                 control.setValue(val);
                 
-                return false;
+                return null;
                 
             }}, Executors.newFixedThreadPool(10), 1000);
         

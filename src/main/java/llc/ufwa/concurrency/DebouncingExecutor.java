@@ -26,7 +26,7 @@ public class DebouncingExecutor implements Executor {
     	debouncer = new Debouncer(new Callback<Object, Object>() {
 
             @Override
-            public boolean call(Object source, Object value) {
+            public Object call(Object value) {
                 
                 synchronized(toExecute) {
                     

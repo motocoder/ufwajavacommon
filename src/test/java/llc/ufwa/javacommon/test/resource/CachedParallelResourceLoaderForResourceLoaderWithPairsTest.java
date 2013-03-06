@@ -138,7 +138,7 @@ public class CachedParallelResourceLoaderForResourceLoaderWithPairsTest {
                 new Callback<Object, ResourceEvent<String>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<String> value) {
+                    public Object call(ResourceEvent<String> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
@@ -167,7 +167,7 @@ public class CachedParallelResourceLoaderForResourceLoaderWithPairsTest {
                 new Callback<Object, ResourceEvent<String>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<String> value) {
+                    public Object call(ResourceEvent<String> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
@@ -196,7 +196,7 @@ public class CachedParallelResourceLoaderForResourceLoaderWithPairsTest {
                 new Callback<Object, ResourceEvent<String>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<String> value) {
+                    public Object call(ResourceEvent<String> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
@@ -225,7 +225,7 @@ public class CachedParallelResourceLoaderForResourceLoaderWithPairsTest {
                 new Callback<Object, ResourceEvent<String>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<String> value) {
+                    public Object call(ResourceEvent<String> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
@@ -376,7 +376,7 @@ public class CachedParallelResourceLoaderForResourceLoaderWithPairsTest {
                 new Callback<Object, ResourceEvent<Boolean>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<Boolean> value) {
+                    public Object call(ResourceEvent<Boolean> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
@@ -405,7 +405,7 @@ public class CachedParallelResourceLoaderForResourceLoaderWithPairsTest {
                 new Callback<Object, ResourceEvent<Boolean>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<Boolean> value) {
+                    public Object call(ResourceEvent<Boolean> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
@@ -434,7 +434,7 @@ public class CachedParallelResourceLoaderForResourceLoaderWithPairsTest {
                 new Callback<Object, ResourceEvent<Boolean>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<Boolean> value) {
+                    public Object call(ResourceEvent<Boolean> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
@@ -463,7 +463,7 @@ public class CachedParallelResourceLoaderForResourceLoaderWithPairsTest {
                 new Callback<Object, ResourceEvent<Boolean>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<Boolean> value) {
+                    public Object call(ResourceEvent<Boolean> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();

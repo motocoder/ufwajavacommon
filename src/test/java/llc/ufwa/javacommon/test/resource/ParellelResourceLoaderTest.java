@@ -54,7 +54,7 @@ public class ParellelResourceLoaderTest {
             final Callback<Object, ResourceEvent<String>> callback = new Callback<Object, ResourceEvent<String>>() {
     
                 @Override
-                public boolean call(Object source, ResourceEvent<String> value) {
+                public Object call(ResourceEvent<String> value) {
                     
                     control.setValue(value);
                     control.unBlockOnce();
@@ -87,7 +87,7 @@ public class ParellelResourceLoaderTest {
             final Callback<Object, ResourceEvent<Boolean>> callback = new Callback<Object, ResourceEvent<Boolean>>() {
     
                 @Override
-                public boolean call(Object source, ResourceEvent<Boolean> value) {
+                public Object call(ResourceEvent<Boolean> value) {
                     
                     control.setValue(value);
                     control.unBlockOnce();
@@ -152,7 +152,7 @@ public class ParellelResourceLoaderTest {
             final Callback<Object, ResourceEvent<String>> callback1 = new Callback<Object, ResourceEvent<String>>() {
     
                 @Override
-                public boolean call(Object source, ResourceEvent<String> value) {
+                public Object call(ResourceEvent<String> value) {
                     
                     control1.setValue(value);
                     control1.unBlockOnce();
@@ -165,7 +165,7 @@ public class ParellelResourceLoaderTest {
             final Callback<Object, ResourceEvent<String>> callback2 = new Callback<Object, ResourceEvent<String>>() {
                 
                 @Override
-                public boolean call(Object source, ResourceEvent<String> value) {
+                public Object call(ResourceEvent<String> value) {
                     
                     control2.setValue(value);
                     control2.unBlockOnce();
@@ -443,7 +443,7 @@ public class ParellelResourceLoaderTest {
             final Callback<Object, ResourceEvent<String>> callback = new Callback<Object, ResourceEvent<String>>() {
 
                 @Override
-                public boolean call(Object source, ResourceEvent<String> value) {
+                public Object call(ResourceEvent<String> value) {
 
                     control.setValue(value);
                     control.unBlockOnce();
@@ -474,7 +474,7 @@ public class ParellelResourceLoaderTest {
             final Callback<Object, ResourceEvent<Boolean>> callback = new Callback<Object, ResourceEvent<Boolean>>() {
 
                 @Override
-                public boolean call(Object source, ResourceEvent<Boolean> value) {
+                public Object call(ResourceEvent<Boolean> value) {
 
                     control.setValue(value);
                     control.unBlockOnce();
@@ -646,7 +646,7 @@ public class ParellelResourceLoaderTest {
                     new Callback<Object, ResourceEvent<String>>() {
 
                         @Override
-                        public boolean call(Object source,
+                        public Object call(
                                 ResourceEvent<String> value) {
                             return false;
                         }
@@ -675,7 +675,7 @@ public class ParellelResourceLoaderTest {
                     new Callback<Object, ResourceEvent<Boolean>>() {
 
                         @Override
-                        public boolean call(Object source,
+                        public Object call(
                                 ResourceEvent<Boolean> value) {
                             return false;
                         }

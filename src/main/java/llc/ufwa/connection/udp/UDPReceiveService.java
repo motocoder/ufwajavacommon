@@ -147,7 +147,7 @@ public class UDPReceiveService {
 
                                     @Override
                                     public void run() {
-                                        callback.call(null, new ReceivedData(host, port, value));
+                                        callback.call(new ReceivedData(host, port, value));
                                     }
                                     
                                 }

@@ -48,9 +48,7 @@ public class RetryingOnExceptionResourceLoader<Key, Value> extends DefaultResour
                 
                 if(exceptionTypes.contains(e.getClass())) {
                     
-                    if(!onRetrying.call(null, key)) {
-                        break;
-                    }
+                    onRetrying.call(key);
                     
                 }
                 else {
@@ -79,9 +77,7 @@ public class RetryingOnExceptionResourceLoader<Key, Value> extends DefaultResour
                 
                 if(exceptionTypes.contains(e.getClass())) {
                     
-                    if(!onRetrying.call(null, key)) {
-                        break;
-                    }
+                    onRetrying.call(key);
                     
                 }
                 else {

@@ -497,7 +497,7 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
             parallelLoader.getParallel(new Callback<Object, ResourceEvent<String>>() {
 
                 @Override
-                public boolean call(Object source, ResourceEvent<String> value) { 
+                public Object call(ResourceEvent<String> value) { 
                     return false;
                 }}, "Hi");
             
@@ -578,7 +578,7 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 new Callback<Object, ResourceEvent<String>>() {
     
                     @Override
-                    public boolean call(Object source, ResourceEvent<String> value) {
+                    public Object call(ResourceEvent<String> value) {
                         
                         control1.setValue(value);
                         control1.unBlockOnce();
@@ -710,7 +710,7 @@ public class ForParellelResourceLoaderWithCachedPairImplTest {
                 new Callback<Object, ResourceEvent<String>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<String> value) {
+                    public Object call(ResourceEvent<String> value) {
                         
                         control2.setValue(value);
                         control2.unBlockOnce();

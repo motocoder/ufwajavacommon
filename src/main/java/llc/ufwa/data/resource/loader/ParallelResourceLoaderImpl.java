@@ -140,7 +140,6 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                                 public void run() {
                                     
                                     removedCallback.call(
-                                        null,
                                         new ResourceEvent<Value>(
                                             null,
                                             new CanceledResourceException("Too deep canceled"),
@@ -163,8 +162,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                     final Callback<Object, ResourceEvent<Value>> onComplete = new Callback<Object, ResourceEvent<Value>>() {
 
                         @Override
-                        public boolean call(
-                            final Object source,
+                        public Object call(
                             final ResourceEvent<Value> value
                         ) {
                             
@@ -303,7 +301,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
 
                                                 @Override
                                                 public void run() {
-                                                    callback.call(null, event);
+                                                    callback.call(event);
                                                 }
                                                 
                                             }
@@ -321,9 +319,9 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                     new Callback<Void, Void>() {
 
                         @Override
-                        public boolean call(Void source, Void value) {
+                        public Void call(Void value) {
                             cancel(newOuts, outStates, respondTo, callbackThreads);
-                            return false;
+                            return null;
                         }
                     }
                     
@@ -433,7 +431,6 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                                 public void run() {
                                     
                                     removedCallback.call(
-                                        null,
                                         new ResourceEvent<Value>(
                                             null,
                                             new CanceledResourceException("Too deep canceled"),
@@ -580,7 +577,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                                                 public void run() {
                                                 	                                                	
                                                 	try {
-                                                		callback.call(null, event);
+                                                		callback.call(event);
                                                 	}
                                                 	catch(Throwable t) {
                                                 		logger.error("Thrown: ", t);
@@ -602,10 +599,10 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                     new Callback<Void, Void>() {
 
                         @Override
-                        public boolean call(Void source, Void value) {
+                        public Void call(Void value) {
                             
                             cancel(newOuts, outStates, respondTo, callbackThreads);
-                            return false;
+                            return null;
                         }
                     }
                     
@@ -663,7 +660,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
 
                         @Override
                         public void run() {
-                            callback.call(null, event);
+                            callback.call(event);
                         }
                         
                     }
@@ -700,7 +697,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                 new Callback<Object, ResourceEvent<Value>>() {
 
             @Override
-            public boolean call(Object source, ResourceEvent<Value> value) {
+            public Object call(ResourceEvent<Value> value) {
                 
                 synchronized(provider) {
                     
@@ -797,7 +794,6 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                         public void run() {
                             
                             removedCallback.call(
-                                null,
                                 new ResourceEvent<Value>(
                                     null,
                                     new CanceledResourceException("Too deep canceled"),
@@ -825,6 +821,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                         
                     new Runnable() {
                         
+                        @Override
                         public void run() {
                         
                             Value value = null;
@@ -894,7 +891,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
     
                                             @Override
                                             public void run() {
-                                                callback.call(null, event);
+                                                callback.call(event);
                                             }
                                             
                                         }
@@ -911,13 +908,13 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                     new Callback<Void, Void>() {
 
                         @Override
-                        public boolean call(Void source, Void value) {
+                        public Void call(Void value) {
                             
                             final List<Key> keys = new ArrayList<Key>();
                             keys.add(key);
                             
                             cancel(keys, outStates, respondTo, callbackThreads);
-                            return false;
+                            return null;
                         }
                     }
                     

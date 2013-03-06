@@ -119,12 +119,12 @@ public class CachedParallelResourceLoaderForResourceLoaderTest {
                 new Callback<Object, ResourceEvent<String>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<String> value) {
+                    public Object call(ResourceEvent<String> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
                         
-                        return false;
+                        return null;
                         
                     }
                     
@@ -148,7 +148,7 @@ public class CachedParallelResourceLoaderForResourceLoaderTest {
                 new Callback<Object, ResourceEvent<String>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<String> value) {
+                    public Object call(ResourceEvent<String> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
@@ -177,7 +177,7 @@ public class CachedParallelResourceLoaderForResourceLoaderTest {
                 new Callback<Object, ResourceEvent<String>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<String> value) {
+                    public Object call(ResourceEvent<String> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
@@ -206,7 +206,7 @@ public class CachedParallelResourceLoaderForResourceLoaderTest {
                 new Callback<Object, ResourceEvent<String>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<String> value) {
+                    public Object call(ResourceEvent<String> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
@@ -341,12 +341,12 @@ public class CachedParallelResourceLoaderForResourceLoaderTest {
                 new Callback<Object, ResourceEvent<Boolean>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<Boolean> value) {
+                    public Object call(ResourceEvent<Boolean> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
                         
-                        return false;
+                        return null;
                         
                     }
                     
@@ -370,7 +370,7 @@ public class CachedParallelResourceLoaderForResourceLoaderTest {
                 new Callback<Object, ResourceEvent<Boolean>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<Boolean> value) {
+                    public Object call(ResourceEvent<Boolean> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
@@ -399,7 +399,7 @@ public class CachedParallelResourceLoaderForResourceLoaderTest {
                 new Callback<Object, ResourceEvent<Boolean>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<Boolean> value) {
+                    public Object call(ResourceEvent<Boolean> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();
@@ -428,7 +428,7 @@ public class CachedParallelResourceLoaderForResourceLoaderTest {
                 new Callback<Object, ResourceEvent<Boolean>>() {
 
                     @Override
-                    public boolean call(Object source, ResourceEvent<Boolean> value) {
+                    public Object call(ResourceEvent<Boolean> value) {
                         
                         control.setValue(value.getVal());
                         control.unBlockOnce();

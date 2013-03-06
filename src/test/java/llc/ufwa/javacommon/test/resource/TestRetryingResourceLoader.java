@@ -69,11 +69,10 @@ public class TestRetryingResourceLoader {
         final Callback<Void, String> onRetry = new Callback<Void, String>() {
 
             @Override
-            public boolean call(
-                final Void source,
+            public Void call(
                 final String value
             ) {
-                return false;
+                return null;
             }
             
         };
@@ -180,11 +179,10 @@ public class TestRetryingResourceLoader {
         final Callback<Void, String> onRetry = new Callback<Void, String>() {
 
             @Override
-            public boolean call(
-                final Void source,
+            public Void call(
                 final String value
             ) {
-                return false;
+                return null;
             }
             
         };

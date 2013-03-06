@@ -7,8 +7,8 @@ package llc.ufwa.concurrency;
  * @param <Source>
  * @param <Value>
  */
-public interface Callback<Source, Value> {
+public interface Callback<ReturnType, Value> {
 	
-	boolean call(Source source, Value value);
+    ReturnType call(Value value);
 
 }
