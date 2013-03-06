@@ -686,7 +686,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
             if(searchValue != null) {
                                 
                 final ResourceEvent<Boolean> completed = new ResourceEvent<Boolean>(searchValue, null, ResourceEvent.CACHED);
-                onComplete.call(null, completed);
+                onComplete.call(completed);
                     
             }
             else {
@@ -696,7 +696,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                 if(val != null) {
                     
                     final ResourceEvent<Boolean> completed = new ResourceEvent<Boolean>(true, null, ResourceEvent.CACHED);
-                    onComplete.call(null, completed);
+                    onComplete.call(completed);
                     
                 }
                 else {
@@ -706,8 +706,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                         new Callback<Object, ResourceEvent<Boolean>>() {
         
                             @Override
-                            public boolean call(
-                                final Object source,
+                            public Object call(
                                 final ResourceEvent<Boolean> value
                             ) {
                                 
@@ -715,7 +714,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                             		searchCache.put(key, value.getVal() != null && value.getVal());
                             	}
                                 
-                                onComplete.call(null, value);
+                                onComplete.call(value);
                                 
                                 return false;
                                 
@@ -732,7 +731,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         catch(ResourceException e) {
             
             final ResourceEvent<Boolean> completed = new ResourceEvent<Boolean>(null, e, ResourceEvent.UNKNOWN);
-            onComplete.call(null, completed);
+            onComplete.call(completed);
             
         }
         
@@ -755,7 +754,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
     			
     			final ResourceEvent<Value> event = new ResourceEvent<Value>(value, null, ResourceEvent.CACHED);
     			 
-    			callbackMap.get(key).call(null, event);
+    			callbackMap.get(key).call(event);
     			
     		}
     		else {
@@ -767,7 +766,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
     				
     				final ResourceEvent<Value> event = new ResourceEvent<Value>(null, null, ResourceEvent.CACHED);
         			
-        			callbackMap.get(key).call(null, event);
+        			callbackMap.get(key).call(event);
         			
     			}
     			
@@ -926,7 +925,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                                 
                 final ResourceEvent<Value> completed = new ResourceEvent<Value>(value, null, ResourceEvent.CACHED);
                 
-                onComplete.call(null, completed);
+                onComplete.call(completed);
 
             }
             else {
@@ -936,8 +935,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                     new Callback<Object, ResourceEvent<Value>>() {
 
                         @Override
-                        public boolean call(
-                            final Object source,
+                        public Object call(
                             final ResourceEvent<Value> value
                         ) {
                             
@@ -949,7 +947,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                                 cache.put(key, value.getVal());
                             }
                             
-                            onComplete.call(null, value);
+                            onComplete.call(value);
                             
                             return false;
                             
@@ -967,7 +965,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
             final ResourceEvent<Value> completed = new ResourceEvent<Value>(null, null, ResourceEvent.CACHED);
             
             //search cache had false.
-            onComplete.call(null, completed);
+            onComplete.call(completed);
             
         }    
                 
@@ -978,7 +976,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
             
             final ResourceEvent<Value> completed = new ResourceEvent<Value>(null, e, ResourceEvent.UNKNOWN);
 
-            onComplete.call(null, completed);
+            onComplete.call(completed);
 
         }                
         

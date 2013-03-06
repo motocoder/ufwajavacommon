@@ -25,13 +25,15 @@ public class WeakCallback<Caller, Value> implements Callback<Caller, Value>{
         
     }
     @Override
-    public boolean call(Caller source, Value value) {
+    public Caller call(Value value) {
         
         final Callback<Caller, Value> internal = internalWeak.get();
         
+        final Caller returnVal; 
+        
         if(internal != null) {
             
-            internal.call(source, value);
+            returnVal = internal.call(value);
             finalizer.onFinished(internal);
             
         }
@@ -44,9 +46,12 @@ public class WeakCallback<Caller, Value> implements Callback<Caller, Value>{
                 logger.warn("weakcallback was garbage collected");
             }
             
+            returnVal = null;
+            
         }
         
-        return false;
+        return returnVal;
+        
     }
 
 }

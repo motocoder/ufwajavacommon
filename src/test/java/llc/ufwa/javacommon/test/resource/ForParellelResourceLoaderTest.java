@@ -460,7 +460,7 @@ public class ForParellelResourceLoaderTest {
                 new Callback<Object, ResourceEvent<String>>() {
     
                     @Override
-                    public boolean call(Object source, ResourceEvent<String> value) {
+                    public Object call(ResourceEvent<String> value) {
                         
                         control1.setValue(value);
                         control1.unBlockOnce();
@@ -579,7 +579,7 @@ public class ForParellelResourceLoaderTest {
             new Callback<Object, ResourceEvent<String>>() {
 
                 @Override
-                public boolean call(Object source, ResourceEvent<String> value) {
+                public Object call(ResourceEvent<String> value) {
                    
                     control2.setValue(value);
                     control2.unBlockOnce();

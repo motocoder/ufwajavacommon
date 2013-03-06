@@ -112,7 +112,7 @@ public class BatchingParallelResourceLoaderTest {
                             new Callback <Object, ResourceEvent <String> > () {
 
                                 @Override
-                                public boolean call(Object source,
+                                public Object call(
                                     final ResourceEvent<String> value
                                 ) {
                                     
@@ -322,8 +322,8 @@ public class BatchingParallelResourceLoaderTest {
             batched.getParallel(new Callback<Object, ResourceEvent<String>>() {
 
                 @Override
-                public boolean call(Object source, ResourceEvent<String> value) {
-                    return false;
+                public Object call(ResourceEvent<String> value) {
+                    return null;
                 }}, "3");
         
             try {

@@ -101,7 +101,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
                 if(value == null) {
                     
                     if(searchValue != null && !searchValue) {
-                        onComplete.call(null, new ResourceEvent<Value>(null, null, ResourceEvent.UNKNOWN));
+                        onComplete.call(new ResourceEvent<Value>(null, null, ResourceEvent.UNKNOWN));
                     }
                     else {
                         internal.getParallel(onComplete, key);
@@ -109,7 +109,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
                     
                 }
                 else {                    
-                    onComplete.call(null, new ResourceEvent<Value>(value, null, ResourceEvent.CACHED));
+                    onComplete.call(new ResourceEvent<Value>(value, null, ResourceEvent.CACHED));
                 }
                 
             }
@@ -157,13 +157,12 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
                         new Callback<Object, ResourceEvent<Value>>() {
 
                             @Override
-                            public boolean call(
-                                final Object source,
+                            public Object call(
                                 final ResourceEvent<Value> value
                             ) {
                                 
                                 if(key == chunkKey || key.equals(chunkKey)) {
-                                    onComplete.call(null, value);
+                                    onComplete.call( value);
                                 }
                                 
                                 if(value.getVal() != null && value.getValueType() == ResourceEvent.NEW_LOADED) {
@@ -192,7 +191,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
                     if(chunkKey == key || key.equals(chunkKey)) {
                         
                         final ResourceEvent<Value> event = new ResourceEvent<Value>(null, null, ResourceEvent.UNKNOWN);
-                        onComplete.call(null, event);
+                        onComplete.call(event);
                         
                     }
                     
@@ -205,7 +204,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
                     
                     final ResourceEvent<Value> event = new ResourceEvent<Value>(value, null, ResourceEvent.CACHED);
                     
-                    onComplete.call(null, event);
+                    onComplete.call(event);
                 }
                 
             }

@@ -129,7 +129,7 @@ public class Debouncer {
 
                                             @Override
                                             public void run() {
-                                                callback.call(null, null);                                                
+                                                callback.call(null);                                                
                                             }
                                             
                                         }

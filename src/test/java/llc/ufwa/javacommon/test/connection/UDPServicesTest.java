@@ -35,7 +35,7 @@ public class UDPServicesTest {
                 new Callback<Void, ReceivedData>() {
 
                         @Override
-                        public boolean call(final Void source, final ReceivedData value) {
+                        public Void call(final ReceivedData value) {
                             
                             final String data = (String) value.getData().iterator().next();
                             
@@ -49,7 +49,7 @@ public class UDPServicesTest {
                                 
                             }
                             
-                            return false;
+                            return null;
                             
                         }
                     }

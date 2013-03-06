@@ -142,7 +142,7 @@ public class RunnableStates {
 
 								@Override
 								public void run() {
-									onCanceledBeforeStart.call(null, null);
+									onCanceledBeforeStart.call(null);
 									
 								}
 						    }
@@ -180,7 +180,7 @@ public class RunnableStates {
 	
 								@Override
 								public void run() {
-									onCanceledBeforeStart.call(null, null);
+									onCanceledBeforeStart.call(null);
 									
 								}
 						    }
