@@ -19,14 +19,14 @@ public interface ParallelResourceLoader<Key, Value> extends ResourceLoader<Key, 
      * @param onComplete
      * @param key
      */
-	void getParallel(final Callback<Object, ResourceEvent<Value>> onComplete, final Key key) throws ResourceException;
+	CallbackControl getParallel(final Callback<Object, ResourceEvent<Value>> onComplete, final Key key) throws ResourceException;
 	
 	/**
 	 * 
 	 * @param onComplete
 	 * @param key
 	 */
-	void existsParallel(final Callback<Object, ResourceEvent<Boolean>> onComplete, final Key key);
+	CallbackControl existsParallel(final Callback<Object, ResourceEvent<Boolean>> onComplete, final Key key);
 
 	/**
 	 * 

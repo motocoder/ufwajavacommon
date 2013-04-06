@@ -33,8 +33,14 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
     private final Map<Key, LinkedList<Callback<Object, ResourceEvent<Value>>>> respondTo = 
         new HashMap<Key, LinkedList<Callback<Object, ResourceEvent<Value>>>>();
     
+    private final Map<Key, CallbackControl> callbackControls = 
+            new HashMap<Key, CallbackControl>();
+    
     private final Map<Key, LinkedList<Callback<Object, ResourceEvent<Boolean>>>> respondToExists = 
         new HashMap<Key, LinkedList<Callback<Object, ResourceEvent<Boolean>>>>();
+    
+    private final Map<Key, CallbackControl> callbackControlsExists = 
+            new HashMap<Key, CallbackControl>();
 
     private final ExecutorService callbackThreads;
  
@@ -84,13 +90,13 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
             
         };
         
-        return getSerially(key, loggingTag, respondToExists, depth, outStates, threads, callbackThreads, booleanInternal, true);
+        return getSerially(key, loggingTag, respondToExists, callbackControlsExists, depth, outStates, threads, callbackThreads, booleanInternal, true);
         
     }
 
     @Override
     public Value get(Key key) throws ResourceException {
-        return getSerially(key, loggingTag, respondTo, depth, outStates, threads, callbackThreads, internal, false);
+        return getSerially(key, loggingTag, respondTo, callbackControls, depth, outStates, threads, callbackThreads, internal, false);
     }
 
     @Override
@@ -320,7 +326,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
 
                         @Override
                         public Void call(Void value) {
-                            cancel(newOuts, outStates, respondTo, callbackThreads);
+                            cancel(newOuts, outStates, respondTo, callbackThreads, callbackControls);
                             return null;
                         }
                     }
@@ -364,15 +370,15 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
     }
 
     @Override
-    public void getParallel(
+    public CallbackControl getParallel(
         final Callback<Object, ResourceEvent<Value>> onComplete,
         final Key key
     ) {
-        parellelCall(onComplete, key, respondTo, depth, outStates, loggingTag, threads, callbackThreads, internal, false);
+        return parellelCall(onComplete, key, respondTo, callbackControls, depth, outStates, loggingTag, threads, callbackThreads, internal, false);
     }
 
     @Override
-    public void existsParallel(
+    public CallbackControl existsParallel(
         final Callback<Object, ResourceEvent<Boolean>> onComplete,
         final Key key
     ) {
@@ -387,9 +393,8 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
             
         };
         
-        parellelCall(onComplete, key, respondToExists, depth, outStates, loggingTag, threads, callbackThreads, booleanInternal, true);
+        return parellelCall(onComplete, key, respondToExists, callbackControlsExists, depth, outStates, loggingTag, threads, callbackThreads, booleanInternal, true);
        
-        
     }
 
     @Override
@@ -601,7 +606,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                         @Override
                         public Void call(Void value) {
                             
-                            cancel(newOuts, outStates, respondTo, callbackThreads);
+                            cancel(newOuts, outStates, respondTo, callbackThreads, callbackControls);
                             return null;
                         }
                     }
@@ -618,7 +623,8 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         final Collection<Key> newOuts,
         final CurrentlyOutStates<Key> outStates,
         final Map<Key, LinkedList<Callback<Object, ResourceEvent<Value>>>> respondTo,
-        final ExecutorService callbackThreads
+        final ExecutorService callbackThreads,
+        final Map<Key, CallbackControl> callbackControls
     ) {
         
     	logger.info("Cancelling resourceLoader request");
@@ -635,6 +641,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                     outStates.remove(key, false);
                     
                     respondTo.put(key, null);
+                    callbackControls.remove(key);
                      
                     if(origCallbacks != null) {
                         callbacks = new ArrayList<Callback<Object, ResourceEvent<Value>>>(origCallbacks);
@@ -679,6 +686,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         final Key key,
         final String loggingTag,
         final Map<Key, LinkedList<Callback<Object, ResourceEvent<Value>>>> respondTo,
+        final Map<Key, CallbackControl> callbackControls,
         final int depth,
         final CurrentlyOutStates<Key> outStates,
         final LimitingExecutorService threads,
@@ -711,7 +719,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
             
         }; 
         
-        parellelCall(callback, key, respondTo, depth, outStates, loggingTag, threads, callbackThreads, internal, isExistsCall);
+        parellelCall(callback, key, respondTo, callbackControls, depth, outStates, loggingTag, threads, callbackThreads, internal, isExistsCall);
         
         synchronized(provider) {
             
@@ -750,10 +758,11 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         
     }
     
-    private static <Key, Value> void parellelCall(
+    private static <Key, Value> CallbackControl parellelCall(
         final Callback<Object, ResourceEvent<Value>> onComplete, 
         final Key key, 
         final Map<Key, LinkedList<Callback<Object, ResourceEvent<Value>>>> respondTo,
+        final Map<Key, CallbackControl> callbackControls,
         final int depth,
         final CurrentlyOutStates<Key> outStates,
         final String loggingTag,
@@ -770,6 +779,8 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         if(key == null) {
             throw new NullPointerException("Key must not be null");
         }
+        
+        final CallbackControl returnVal;
         
         synchronized(outStates) {
         synchronized(respondTo) {
@@ -816,8 +827,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                 outStates.add(key, isExistsCall);       
                 callbacks.add(0, onComplete);   
                 
-                     
-                threads.execute(
+                final CallbackControl control = threads.execute(
                         
                     new Runnable() {
                         
@@ -913,21 +923,61 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                             final List<Key> keys = new ArrayList<Key>();
                             keys.add(key);
                             
-                            cancel(keys, outStates, respondTo, callbackThreads);
+                            cancel(keys, outStates, respondTo, callbackThreads, callbackControls);
                             return null;
                         }
                     }
                     
-                );                
+                );   
                 
+                callbackControls.put(
+                    key,
+                    control
+                );
+                                
             }//Out doesn't contain the key already
             else {
                 callbacks.add(0, onComplete);                
             }
+            
+            returnVal = 
+                new CallbackControl() {
+
+                    @Override
+                    public void cancel() {
+                                                    
+                        synchronized(outStates) {         
+                            
+                            synchronized(respondTo) {
+                                
+                                final LinkedList<Callback<Object, ResourceEvent<Value>>> origCallbacks =
+                                    respondTo.get(key);
+                                
+                                origCallbacks.remove(onComplete);
+                                
+                                if(origCallbacks.size() == 0) {
+                                    
+                                    final CallbackControl reallyCancel = callbackControls.get(key);
+                                    
+                                    if(reallyCancel != null) {
+                                        reallyCancel.cancel();
+                                    }
+                                    
+                                }
+                              
+                            }
+                            
+                        }
+                        
+                    }
+                    
+                };
                                 
             } //end sync out.
             
         } // end respondToOut.
+        
+        return returnVal;
         
     }
     

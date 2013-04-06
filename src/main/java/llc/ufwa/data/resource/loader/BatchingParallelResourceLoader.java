@@ -74,7 +74,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
     }
 
     @Override
-    public void getParallel(
+    public CallbackControl getParallel(
         final Callback<Object, ResourceEvent<Value>> onComplete,
         final Key key
     ) throws ResourceException {
@@ -125,6 +125,16 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
             lastIndex = newIndex;
             
         }
+        
+        return new CallbackControl() {
+
+            @Override
+            public void cancel() {
+                
+                //getAll doesn't support callback control
+                
+            }
+        };
         
     }
 
@@ -256,7 +266,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
     }
 
     @Override
-    public void existsParallel(
+    public CallbackControl existsParallel(
         final Callback<Object, ResourceEvent<Boolean>> onComplete, Key key
     ) {
         throw new RuntimeException("Not supported");

@@ -127,12 +127,14 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
     }
 
     @Override
-    public void getParallel(
+    public CallbackControl getParallel(
         final Callback<Object, ResourceEvent<Value>> onComplete,
         final Key key
     ) throws ResourceException {
         
-        primary.getParallel(
+        final DoubleCallbackControl returnControl = new DoubleCallbackControl();
+                
+        final CallbackControl control1 = primary.getParallel(
                 
             new Callback<Object, ResourceEvent<Value>>() {
 
@@ -143,7 +145,7 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
                     
                     try {
                         
-                        secondary.getParallel(
+                        final CallbackControl control2 = secondary.getParallel(
                                 
                             new Callback<Object, ResourceEvent<Value>>() {
 
@@ -155,6 +157,8 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
                             },
                             key
                         );
+                        
+                        returnControl.setSecondary(control2);
                         
                     }
                     catch (ResourceException e) {
@@ -169,43 +173,56 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
             key
         );
         
+        returnControl.setPrimary(control1);
+        
+        return returnControl;
+        
     }
 
     @Override
-    public void existsParallel(
+    public CallbackControl existsParallel(
         final Callback<Object, ResourceEvent<Boolean>> onComplete, 
         final Key key
     ) {
         
-        primary.existsParallel(
+        final DoubleCallbackControl returnControl = new DoubleCallbackControl();
+        
+        final CallbackControl control1 = 
+            primary.existsParallel(
                 
-            new Callback<Object, ResourceEvent<Boolean>>() {
-
-                @Override
-                public Object call(ResourceEvent<Boolean> value) {
+                new Callback<Object, ResourceEvent<Boolean>>() {
+    
+                    @Override
+                    public Object call(ResourceEvent<Boolean> value) {
+                        
+                        final Object returnVal = onComplete.call(value);
+                        
+                        final CallbackControl control2 = secondary.existsParallel(
+                                
+                            new Callback<Object, ResourceEvent<Boolean>>() {
+    
+                                @Override
+                                public Object call(ResourceEvent<Boolean> value) {                                    
+                                    return onComplete.call(value);
+                                }
+                                
+                            },
+                            key
+                        );
+                        
+                        returnControl.setSecondary(control2);
+                        
+                        return returnVal;
+                        
+                    }
                     
-                    final Object returnVal = onComplete.call(value);
-                    
-                    secondary.existsParallel(
-                            
-                        new Callback<Object, ResourceEvent<Boolean>>() {
-
-                            @Override
-                            public Object call(ResourceEvent<Boolean> value) {                                    
-                                return onComplete.call(value);
-                            }
-                            
-                        },
-                        key
-                    );
-                    
-                    return returnVal;
-                    
-                }
-                
-            },
-            key
-        );
+                },
+                key
+            );
+        
+        returnControl.setPrimary(control1);
+        
+        return returnControl;
     
     }
 
@@ -277,6 +294,33 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
                 entry.getValue().call(new ResourceEvent<Value>(null, e, ResourceEvent.UNKNOWN));
             }
             
+        }
+        
+    }
+    
+    private static class DoubleCallbackControl implements CallbackControl {
+        
+        private CallbackControl primary; 
+        private CallbackControl secondary;
+        
+        @Override
+        public synchronized void cancel() {
+            
+            if(primary != null) {
+                primary.cancel();
+            }
+            
+            if(secondary != null) {
+                secondary.cancel();
+            }
+        }
+
+        public synchronized void setPrimary(CallbackControl primary) {
+            this.primary = primary;
+        }
+
+        public synchronized void setSecondary(CallbackControl secondary) {
+            this.secondary = secondary;
         }
         
     }
