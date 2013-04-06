@@ -10,6 +10,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
 import llc.ufwa.data.exception.ResourceException;
+import llc.ufwa.data.resource.loader.CallbackControl;
 import llc.ufwa.data.resource.provider.ResourceProvider;
 
 import org.slf4j.Logger;
@@ -48,17 +49,30 @@ public class RunnableStates {
         
     }
     
-    /**
-     * Schedule a runnable to run.
-     * 
-     * @param runnable
-     */
-    public synchronized void schedule(Runnable runnable) {
-            
-        waitingToRun.add(0, new SequencedRunnable(currentSequence++, runnable));       
-        this.notifyAll();
-        
-    }
+//    /**
+//     * Schedule a runnable to run.
+//     * 
+//     * @param runnable
+//     */
+//    public synchronized CallbackControl schedule(Runnable runnable) {
+//
+//        final SequencedRunnable command = new SequencedRunnable(currentSequence++, runnable);
+//        
+//        waitingToRun.add(0, command);       
+//        
+//        this.notifyAll();
+//        
+//        final CallbackControl callbackControl = 
+//            new CallbackControl() {
+//
+//            @Override
+//            public void cancel() {
+//            }
+//        };
+//        
+//        return callbackControl;
+//        
+//    }
     
     /**
      * @param future
@@ -199,6 +213,76 @@ public class RunnableStates {
         
     }
     
+    @SuppressWarnings("rawtypes")
+    public synchronized void cancel(final SequencedRunnable toCancel) {
+
+        if(running.contains(toCancel)) {
+            
+            final Future task = getTask(toCancel);
+
+            task.cancel(true);
+            
+        }
+        else if(starting.contains(toCancel)) {
+            
+            final Callback<Void, Void> onCanceledBeforeStart = this.canceledBeforeStarts.get(toCancel);
+            
+            if(onCanceledBeforeStart != null) {
+                
+                try {
+                    callbackThreads.execute(
+                        new Runnable() {
+
+                            @Override
+                            public void run() {
+                                onCanceledBeforeStart.call(null);
+                                
+                            }
+                        }
+                    );
+                }
+                catch(Throwable t) {
+                    logger.error("ERROR IN CANCEL:", t);
+                }
+                
+            }
+            
+            finish(toCancel); //was never started we can just terminate successfully.
+  
+                this.notifyAll();
+                
+            }
+            else if(waitingToRun.contains(toCancel)){
+                            
+                final Callback<Void, Void> onCanceledBeforeStart = this.canceledBeforeStarts.get(toCancel);
+                
+                if(onCanceledBeforeStart != null) {
+                    
+                    try {
+                        callbackThreads.execute(
+                            new Runnable() {
+    
+                                @Override
+                                public void run() {
+                                    onCanceledBeforeStart.call(null);
+                                    
+                                }
+                            }
+                        );
+                    }
+                    catch(Throwable t) {
+                        logger.error("ERROR IN CANCEL:", t);
+                }
+                
+            }
+            
+            finish(toCancel);
+            
+        }
+
+        
+    }
+    
     /**
      * 
      * @param runnable
@@ -290,16 +374,29 @@ public class RunnableStates {
 
     }
 
-    public synchronized void schedule(
+    public synchronized CallbackControl schedule(
         final Runnable runnable,
         final Callback<Void, Void> onCanceledBeforeStart
     ) {
+        
+        final CallbackControl returnVal;
         
     	final SequencedRunnable sequenced = new SequencedRunnable(currentSequence++, runnable);
         canceledBeforeStarts.put(sequenced, onCanceledBeforeStart);
         waitingToRun.add(sequenced);
         
+        returnVal = 
+            new CallbackControl() {
+
+                @Override
+                public void cancel() {
+                    RunnableStates.this.cancel(sequenced);                    
+                }
+            };
+        
         this.notifyAll();
+        
+        return returnVal;
         
     }
     

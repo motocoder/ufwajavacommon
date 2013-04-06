@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import llc.ufwa.concurrency.RunnableStates.SequencedRunnable;
+import llc.ufwa.data.resource.loader.CallbackControl;
 import llc.ufwa.data.resource.provider.ResourceProvider;
 
 import org.slf4j.Logger;
@@ -149,17 +150,31 @@ public abstract class LimitingExecutorService implements ExecutorService {
     @Override
     public void execute(final Runnable command) {
        
-        states.schedule(command);
+        states.schedule(
+            command,
+            new Callback<Void, Void>() {
+
+                @Override
+                public Void call(Void value) {
+                    
+                    //placeholder
+                    return null;
+                }
+            }
+        );
         
         cleaner.run();
               
     }
     
-    public void execute(final Runnable command, final Callback<Void, Void> onCanceledBeforeStart) {					
+    public CallbackControl execute(final Runnable command, final Callback<Void, Void> onCanceledBeforeStart) {					
     	
-        states.schedule(command, onCanceledBeforeStart);
+         final CallbackControl control = states.schedule(command, onCanceledBeforeStart);
        
-        cleaner.run();		      
+        cleaner.run();
+        
+        return control;
+        
     }
 
     @Override

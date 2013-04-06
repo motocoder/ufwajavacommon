@@ -666,10 +666,12 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
     }
 
     @Override
-    public void existsParallel(
+    public CallbackControl existsParallel(
         final Callback<Object, ResourceEvent<Boolean>> onComplete, 
         final Key key
     ) {
+        
+        CallbackControl returnVal;
         
         if(onComplete == null) {
             throw new NullPointerException(loggingTag + ": onComplete must not be null");
@@ -687,6 +689,15 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                                 
                 final ResourceEvent<Boolean> completed = new ResourceEvent<Boolean>(searchValue, null, ResourceEvent.CACHED);
                 onComplete.call(completed);
+                
+                returnVal = 
+                    new CallbackControl() {
+
+                    @Override
+                    public void cancel() {
+                        //was cached nothing to cancel
+                    }
+                };
                     
             }
             else {
@@ -698,10 +709,19 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                     final ResourceEvent<Boolean> completed = new ResourceEvent<Boolean>(true, null, ResourceEvent.CACHED);
                     onComplete.call(completed);
                     
+                    returnVal = 
+                        new CallbackControl() {
+
+                        @Override
+                        public void cancel() {
+                            //was cached nothing to cancel
+                        }
+                    };
+                    
                 }
                 else {
                 
-                    internal.existsParallel(
+                    returnVal = internal.existsParallel(
                             
                         new Callback<Object, ResourceEvent<Boolean>>() {
         
@@ -733,7 +753,18 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
             final ResourceEvent<Boolean> completed = new ResourceEvent<Boolean>(null, e, ResourceEvent.UNKNOWN);
             onComplete.call(completed);
             
+            returnVal = 
+                new CallbackControl() {
+
+                @Override
+                public void cancel() {
+                    //was cached nothing to cancel
+                }
+            };
+            
         }
+        
+        return returnVal;
         
     }
     
@@ -901,7 +932,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
     }
 
     @Override
-    public void getParallel(
+    public CallbackControl getParallel(
         final Callback<Object, ResourceEvent<Value>> onComplete,
         final Key key
     ) {
@@ -913,61 +944,83 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         if(key == null) {
             throw new NullPointerException(loggingTag + ": key must not be null");
         }
-            
-        try {
-        final Boolean searchValue = searchCache.get(key);
         
-        if(searchValue == null || searchValue) {
+        CallbackControl returnVal;
+        
+        try {
             
-            final Value value = cache.get(key);
+            final Boolean searchValue = searchCache.get(key);
             
-            if(value != null) {
-                                
-                final ResourceEvent<Value> completed = new ResourceEvent<Value>(value, null, ResourceEvent.CACHED);
+            if(searchValue == null || searchValue) {
                 
-                onComplete.call(completed);
+                final Value value = cache.get(key);
+                
+                if(value != null) {
+                                    
+                    final ResourceEvent<Value> completed = new ResourceEvent<Value>(value, null, ResourceEvent.CACHED);
+                    
+                    onComplete.call(completed);
+                    
+                    returnVal = 
+                        new CallbackControl() {
 
+                        @Override
+                        public void cancel() {
+                            //was cached nothing to cancel
+                        }
+                    };
+                    
+    
+                }
+                else {
+                    
+                    returnVal = internal.getParallel(
+                            
+                        new Callback<Object, ResourceEvent<Value>>() {
+    
+                            @Override
+                            public Object call(
+                                final ResourceEvent<Value> value
+                            ) {
+                                
+                            	if(value.getThrowable() == null) {
+                            		searchCache.put(key, value.getVal() != null);
+                            	}
+                                
+                                if(value.getVal() != null) {
+                                    cache.put(key, value.getVal());
+                                }
+                                
+                                onComplete.call(value);
+                                
+                                return false;
+                                
+                            }
+                            
+                        },
+                        key
+                    );
+                    
+                }
+                
             }
             else {
                 
-                internal.getParallel(
-                        
-                    new Callback<Object, ResourceEvent<Value>>() {
-
-                        @Override
-                        public Object call(
-                            final ResourceEvent<Value> value
-                        ) {
-                            
-                        	if(value.getThrowable() == null) {
-                        		searchCache.put(key, value.getVal() != null);
-                        	}
-                            
-                            if(value.getVal() != null) {
-                                cache.put(key, value.getVal());
-                            }
-                            
-                            onComplete.call(value);
-                            
-                            return false;
-                            
-                        }
-                        
-                    },
-                    key
-                );
+                final ResourceEvent<Value> completed = new ResourceEvent<Value>(null, null, ResourceEvent.CACHED);
                 
-            }
-            
-        }
-        else {
-            
-            final ResourceEvent<Value> completed = new ResourceEvent<Value>(null, null, ResourceEvent.CACHED);
-            
-            //search cache had false.
-            onComplete.call(completed);
-            
-        }    
+                //search cache had false.
+                onComplete.call(completed);
+                
+                returnVal = 
+                    new CallbackControl() {
+
+                    @Override
+                    public void cancel() {
+                        //was cached nothing to cancel
+                    }
+                };
+                
+            }    
                 
         }
         catch(final ResourceException e) {
@@ -977,8 +1030,19 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
             final ResourceEvent<Value> completed = new ResourceEvent<Value>(null, e, ResourceEvent.UNKNOWN);
 
             onComplete.call(completed);
+            
+            returnVal = 
+                new CallbackControl() {
 
-        }                
+                @Override
+                public void cancel() {
+                    //was cached nothing to cancel
+                }
+            };
+
+        }      
+        
+        return returnVal;
         
     }
     public Cache<Key, Boolean> getSearchCache() {
