@@ -6,6 +6,8 @@ import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
 import llc.ufwa.concurrency.Callback;
+import llc.ufwa.concurrency.LimitingExecutorService;
+import llc.ufwa.concurrency.LimitingExecutorServiceFactory;
 import llc.ufwa.concurrency.ParallelControl;
 import llc.ufwa.data.exception.CanceledResourceException;
 import llc.ufwa.data.exception.ResourceException;
@@ -14,7 +16,6 @@ import llc.ufwa.data.resource.loader.ParallelResourceLoader;
 import llc.ufwa.data.resource.loader.ParallelResourceLoaderImpl;
 import llc.ufwa.data.resource.loader.ResourceEvent;
 import llc.ufwa.data.resource.loader.ResourceLoader;
-import llc.ufwa.javacommon.test.JavaCommonLimitingExecutorService;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
@@ -40,10 +41,14 @@ public class ParellelResourceLoaderTest {
         
         final ParallelControl<Object> control = new ParallelControl<Object>();
          
+        final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                Executors.newFixedThreadPool(10), 
+                Executors.newFixedThreadPool(100),10);
+                
         final ParallelResourceLoader<String, String> parellelLoader = 
             new ParallelResourceLoaderImpl<String, String>(
                 internal, 
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                limited,
                 Executors.newFixedThreadPool(10), 
                 10,
                 ""
@@ -138,10 +143,14 @@ public class ParellelResourceLoaderTest {
         final ParallelControl<Object> control1 = new ParallelControl<Object>();
         final ParallelControl<Object> control2 = new ParallelControl<Object>();
         
+        final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                Executors.newFixedThreadPool(10), 
+                Executors.newFixedThreadPool(100),10);
+        
         final ParallelResourceLoader<String, String> parellelLoader = 
             new ParallelResourceLoaderImpl<String, String>(
                 internal,
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                limited,
                 Executors.newFixedThreadPool(10),
                 1,
                 ""
@@ -429,10 +438,14 @@ public class ParellelResourceLoaderTest {
 
         final ParallelControl<Object> control = new ParallelControl<Object>();
 
+        final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                Executors.newFixedThreadPool(10), 
+                Executors.newFixedThreadPool(100),10);
+        
         final ParallelResourceLoader<String, String> parellelLoader =
             new ParallelResourceLoaderImpl<String, String>(
                 internal, 
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                limited,
                 Executors.newFixedThreadPool(10),
                 10, 
                 ""
@@ -513,8 +526,12 @@ public class ParellelResourceLoaderTest {
 
         try {// null internal
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             new ParallelResourceLoaderImpl<String, String>(
-                null, new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                null, limited,
                 Executors.newFixedThreadPool(10),
                 10, 
                 ""
@@ -527,9 +544,13 @@ public class ParellelResourceLoaderTest {
 
         try {// null executors
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             new ParallelResourceLoaderImpl<String, String>(
                 internal,
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                limited,
                 null,
                 10,
                 ""
@@ -543,9 +564,13 @@ public class ParellelResourceLoaderTest {
         
         try { // bad depth
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             new ParallelResourceLoaderImpl<String, String>(
                 internal,
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10), 
+                limited, 
                 Executors.newFixedThreadPool(10), 
                 0,
                 ""
@@ -559,9 +584,13 @@ public class ParellelResourceLoaderTest {
         
         try {// null loggingTag
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             new ParallelResourceLoaderImpl<String, String>(
                 internal,
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                limited,
                 Executors.newFixedThreadPool(10),
                 10,
                 null
@@ -590,10 +619,14 @@ public class ParellelResourceLoaderTest {
 
         {// null internal
 
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             final ParallelResourceLoaderImpl<String, String> parellel =
                 new ParallelResourceLoaderImpl<String, String>(
                     internal, 
-                    new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                    limited,
                     Executors.newFixedThreadPool(10),
                     10,
                     ""

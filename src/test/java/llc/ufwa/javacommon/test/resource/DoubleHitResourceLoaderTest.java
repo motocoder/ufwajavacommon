@@ -14,6 +14,7 @@ import junit.framework.TestCase;
 
 import llc.ufwa.concurrency.Callback;
 import llc.ufwa.concurrency.LimitingExecutorService;
+import llc.ufwa.concurrency.LimitingExecutorServiceFactory;
 import llc.ufwa.concurrency.ParallelControl;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.loader.DefaultResourceLoader;
@@ -31,70 +32,14 @@ public class DoubleHitResourceLoaderTest {
         
         final ExecutorService bulk = Executors.newFixedThreadPool(50);
         
-        final LimitingExecutorService limited =
-            new LimitingExecutorService(bulk, bulk, 10) {
-    
-                @Override
-                public <T> List<Future<T>> invokeAll(
-                        Collection<? extends Callable<T>> tasks)
-                        throws InterruptedException {
-                    return null;
-                }
-    
-                @Override
-                public <T> List<Future<T>> invokeAll(
-                        Collection<? extends Callable<T>> tasks, long timeout,
-                        TimeUnit unit) throws InterruptedException {
-                    return null;
-                }
-    
-                @Override
-                public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
-                        throws InterruptedException, ExecutionException {
-                    return null;
-                }
-    
-                @Override
-                public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
-                        long timeout, TimeUnit unit) throws InterruptedException,
-                        ExecutionException, TimeoutException {
-                    return null;
-                }
-            };
-            
-        final LimitingExecutorService limited2 =
-            new LimitingExecutorService(bulk, bulk, 10) {
-
-                @Override
-                public <T> List<Future<T>> invokeAll(
-                        Collection<? extends Callable<T>> tasks)
-                        throws InterruptedException {
-                    return null;
-                }
-    
-                @Override
-                public <T> List<Future<T>> invokeAll(
-                        Collection<? extends Callable<T>> tasks, long timeout,
-                        TimeUnit unit) throws InterruptedException {
-                    return null;
-                }
-    
-                @Override
-                public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
-                        throws InterruptedException, ExecutionException {
-                    return null;
-                }
-    
-                @Override
-                public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
-                        long timeout, TimeUnit unit) throws InterruptedException,
-                        ExecutionException, TimeoutException {
-                    return null;
-                }
-            };
+        final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                bulk, 
+                bulk,10);
+        
+        final LimitingExecutorService limited2 = LimitingExecutorServiceFactory.createExecutorService(
+                bulk, 
+                bulk,10);
                 
-        
-        
         final ResourceLoader<String, String> primaryRoot = new DefaultResourceLoader<String, String>() {
 
             @Override

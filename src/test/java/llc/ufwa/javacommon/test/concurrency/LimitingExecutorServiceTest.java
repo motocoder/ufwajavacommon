@@ -11,6 +11,7 @@ import java.util.concurrent.TimeoutException;
 
 import junit.framework.TestCase;
 import llc.ufwa.concurrency.LimitingExecutorService;
+import llc.ufwa.concurrency.LimitingExecutorServiceFactory;
 
 import org.junit.Test;
 
@@ -24,35 +25,12 @@ public class LimitingExecutorServiceTest {
     @Test 
     public void testLimitingExecutor() {
         
-        final LimitingExecutorService service = new LimitingExecutorService(Executors.newFixedThreadPool(100), Executors.newFixedThreadPool(100), 5) {
-
-            @Override
-            public <T> List<Future<T>> invokeAll(
-                    Collection<? extends Callable<T>> tasks)
-                    throws InterruptedException {
-                throw new RuntimeException("NOT SUPPORTED");
-            }
-
-            @Override
-            public <T> List<Future<T>> invokeAll(
-                    Collection<? extends Callable<T>> tasks, long timeout,
-                    TimeUnit unit) throws InterruptedException {
-                throw new RuntimeException("NOT SUPPORTED");
-            }
-
-            @Override
-            public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
-                    throws InterruptedException, ExecutionException {
-                throw new RuntimeException("NOT SUPPORTED"); 
-            }
-
-            @Override
-            public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
-                    long timeout, TimeUnit unit) throws InterruptedException,
-                    ExecutionException, TimeoutException {
-                throw new RuntimeException("NOT SUPPORTED");
-            }
-        };
+        final LimitingExecutorService service = 
+            LimitingExecutorServiceFactory.createExecutorService(
+                Executors.newFixedThreadPool(100),
+                Executors.newFixedThreadPool(100),
+                5
+            );
         
         for(int i = 0; i < 1000; i++) {
             

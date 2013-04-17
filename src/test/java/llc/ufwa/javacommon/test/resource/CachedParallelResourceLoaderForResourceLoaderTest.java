@@ -4,13 +4,14 @@ import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
 import llc.ufwa.concurrency.Callback;
+import llc.ufwa.concurrency.LimitingExecutorService;
+import llc.ufwa.concurrency.LimitingExecutorServiceFactory;
 import llc.ufwa.concurrency.ParallelControl;
 import llc.ufwa.data.resource.cache.Cache;
 import llc.ufwa.data.resource.cache.MemoryCache;
 import llc.ufwa.data.resource.loader.CachedParallelResourceLoader;
 import llc.ufwa.data.resource.loader.ResourceEvent;
 import llc.ufwa.data.resource.loader.ResourceLoader;
-import llc.ufwa.javacommon.test.JavaCommonLimitingExecutorService;
 
 import org.junit.Test;
 
@@ -28,10 +29,14 @@ public class CachedParallelResourceLoaderForResourceLoaderTest {
             final MemoryCache<String, Boolean> searchCache = new MemoryCache<String, Boolean>();
             final MemoryCache<String, String> cache = new MemoryCache<String, String>();
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             final ResourceLoader<String, String> parallelLoader = 
                 new CachedParallelResourceLoader<String, String>(
                     internal,
-                    new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10), 10),
+                    limited,
                     Executors.newFixedThreadPool(10),
                     Executors.newFixedThreadPool(10),
                     10,
@@ -102,10 +107,14 @@ public class CachedParallelResourceLoaderForResourceLoaderTest {
             final MemoryCache<String, Boolean> searchCache = new MemoryCache<String, Boolean>();
             final MemoryCache<String, String> cache = new MemoryCache<String, String>();
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             final CachedParallelResourceLoader<String, String> parallelLoader = 
                 new CachedParallelResourceLoader<String, String>(
                     internal,
-                    new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                    limited,
                     Executors.newFixedThreadPool(10),
                     Executors.newFixedThreadPool(10),
                     10,
@@ -250,10 +259,14 @@ public class CachedParallelResourceLoaderForResourceLoaderTest {
             final MemoryCache<String, Boolean> searchCache = new MemoryCache<String, Boolean>();
             final MemoryCache<String, String> cache = new MemoryCache<String, String>();
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             final ResourceLoader<String, String> parallelLoader = 
                 new CachedParallelResourceLoader<String, String>(
                     internal,
-                    new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                    limited,
                     Executors.newFixedThreadPool(10),
                     Executors.newFixedThreadPool(10),
                     10,
@@ -324,10 +337,14 @@ public class CachedParallelResourceLoaderForResourceLoaderTest {
             final MemoryCache<String, Boolean> searchCache = new MemoryCache<String, Boolean>();
             final MemoryCache<String, String> cache = new MemoryCache<String, String>();
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             final CachedParallelResourceLoader<String, String> parallelLoader = 
                 new CachedParallelResourceLoader<String, String>(
                     internal,
-                    new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                    limited,
                     Executors.newFixedThreadPool(10),
                     Executors.newFixedThreadPool(10),
                     10,
