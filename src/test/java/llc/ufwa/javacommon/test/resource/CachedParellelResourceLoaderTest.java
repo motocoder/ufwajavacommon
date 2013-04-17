@@ -6,6 +6,8 @@ import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
 import llc.ufwa.concurrency.Callback;
+import llc.ufwa.concurrency.LimitingExecutorService;
+import llc.ufwa.concurrency.LimitingExecutorServiceFactory;
 import llc.ufwa.concurrency.ParallelControl;
 import llc.ufwa.data.exception.CanceledResourceException;
 import llc.ufwa.data.exception.ResourceException;
@@ -16,7 +18,6 @@ import llc.ufwa.data.resource.loader.DefaultResourceLoader;
 import llc.ufwa.data.resource.loader.ParallelResourceLoader;
 import llc.ufwa.data.resource.loader.ResourceEvent;
 import llc.ufwa.data.resource.loader.ResourceLoader;
-import llc.ufwa.javacommon.test.JavaCommonLimitingExecutorService;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
@@ -42,10 +43,14 @@ public class CachedParellelResourceLoaderTest {
         
         final ParallelControl<Object> control = new ParallelControl<Object>();
         
+        final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                Executors.newFixedThreadPool(10), 
+                Executors.newFixedThreadPool(100),10);
+        
         final ParallelResourceLoader<String, String> parellelLoader = 
             new CachedParallelResourceLoader<String, String>(
                 internal,
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                limited,
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
                 10,
@@ -142,17 +147,21 @@ public class CachedParellelResourceLoaderTest {
         final ParallelControl<Object> control1 = new ParallelControl<Object>();
         final ParallelControl<Object> control2 = new ParallelControl<Object>();
         
+        final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                Executors.newFixedThreadPool(10), 
+                Executors.newFixedThreadPool(100),10);
+        
         final CachedParallelResourceLoader<String, String> parellelLoader = 
-                new CachedParallelResourceLoader<String, String>(
-                        internal,
-                        new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
-                        Executors.newFixedThreadPool(10),
-                        Executors.newFixedThreadPool(10),
-                        1,
-                        "",
-                        new MemoryCache<String, String>(),
-                        new MemoryCache<String, Boolean>()
-                    );
+            new CachedParallelResourceLoader<String, String>(
+                internal,
+                limited,
+                Executors.newFixedThreadPool(10),
+                Executors.newFixedThreadPool(10),
+                1,
+                "",
+                new MemoryCache<String, String>(),
+                new MemoryCache<String, Boolean>()
+            );
         
         {
             
@@ -436,9 +445,13 @@ public class CachedParellelResourceLoaderTest {
 
         final ParallelControl<Object> control = new ParallelControl<Object>();
 
+        final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                Executors.newFixedThreadPool(10), 
+                Executors.newFixedThreadPool(100),10);
+        
         final ParallelResourceLoader<String, String> parellelLoader = new CachedParallelResourceLoader<String, String>(
                 internal,
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                limited,
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
                 10,
@@ -523,9 +536,13 @@ public class CachedParellelResourceLoaderTest {
 
         try {// null internal
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             new CachedParallelResourceLoader<String, String>(
                 null,
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10), 
+                limited, 
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
                 10, 
@@ -541,10 +558,14 @@ public class CachedParellelResourceLoaderTest {
 
         try {// null executors
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             new CachedParallelResourceLoader<String, String>(
                 internal,
                 null,
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                limited,
                 Executors.newFixedThreadPool(10),
                 10, 
                 "",
@@ -560,9 +581,13 @@ public class CachedParellelResourceLoaderTest {
         
         try { // bad depth
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             new CachedParallelResourceLoader<String, String>(
                 internal,
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                limited,
                 Executors.newFixedThreadPool(10), 
                 Executors.newFixedThreadPool(10),
                 0, 
@@ -579,9 +604,13 @@ public class CachedParellelResourceLoaderTest {
       
         try {// null loggingTag
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             new CachedParallelResourceLoader<String, String>(
                 internal,
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                limited,
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10), 
                 10,
@@ -598,9 +627,13 @@ public class CachedParellelResourceLoaderTest {
         
         try {// null cache
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             new CachedParallelResourceLoader<String, String>(
                 internal,
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                limited,
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
                 10,
@@ -617,9 +650,13 @@ public class CachedParellelResourceLoaderTest {
         
         try {// null searchCache
             
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+            
             new CachedParallelResourceLoader<String, String>(
                 internal,
-                new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                limited,
                 Executors.newFixedThreadPool(10),
                 Executors.newFixedThreadPool(10),
                 10,
@@ -651,10 +688,14 @@ public class CachedParellelResourceLoaderTest {
 
         {
 
+            final LimitingExecutorService limited = LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),10);
+                    
             final ParallelResourceLoader<String, String> parellel =
                     new CachedParallelResourceLoader<String, String>(
                             internal,
-                            new JavaCommonLimitingExecutorService(Executors.newFixedThreadPool(10),10),
+                            limited,
                             Executors.newFixedThreadPool(10),
                             Executors.newFixedThreadPool(10),
                             10,

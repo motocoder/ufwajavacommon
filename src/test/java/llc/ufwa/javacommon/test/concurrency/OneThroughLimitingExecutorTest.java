@@ -13,6 +13,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import llc.ufwa.concurrency.LimitingExecutorService;
+import llc.ufwa.concurrency.LimitingExecutorServiceFactory;
 import llc.ufwa.concurrency.OneThroughLimitingExecutor;
 import llc.ufwa.concurrency.ParallelControl;
 
@@ -32,37 +33,14 @@ public class OneThroughLimitingExecutorTest {
 	
 	@Test
 	public void testOneThroughLimitingExec() {
+	    
+	    final LimitingExecutorService service = 
+            LimitingExecutorServiceFactory.createExecutorService(
+                Executors.newFixedThreadPool(1),
+                Executors.newFixedThreadPool(1),
+                1
+            );
 		
-		LimitingExecutorService service = new LimitingExecutorService(Executors.newFixedThreadPool(1), Executors.newFixedThreadPool(1), 1) {
-
-            @Override
-            public <T> List<Future<T>> invokeAll(
-                    Collection<? extends Callable<T>> tasks)
-                    throws InterruptedException {
-                throw new RuntimeException("NOT SUPPORTED");
-            }
-
-            @Override
-            public <T> List<Future<T>> invokeAll(
-                    Collection<? extends Callable<T>> tasks, long timeout,
-                    TimeUnit unit) throws InterruptedException {
-                throw new RuntimeException("NOT SUPPORTED");
-            }
-
-            @Override
-            public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
-                    throws InterruptedException, ExecutionException {
-                throw new RuntimeException("NOT SUPPORTED"); 
-            }
-
-            @Override
-            public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
-                    long timeout, TimeUnit unit) throws InterruptedException,
-                    ExecutionException, TimeoutException {
-                throw new RuntimeException("NOT SUPPORTED");
-            }
-        };
-        
         OneThroughLimitingExecutor oneThrough = new OneThroughLimitingExecutor(Executors.newFixedThreadPool(1));
         
         final ParallelControl<String> control1 = new ParallelControl<String>();

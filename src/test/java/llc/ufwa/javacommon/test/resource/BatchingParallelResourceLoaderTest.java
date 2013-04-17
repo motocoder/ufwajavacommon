@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 
 import junit.framework.TestCase;
 import llc.ufwa.concurrency.Callback;
+import llc.ufwa.concurrency.LimitingExecutorServiceFactory;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.StringSizeConverter;
 import llc.ufwa.data.resource.cache.Cache;
@@ -19,7 +20,6 @@ import llc.ufwa.data.resource.loader.ParallelResourceLoader;
 import llc.ufwa.data.resource.loader.ParallelResourceLoaderImpl;
 import llc.ufwa.data.resource.loader.ResourceEvent;
 import llc.ufwa.data.resource.loader.ResourceLoader;
-import llc.ufwa.javacommon.test.JavaCommonLimitingExecutorService;
 import llc.ufwa.util.StopWatch;
 
 import org.junit.Test;
@@ -56,8 +56,9 @@ public class BatchingParallelResourceLoaderTest {
         final ParallelResourceLoader<String, String> parallelLoader = 
             new ParallelResourceLoaderImpl<String, String>(
                 internal, 
-                new JavaCommonLimitingExecutorService(
+                LimitingExecutorServiceFactory.createExecutorService(
                     Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),
                     10
                 ),
                 Executors.newFixedThreadPool(10), 
@@ -262,8 +263,9 @@ public class BatchingParallelResourceLoaderTest {
         final ParallelResourceLoader<String, String> parallelLoader = 
             new ParallelResourceLoaderImpl<String, String>(
                 internal, 
-                new JavaCommonLimitingExecutorService(
-                    Executors.newFixedThreadPool(10),
+                LimitingExecutorServiceFactory.createExecutorService(
+                    Executors.newFixedThreadPool(10), 
+                    Executors.newFixedThreadPool(100),
                     10
                     ),
                     Executors.newFixedThreadPool(10), 
