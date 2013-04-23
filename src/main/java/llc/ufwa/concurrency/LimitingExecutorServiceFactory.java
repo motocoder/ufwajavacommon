@@ -9,7 +9,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import llc.ufwa.concurrency.RunnableStates.SequencedRunnable;
 import llc.ufwa.data.resource.loader.CallbackControl;
@@ -17,7 +18,7 @@ import llc.ufwa.data.resource.provider.ResourceProvider;
 
 public class LimitingExecutorServiceFactory {
     
-    private static final Logger logger = Logger.getLogger(LimitingExecutorServiceFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(LimitingExecutorServiceFactory.class);
     
     public static LimitingExecutorService createExecutorService(
         final ExecutorService internal,
