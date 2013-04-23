@@ -142,7 +142,7 @@ public class LimitingExecutorServiceFactory {
                 
                 final Object returnVal;
                 
-                if(method.getName().equals("execute") && paramTypes.length == 1 && paramTypes[0].equals(Runnable.class)) {
+                if(method.getDeclaringClass().equals(Executor.class) && paramTypes.length == 1 && paramTypes[0].equals(Runnable.class)) {
                     
                     states.schedule(
                         (Runnable)args[0],
@@ -163,7 +163,7 @@ public class LimitingExecutorServiceFactory {
                     
                 }
                 else if(
-                    method.getName().equals("execute") 
+                    method.getDeclaringClass().equals(LimitingExecutorService.class)
                     && paramTypes.length == 2 
                     && paramTypes[0].equals(Runnable.class)
                     && paramTypes[1].equals(Callback.class)
