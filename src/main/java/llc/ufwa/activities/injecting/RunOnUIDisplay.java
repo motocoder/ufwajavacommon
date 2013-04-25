@@ -78,7 +78,10 @@ public class RunOnUIDisplay<Interface extends InjectingDisplay> {
                             logger.error("ERROR:", e);
                         }
                         catch (InvocationTargetException e) {
+                            
+                            logger.error("ERROR:", e.getCause());
                             logger.error("ERROR:", e);
+                            
                         }   
 
                     }

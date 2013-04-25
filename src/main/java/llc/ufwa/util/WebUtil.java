@@ -9,6 +9,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -303,6 +305,108 @@ public class WebUtil {
             
         } 
     
+    }
+    
+    public static class WebResponse {
+        
+        private final String response;
+        private final Map<String, List<String>> headers = new HashMap<String, List<String>>(); 
+        
+        public WebResponse(
+            final String response, 
+            final Map<String, List<String>> headers
+        ) {
+            this.response = response;
+            this.headers.putAll(headers);
+        }
+        
+        public String getResponse() {
+            return response;
+        }
+        
+        public List<String> getHeader(String headerName) {
+            return headers.get(headerName);
+        }
+        
+    }
+
+    public static WebResponse doPostJSON(
+        final URL url, 
+        final Map<String, String> headers,
+        final String body
+    ) throws IOException {
+        
+        try {
+            
+            final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setReadTimeout(10000);
+            connection.setRequestProperty("Content-Type", "application/json");
+
+            connection.setReadTimeout(10000);
+            
+            for(final Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.addRequestProperty(entry.getKey(), entry.getValue());
+            }   
+            
+            connection.connect();
+            
+            {
+                
+                final OutputStream writing = connection.getOutputStream();
+                
+                try {
+                    
+                    final InputStream reading = new ByteArrayInputStream(body.getBytes("UTF-8"));
+                    
+                    StreamUtil.copyTo(reading, writing);
+                    
+                }
+                finally {
+                    writing.close();
+                }
+                
+            }
+            
+            if(connection.getResponseCode() != 200) {
+                throw new IOException("server returned code " + connection.getResponseCode());
+            }
+            
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();            
+            final InputStream in = connection.getInputStream();
+            
+            if(in != null) {
+                
+                try {
+                    StreamUtil.copyTo(in, out);
+                }
+                finally {
+                    in.close();
+                }
+                
+            }
+            else {
+                throw new IOException("Failed to get response");
+            }
+            
+            return new WebResponse(new String(out.toByteArray()), connection.getHeaderFields());
+                      
+        } 
+        catch (MalformedURLException e) {
+            
+            logger.error("ERROR:", e);
+            throw new IOException("ERROR:");
+            
+        }
+        catch (ProtocolException e) {
+            
+            logger.error("ERROR:", e);
+            throw new IOException("Error:");
+            
+        } 
     }
 
 }
