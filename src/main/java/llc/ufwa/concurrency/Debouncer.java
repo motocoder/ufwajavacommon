@@ -110,12 +110,16 @@ public class Debouncer {
                     			    
                     				synchronized(lock) {
                     				    
-                    				    try {
-                                            lock.wait(delay);
-                                        }
-                    				    catch (InterruptedException e) {
-                                            logger.error("Deboucer interrupted:", e);
-                                        }
+                    				    if(delay != 0) {
+                        				    
+                    				        try {
+                                                lock.wait(delay);
+                                            }
+                        				    catch (InterruptedException e) {
+                                                logger.error("Deboucer interrupted:", e);
+                                            }
+                        				    
+                    				    }
                     				    
                     				}
                     				
