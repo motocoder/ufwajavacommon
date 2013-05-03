@@ -1,5 +1,20 @@
 package llc.ufwa.data.resource.loader;
 
+/**
+ *  
+ *  ResourceEvent takes three parameters during construction: A Value,
+ *  a Throwable, and an int. The class contains three getter methods, one for
+ *  each of the variables.
+ *      
+ */
+
+/**
+ * 
+ * 
+ *
+ * @param <Value>
+ */
+
 public class ResourceEvent<Value> {
     
 	public static final int NEW_LOADED = 0;
@@ -10,6 +25,13 @@ public class ResourceEvent<Value> {
     private final Throwable throwable;
 	private final int valueType;
 
+	/**
+	 * 
+	 * @param val
+	 * @param throwable
+	 * @param valueType
+	 */
+	
     public ResourceEvent(
         final Value val,
         final Throwable throwable,
@@ -22,14 +44,29 @@ public class ResourceEvent<Value> {
         
     }
     
+    /**
+     * 
+     * @return int
+     */
+    
     public int getValueType() {
 		return valueType;
 	}
+    
+    /**
+     * 
+     * @return Value
+     */
     
 	public Value getVal() {
         return val;
     }
 
+	/**
+	 * 
+	 * @return Throwable
+	 */
+	
     public Throwable getThrowable() {
         return throwable;
     }

@@ -10,7 +10,22 @@ import java.util.Set;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.cache.Cache;
 
+/**
+ *  
+ *  The CachedResourceLoader is an implementation of the ResourceLoader interface
+ *  with the addition of a caching mechanism.
+ *  
+ *  Cache<Key,Boolean> esistsCache - caches the returned values of the ResourceLoader's Exists<Key> method.
+ *  
+ *  Cache<Key,Value> getCache - caches the returned values from the Get<Key> method.
+ *  
+ *  ex:
+ *  CachedResourceLoader<Key, Value>(ResourceLoader<Key,Value> internal, Cache<Key,Boolean> existsCache, Cache<Key,Value> getCache)
+ *
+ */
+
 public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Value> {
+    
     
     private final Cache<Key, Value> valueCache;
     private final Cache<Key, Boolean> searchCache;
@@ -33,6 +48,15 @@ public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Val
         this.internal = internal;
         
     }
+    
+    /**
+     * This method returns a boolean if the value assigned to the
+     * specified key parameter is not null as well as storing
+     * the results in a cache.
+     * 
+     * @return boolean
+     * 
+     */
 
     @Override
     public boolean exists(Key key) throws ResourceException {
@@ -68,6 +92,16 @@ public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Val
         
         return returnVal;
     }
+    
+    /**
+     * This method returns the Value assigned to the
+     * specified key parameter as long as the value
+     * is not null. It also stores the results in 
+     * a cache.
+     * 
+     * @return Value
+     * 
+     */
 
     @Override
     public Value get(Key key) throws ResourceException {
@@ -106,6 +140,13 @@ public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Val
         
     }
     
+    /**
+     * 
+     * 
+     * @return Value
+     * 
+     */
+    
     private Value queryAndCacheValue(final Key key) throws ResourceException {
         
         if(key == null){
@@ -128,6 +169,15 @@ public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Val
         
     }
 
+    /**
+     * This method returns a List of Values assigned to the
+     * specified keys parameter as well as storing them
+     * in a cache.
+     * 
+     * @return List<Value>
+     * 
+     */
+    
     @Override
     public List<Value> getAll(List<Key> keys) throws ResourceException {
         

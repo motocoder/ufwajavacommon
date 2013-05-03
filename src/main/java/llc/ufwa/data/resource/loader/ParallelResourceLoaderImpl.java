@@ -19,10 +19,19 @@ import llc.ufwa.data.resource.provider.SettableResourceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *  
+ *  ParallelResourceLoaderImpl is an implementation of ParrallelResourceLoader.
+ *  
+ *  
+ *
+ */
+
+
 public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceLoader<Key, Value> {
 
     private static final Logger logger = LoggerFactory.getLogger(ParallelResourceLoaderImpl.class);
-    
+
     private final String loggingTag;
     private final ResourceLoader<Key, Value> internal;
     private final int depth;
@@ -77,6 +86,13 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         
     }
     
+    /**
+     * 
+     * 
+     * @return boolean
+     * 
+     */
+    
     @Override
     public boolean exists(Key key) throws ResourceException {
        
@@ -93,11 +109,25 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         return getSerially(key, loggingTag, respondToExists, callbackControlsExists, depth, outStates, threads, callbackThreads, booleanInternal, true);
         
     }
+    
+    /**
+     * 
+     * 
+     * @return Value
+     * 
+     */
 
     @Override
     public Value get(Key key) throws ResourceException {
         return getSerially(key, loggingTag, respondTo, callbackControls, depth, outStates, threads, callbackThreads, internal, false);
     }
+    
+    /**
+     * 
+     * 
+     * @return List<Value>
+     * 
+     */
 
     @Override
     public List<Value> getAll(List<Key> keysOrig) throws ResourceException {
@@ -368,6 +398,17 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         return returnVals;
         
     }
+    
+    /**
+     * CallbackControl getParallel(
+     *  Callback<Object, ResourceEvent<Value>> onComplete, 
+     *  final Key key) – onComplete is called with the newly loaded value upon completion of 
+     *  the resource loader call. CallbackControl has one method, cancel which allows you to 
+     *  cancel the request before it completes.
+     * 
+     * @return CallbackControl
+     * 
+     */
 
     @Override
     public CallbackControl getParallel(
@@ -376,6 +417,17 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
     ) {
         return parellelCall(onComplete, key, respondTo, callbackControls, depth, outStates, loggingTag, threads, callbackThreads, internal, false);
     }
+    
+    /**
+     * CallbackControl existsParallel(
+     *  Callback<Object, ResourceEvent<Boolean>> onComplete, 
+     *  final Key key) – onComplete is called with the newly loaded value upon completion of 
+     *  the resource loader call. CallbackControl has one method, cancel which allows you to 
+     *  cancel the request before it completes.
+     * 
+     * @return CallbackControl
+     * 
+     */
 
     @Override
     public CallbackControl existsParallel(
@@ -396,6 +448,15 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         return parellelCall(onComplete, key, respondToExists, callbackControlsExists, depth, outStates, loggingTag, threads, callbackThreads, booleanInternal, true);
        
     }
+    
+    /**
+     * void getAllParallel(final Map<Key, Callback<Object, ResourceEvent<Value>>> callbackMap) - 
+     *  This method works with the same principals as getParallel and existsParallel except it is 
+     *  a bulk request. There is no CallbackControl returned with it.
+     * 
+     * @param callbackMap
+     * 
+     */
 
     @Override
     public void getAllParallel(
@@ -619,6 +680,15 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         
     }
     
+    /**
+     * 
+     * @param newOuts
+     * @param outStates
+     * @param respondTo
+     * @param callbackThreads
+     * @param callbackControls
+     */
+    
     private static <Key, Value> void cancel(
         final Collection<Key> newOuts,
         final CurrentlyOutStates<Key> outStates,
@@ -682,6 +752,23 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         
     }
     
+    /**
+     * 
+     * 
+     * @param key
+     * @param loggingTag
+     * @param respondTo
+     * @param callbackControls
+     * @param depth
+     * @param outStates
+     * @param threads
+     * @param callbackThreads
+     * @param internal
+     * @param isExistsCall
+     * @return
+     * @throws ResourceException
+     */
+    
     private static <Key, Value> Value getSerially (
         final Key key,
         final String loggingTag,
@@ -704,6 +791,15 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         final Callback<Object, ResourceEvent<Value>> callback =
                 new Callback<Object, ResourceEvent<Value>>() {
 
+            
+            /**
+             * 
+             * 
+             * @return Object
+             * @param value
+             * 
+             */
+            
             @Override
             public Object call(ResourceEvent<Value> value) {
                 
@@ -757,6 +853,23 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         return provider.provide().getVal();
         
     }
+    
+    /**
+     * I DONO WHAT THIS EVEN RETURNS
+     * 
+     * @param onComplete
+     * @param key
+     * @param respondTo
+     * @param callbackControls
+     * @param depth
+     * @param outStates
+     * @param loggingTag
+     * @param threads
+     * @param callbackThreads
+     * @param internal
+     * @param isExistsCall
+     * @return
+     */
     
     private static <Key, Value> CallbackControl parellelCall(
         final Callback<Object, ResourceEvent<Value>> onComplete, 
@@ -981,10 +1094,22 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         
     }
     
+    /**
+     * 
+     * 
+     *
+     * @param <Key>
+     */
+    
     private static class CurrentlyOutStates<Key> {
         
         private final Set<Key> out = new HashSet<Key>();
         private final Set<Key> outExists = new HashSet<Key>();
+        
+        /**
+         * 
+         * @param key
+         */
         
         public void addOutSingle(Key key) {
             out.add(key);            
@@ -1003,6 +1128,13 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
             outExists.remove(key); 
         }
         
+        /**
+         * 
+         * 
+         * @return boolean
+         * 
+         */
+        
         public boolean contains(Key key, boolean exists) {
             
             final boolean returnVal;
@@ -1018,6 +1150,14 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
             
         }
         
+        /**
+         * 
+         * 
+         * @param key
+         * @param exists
+         * 
+         */
+        
         public void add(Key key, boolean exists) {
             
             if(exists) {
@@ -1028,6 +1168,14 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
             }
 
         }
+        
+        /**
+         * 
+         * 
+         * @param key
+         * @param exists
+         * 
+         */
         
         public void remove(Key key, boolean exists) {
             

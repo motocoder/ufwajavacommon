@@ -9,6 +9,34 @@ import llc.ufwa.data.exception.ResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *  
+ *  The RetryingOnNullResourceLoader extends the DefaultResourceLoader
+ *  class which is an implementation of the ResourceLoader interface.
+ *  It takes a ResourceLoader<Key,Value>, a Callback<Void,Key>, and an
+ *  int as parameters. This class will retry calling get or exists if
+ *  an exception is thrown.
+ *  
+ *  ex:
+ *  public RetryingOnNullResourceLoader(
+ *      final ResourceLoader<Key, Value> internal,
+ *      final Callback<Void, Key> onRetrying,
+ *      final int retries)
+ *      
+ *      internal is the ResourceLoader to retry calls to. The onRetrying 
+ *      callback is called each time a key throws an exception and has 
+ *      to be retried. The retries parameter is the amount of times to 
+ *      attempt retrying.
+ *      
+ */
+
+/**
+ * 
+ *
+ * @param <Key>
+ * @param <Value>
+ */
+
 public class RetryingOnExceptionResourceLoader<Key, Value> extends DefaultResourceLoader<Key, Value> {
 
     private static final Logger logger = LoggerFactory.getLogger(RetryingOnExceptionResourceLoader.class);
@@ -19,6 +47,14 @@ public class RetryingOnExceptionResourceLoader<Key, Value> extends DefaultResour
     private final Callback<Void, Key> onRetrying;
     private final int retries;
     private final Set<Class<? extends ResourceException>> exceptionTypes;
+    
+    /**
+     * 
+     * @param internal
+     * @param onRetrying
+     * @param retries
+     * @param exceptionTypes
+     */
 
     public RetryingOnExceptionResourceLoader(
         final ResourceLoader<Key, Value> internal,
@@ -33,6 +69,13 @@ public class RetryingOnExceptionResourceLoader<Key, Value> extends DefaultResour
         this.onRetrying = onRetrying;
         
     }
+    
+    /**
+     * 
+     * @param key
+     * @return boolean
+     * 
+     */
     
     @Override
     public boolean exists(Key key) throws ResourceException {
@@ -62,6 +105,14 @@ public class RetryingOnExceptionResourceLoader<Key, Value> extends DefaultResour
         throw new OutOfRetriesException();     
         
     }
+    
+    /**
+     * 
+     * 
+     * @return Value
+     * @param key
+     * 
+     */
 
     @Override
     public Value get(Key key) throws ResourceException {

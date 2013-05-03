@@ -9,9 +9,24 @@ import java.util.Set;
 
 import llc.ufwa.data.exception.ResourceException;
 
+/**
+ *  
+ *  The ListResourceLoader is an implementation of the ResourceLoader interface
+ *  that takes a list of ResourceLoaders at construction and iterates through 
+ *  them when a method is called in order to find the needed resource.
+ *  
+ * 
+ *
+ */
+
 public class ListResourceLoader<Key, Value> implements ResourceLoader<Key, Value> {
     
     private final List<ResourceLoader<Key, Value>> caches;
+    
+    /**
+     * 
+     * @param caches
+     */
 
     public ListResourceLoader(final List<ResourceLoader<Key, Value>> caches) {
         
@@ -29,6 +44,15 @@ public class ListResourceLoader<Key, Value> implements ResourceLoader<Key, Value
         this.caches = new ArrayList<ResourceLoader<Key, Value>>(caches);
         
     }
+    
+    /**
+     * Exists(key) – Calls the Exists(key) method from the ResourceLoader interface on the 
+     *  first loader in the list. If the first loader returns false, it will then proceed to the next item in 
+     *  the list until it either finds a true value, or runs out of loaders in the list.
+     * 
+     * @return boolean
+     * 
+     */
 
     @Override
     public boolean exists(Key key) throws ResourceException {
@@ -48,6 +72,16 @@ public class ListResourceLoader<Key, Value> implements ResourceLoader<Key, Value
         return false;
     }
 
+    
+    /**
+     * Get(key) – Calls the Get(key) method from the ResourceLoader interface on the 
+     *  first loader in the list. If the first loader returns null, it will then proceed to the next item in 
+     *  the list until it either finds a value, or runs out of loaders in the list.
+     * 
+     * @return Value
+     * 
+     */
+    
     @Override
     public Value get(Key key) throws ResourceException {
         
@@ -77,6 +111,15 @@ public class ListResourceLoader<Key, Value> implements ResourceLoader<Key, Value
                 
         return returnVal;
     }
+    
+    /**
+     *  GetAll(List<key>) – Queries all keys on the first ResourceLoader. Any keys that return null values on the 
+     *  first loader will then be queried on the next ResourceLoader, and so on, until either all values are
+     *  loaded or all loader are exhausted.
+     * 
+     * @return List<Value>
+     * 
+     */
 
     @Override
     public List<Value> getAll(List<Key> keys) throws ResourceException {
