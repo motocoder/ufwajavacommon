@@ -11,6 +11,18 @@ import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.cache.Cache;
 import llc.ufwa.util.CollectionUtil;
 
+/**
+ *  
+ *  BatchingParallelResourceLoader is an implementation of ParallelResourceLoader
+ *  which is an extension of ResourceLoader. It takes a ParallelResourceLoader, 
+ *  a batchSize int, a batchRadius int, a a Cache<Key,Boolean>, a Cache<Key,Value>, 
+ *  and a List<Key> during construction. This class is used to group things together
+ *  and load them efficiently in these arrangements.
+ *  
+ *  
+ *
+ */
+
 public class BatchingParallelResourceLoader<Key, Value> implements ParallelResourceLoader<Key, Value> {
     
     private final ParallelResourceLoader<Key, Value> internal;
@@ -58,20 +70,59 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
         
     }
     
+    /**
+     * This method returns a boolean if the value assigned to the
+     * specified key parameter is not null as well as storing
+     * the results in a cache.
+     * 
+     * @return boolean
+     * 
+     */
+    
     @Override
     public boolean exists(Key key) throws ResourceException {
         throw new RuntimeException("Not supported");
     }
 
+    /**
+     * This method returns the Value assigned to the
+     * specified key parameter as long as the value
+     * is not null. It also stores the results in 
+     * a cache.
+     * 
+     * @return Value
+     * 
+     */
+    
     @Override
     public Value get(Key key) throws ResourceException {
         throw new RuntimeException("Not supported");
     }
+    
+    /**
+     * This method returns a List of Values assigned to the
+     * specified keys parameter as well as storing them
+     * in a cache.
+     * 
+     * @return List<Value>
+     * 
+     */
 
     @Override
     public List<Value> getAll(List<Key> keys) throws ResourceException {
         throw new RuntimeException("Not supported");
     }
+    
+    /**
+     * CallbackControl getParallel(
+     *  Callback<Object, ResourceEvent<Value>> onComplete, 
+     *  final Key key) – onComplete is called with the newly loaded value upon completion of 
+     *  the resource loader call. CallbackControl has one method, cancel which allows you to 
+     *  cancel the request before it completes.
+     * 
+     * @return CallbackControl
+     * 
+     */
 
     @Override
     public CallbackControl getParallel(
@@ -137,6 +188,12 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
         };
         
     }
+    
+    /**
+     * 
+     * 
+     * 
+     */
 
     private void doGetAll(final Key key, final Callback<Object, ResourceEvent<Value>> onComplete) throws ResourceException {
     	
@@ -264,6 +321,17 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
         }
         
     }
+    
+    /**
+     * CallbackControl existsParallel(
+     *  Callback<Object, ResourceEvent<Boolean>> onComplete, 
+     *  final Key key) – onComplete is called with the newly loaded value upon completion of 
+     *  the resource loader call. CallbackControl has one method, cancel which allows you to 
+     *  cancel the request before it completes.
+     * 
+     * @return CallbackControl
+     * 
+     */
 
     @Override
     public CallbackControl existsParallel(
@@ -271,6 +339,13 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
     ) {
         throw new RuntimeException("Not supported");
     }
+    
+    /**
+     * void getAllParallel(final Map<Key, Callback<Object, ResourceEvent<Value>>> callbackMap) - 
+     *  This method works with the same principals as getParallel and existsParallel except it is 
+     *  a bulk request. There is no CallbackControl returned with it.
+     * 
+     */
 
     @Override
     public void getAllParallel(

@@ -24,7 +24,22 @@ import org.slf4j.LoggerFactory;
  *
  * @param <Key>
  * @param <Value>
+ * 
  */
+
+
+/**
+ *  
+ *  The CachedParallelResourceLoader interface extends the ParallelResourceLoader
+ *  interface and adds caching functionality. The constructor takes a LimitingExecutorService
+ *  object, an ExecutorService object, an Executor, an int, a String, and a List of 
+ *  CacheLoaderPairs.
+ *  
+ * 
+ *
+ */
+
+ 
 public class CachedParallelResourceLoader<Key, Value> implements ParallelResourceLoader<Key, Value> {
     
     private static final Logger logger = LoggerFactory.getLogger(CachedParallelResourceLoader.class);
@@ -83,6 +98,15 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         }
         
         final ResourceLoader<Key, Value> wrapper = new ResourceLoader<Key, Value>() {
+            
+            /**
+             * This method returns a boolean if the value assigned to the
+             * specified key parameter is not null as well as storing
+             * the results in a cache.
+             * 
+             * @return boolean
+             * 
+             */
 
             @Override
             public boolean exists(Key key) throws ResourceException {
@@ -132,6 +156,16 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                 return returnVal;
                
             }
+            
+            /**
+             * This method returns the Value assigned to the
+             * specified key parameter as long as the value
+             * is not null. It also stores the results in 
+             * a cache.
+             * 
+             * @return Value
+             * 
+             */
 
             @Override
             public Value get(Key key) throws ResourceException {
@@ -196,6 +230,15 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                 
                 return returnVal;
             }
+            
+            /**
+             * This method returns a List of Values assigned to the
+             * specified keys parameter as well as storing them
+             * in a cache.
+             * 
+             * @return List<Value>
+             * 
+             */
 
             @Override
             public List<Value> getAll(List<Key> keys) throws ResourceException {
@@ -294,6 +337,13 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         };
         
         this.searchCache = new Cache<Key, Boolean>() {
+            
+            /**
+             * 
+             * 
+             * @return boolean
+             * 
+             */
 
             @Override
             public boolean exists(Key key) throws ResourceException {
@@ -313,6 +363,13 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                 
                 return returnVal;
             }
+            
+            /**
+             * 
+             * 
+             * @return Boolean
+             * 
+             */
 
             @Override
             public Boolean get(Key key) throws ResourceException {
@@ -335,6 +392,13 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                 return returnVal;
                 
             }
+            
+            /**
+             * 
+             * 
+             * @return List<Boolean>
+             * 
+             */
 
             @Override
             public List<Boolean> getAll(List<Key> keys) throws ResourceException {
@@ -348,6 +412,11 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                 return returnVals;
                 
             }
+            
+            /**
+             * 
+             * 
+             */
 
             @Override
             public void clear() {
@@ -357,6 +426,12 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                 }
                 
             }
+            
+            /**
+             * 
+             * 
+             * @param key
+             */
 
             @Override
             public void remove(Key key) {
@@ -366,6 +441,13 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                 }                
                 
             }
+            
+            /**
+             * 
+             * 
+             * @param key
+             * @param value
+             */
 
             @Override
             public void put(Key key, Boolean value) {
@@ -376,6 +458,13 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         
         this.cache = new Cache<Key, Value>() {
 
+            /**
+             * 
+             * 
+             * @return boolean
+             * 
+             */
+            
             @Override
             public boolean exists(Key key) throws ResourceException {
 
@@ -395,6 +484,13 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                 return returnVal;
                 
             }
+            
+            /**
+             * 
+             * 
+             * @return Value
+             * 
+             */
 
             @Override
             public Value get(Key key) throws ResourceException {
@@ -418,6 +514,13 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                 
             }
 
+            /**
+             * 
+             * 
+             * @return List<Value>
+             * 
+             */
+            
             @Override
             public List<Value> getAll(List<Key> keys) throws ResourceException {
                 
@@ -430,6 +533,11 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                 return returnVals;
                 
             }
+            
+            /**
+             * 
+             * 
+             */
 
             @Override
             public void clear() {
@@ -439,6 +547,13 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                 }
                 
             }
+            
+            /**
+             * 
+             * 
+             * @param key
+             * 
+             */
 
             @Override
             public void remove(Key key) {
@@ -448,6 +563,14 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                 } 
                 
             }
+            
+            /**
+             * 
+             * 
+             * @param key
+             * @param value
+             * 
+             */
 
             @Override
             public void put(Key key, Value value) {
@@ -533,6 +656,13 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         
     }
 
+    /**
+     * 
+     * 
+     * @return boolean
+     * 
+     */
+    
     @Override
     public boolean exists(Key key) throws ResourceException {
         
@@ -556,6 +686,13 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         
         return returnVal;
     }
+    
+    /**
+     * 
+     * 
+     * @return Value
+     * 
+     */
 
     @Override
     public Value get(Key key) throws ResourceException {
@@ -596,6 +733,13 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         return returnVal;
         
     }
+    
+    /**
+     * 
+     * 
+     * @return List<Value>
+     * 
+     */
 
     @Override
     public List<Value> getAll(List<Key> keys) throws ResourceException {
@@ -664,6 +808,17 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         
         
     }
+    
+    /**
+     * CallbackControl existsParallel(
+     *  Callback<Object, ResourceEvent<Boolean>> onComplete, 
+     *  final Key key) – onComplete is called with the newly loaded value upon completion of 
+     *  the resource loader call. CallbackControl has one method, cancel which allows you to 
+     *  cancel the request before it completes.
+     * 
+     * @return CallbackControl
+     * 
+     */
 
     @Override
     public CallbackControl existsParallel(
@@ -767,6 +922,14 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         return returnVal;
         
     }
+    
+    /**
+     * void getAllParallel(final Map<Key, Callback<Object, ResourceEvent<Value>>> callbackMap) - 
+     *  This method works with the same principals as getParallel and existsParallel except it is 
+     *  a bulk request. There is no CallbackControl returned with it.
+     * 
+     * 
+     */
     
     @Override
     public void getAllParallel(//TODO a real implementation that doesn't just wrap getAll
@@ -897,6 +1060,16 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         
     }
     
+
+    /**
+     * 
+     * 
+     * 
+     *
+     * @param <Key>
+     * @param <Value>
+     */
+    
     public static class CacheLoaderPair<Key, Value> {
         
         private final ResourceLoader<Key, Value> loader;
@@ -914,14 +1087,35 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
             this.searchCache = searchCache;
             
         }
+        
+        /**
+         * 
+         * 
+         * @return ResourceLoader<Key, Value>
+         * 
+         */
 
         public ResourceLoader<Key, Value> getLoader() {
             return loader;
         }
+        
+        /**
+         * 
+         * 
+         * @return Cache<Key, Value>
+         * 
+         */
 
         public Cache<Key, Value> getCache() {
             return cache;
         }
+        
+        /**
+         * 
+         * 
+         * @return Cache<Key, Boolean>
+         * 
+         */
 
         public Cache<Key, Boolean> getSearchCache() {
             return searchCache;
@@ -930,6 +1124,17 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         
         
     }
+    
+    /**
+     * CallbackControl getParallel(
+     *  Callback<Object, ResourceEvent<Value>> onComplete, 
+     *  final Key key) – onComplete is called with the newly loaded value upon completion of 
+     *  the resource loader call. CallbackControl has one method, cancel which allows you to 
+     *  cancel the request before it completes.
+     * 
+     * @return CallbackControl
+     * 
+     */
 
     @Override
     public CallbackControl getParallel(
@@ -1045,9 +1250,24 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         return returnVal;
         
     }
+    
+    /**
+     * 
+     * 
+     * @return Cache<Key, Boolean>
+     * 
+     */
+    
     public Cache<Key, Boolean> getSearchCache() {
         return this.searchCache;
     }
+    
+    /**
+     * 
+     * 
+     * @return Cache<Key, Value>
+     * 
+     */
     
     public Cache<Key, Value> getCache() {
         return this.cache;

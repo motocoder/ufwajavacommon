@@ -6,6 +6,33 @@ import llc.ufwa.data.exception.ResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *  
+ *  The RetryingOnNullResourceLoader extends the DefaultResourceLoader
+ *  class which is an implementation of the ResourceLoader interface.
+ *  It takes a ResourceLoader<Key,Value>, a Callback<Void,Key>, and an
+ *  int as parameters. This class will retry calling get or exists if
+ *  a null value is returned.
+ *  
+ *  ex:
+ *  public RetryingOnNullResourceLoader(
+ *      final ResourceLoader<Key, Value> internal,
+ *      final Callback<Void, Key> onRetrying,
+ *      final int retries)
+ *      
+ *      internal is the ResourceLoader to retry calls to. The onRetrying 
+ *      callback is called each time a key returns null and has to be retried. 
+ *      The retries parameter is the amount of times to attempt retrying.
+ *      
+ */
+
+/**
+ * 
+ *
+ * @param <Key>
+ * @param <Value>
+ */
+
 public class RetryingOnNullResourceLoader<Key, Value> extends DefaultResourceLoader<Key, Value> {
 
     private static final Logger logger = LoggerFactory.getLogger(RetryingOnNullResourceLoader.class);
@@ -34,6 +61,13 @@ public class RetryingOnNullResourceLoader<Key, Value> extends DefaultResourceLoa
         
     }
     
+    /**
+     * 
+     * @param key
+     * @return boolean
+     * 
+     */
+    
     @Override
     public boolean exists(Key key) throws ResourceException {
         
@@ -55,6 +89,13 @@ public class RetryingOnNullResourceLoader<Key, Value> extends DefaultResourceLoa
         return false;
         
     }
+    
+    /**
+     * 
+     * @param key
+     * @return Value
+     * 
+     */
 
     @Override
     public Value get(Key key) throws ResourceException {

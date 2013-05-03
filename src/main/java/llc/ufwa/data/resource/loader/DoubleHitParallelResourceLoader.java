@@ -10,11 +10,27 @@ import java.util.Set;
 import llc.ufwa.concurrency.Callback;
 import llc.ufwa.data.exception.ResourceException;
 
+/**
+ *  
+ *  DoubleHitParallelResourceLoader is an implementation of ParallelResourceLoader
+ *  which is an extension of ResourceLoader. It takes two ParallelResourceLoaders
+ *  during construction, a primary and secondary. 
+ *  
+ *
+ */
+
 public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelResourceLoader<Key, Value> {
 
     private final ParallelResourceLoader<Key, Value> secondary;
     private final ParallelResourceLoader<Key, Value> primary;
 
+    /**
+     * 
+     * @param primary
+     * @param secondary
+     */
+    
+    
     public DoubleHitParallelResourceLoader(
         final ParallelResourceLoader<Key, Value> primary,
         final ParallelResourceLoader<Key, Value> secondary
@@ -25,10 +41,26 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
         
     }
     
+    /**
+     * 
+     * If the resource exists, it will return the primary
+     * or secondary value associated with the key.
+     * 
+     * @return boolean
+     */
+    
     @Override
     public boolean exists(Key key) throws ResourceException {
         return primary.exists(key) || secondary.exists(key);
     }
+    
+    /**
+     * This method returns the secondary ParallelResourceLoader
+     * unless it returns a null value in which it would instead 
+     * return the primary. 
+     * 
+     * @return Value
+     */
 
     @Override
     public Value get(Key key) throws ResourceException {
@@ -52,6 +84,17 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
         return returnVal;
         
     }
+    
+    /**
+     * The getAll method returns the secondary List of values
+     * unless they are null values in which it would instead 
+     * return the primary values. This method performs in a 
+     * similar fashion to the get method, except it performs 
+     * bulk work. 
+     * 
+     * 
+     * @return List<Value>
+     */
 
     @Override
     public List<Value> getAll(List<Key> keys) throws ResourceException {
@@ -125,6 +168,16 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
         return returnVals;
         
     }
+    
+    /**
+     * CallbackControl getParallel(
+     *  Callback<Object, ResourceEvent<Value>> onComplete, 
+     *  final Key key) – onComplete is called with the newly loaded value upon completion of 
+     *  the resource loader call. CallbackControl has one method, cancel which allows you to 
+     *  cancel the request before it completes.
+     * 
+     * @return CallbackControl
+     */
 
     @Override
     public CallbackControl getParallel(
@@ -178,6 +231,17 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
         return returnControl;
         
     }
+    
+    /**
+     * CallbackControl existsParallel(
+     *  Callback<Object, ResourceEvent<Boolean>> onComplete, 
+     *  final Key key) – onComplete is called with the newly loaded value upon completion of 
+     *  the resource loader call. CallbackControl has one method, cancel which allows you to 
+     *  cancel the request before it completes.
+     * 
+     * 
+     * @return CallbackControl
+     */
 
     @Override
     public CallbackControl existsParallel(
@@ -225,6 +289,15 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
         return returnControl;
     
     }
+    
+    /**
+     * 
+     *  void getAllParallel(final Map<Key, Callback<Object, ResourceEvent<Value>>> callbackMap) - 
+     *  This method works with the same principals as getParallel and existsParallel except it is 
+     *  a bulk request. There is no CallbackControl returned with it.
+     * 
+     * 
+     */
 
     @Override
     public void getAllParallel(
@@ -298,10 +371,18 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
         
     }
     
+    /**
+     * 
+     * 
+     *
+     */
+    
     private static class DoubleCallbackControl implements CallbackControl {
+  
         
         private CallbackControl primary; 
         private CallbackControl secondary;
+
         
         @Override
         public synchronized void cancel() {
@@ -315,9 +396,21 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
             }
         }
 
+        /**
+         * 
+         * 
+         * @param primary
+         */
+        
         public synchronized void setPrimary(CallbackControl primary) {
             this.primary = primary;
         }
+        
+        /**
+         * 
+         * 
+         * @param secondary
+         */
 
         public synchronized void setSecondary(CallbackControl secondary) {
             this.secondary = secondary;

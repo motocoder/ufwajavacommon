@@ -5,6 +5,17 @@ import java.util.List;
 import llc.ufwa.data.exception.ResourceException;
 
 /**
+ *  
+ *  The ResourceLoader is an interface used to load
+ *  various resources using a key and value based mapping system.
+ *  
+ *  Get(key) - returns a value
+ *  Exists(key) - returns a boolean
+ *  getAll(List<Key>) - returns a list of values
+ *
+ */
+
+/**
  * 
  * @author seanwagner
  *
@@ -16,7 +27,7 @@ public interface ResourceLoader<TKey, TValue> {
     /**
      * 
      * @param key
-     * @return
+     * @return boolean
      * @throws ResourceException
      */
 	boolean exists(TKey key) throws ResourceException;
@@ -24,7 +35,7 @@ public interface ResourceLoader<TKey, TValue> {
 	/**
 	 * 
 	 * @param key
-	 * @return
+	 * @return TValue
 	 * @throws ResourceException
 	 */
 	TValue get(TKey key) throws ResourceException;
@@ -32,7 +43,7 @@ public interface ResourceLoader<TKey, TValue> {
 	/**
 	 * 
 	 * @param keys
-	 * @return - The list returned must have the same length as the input list of keys
+	 * @return List<TValue> - The list returned must have the same length as the input list of keys
 	 *           and the order values returned must match their associated keys.
 	 * @throws ResourceException
 	 */
