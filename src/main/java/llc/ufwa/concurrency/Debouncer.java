@@ -188,7 +188,7 @@ public class Debouncer {
                 shouldRun.push(b);
             }
             catch (ResourceException e) {
-                throw new RuntimeException("Should never happen", e);
+                throw new RuntimeException("Debouncer failed to push. " + e.getMessage(), e);
             }
             
         }
