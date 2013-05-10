@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import llc.ufwa.util.StreamUtil;
+import llc.ufwa.util.WebUtil.WebResponse;
 
 public class WebUtil {
     
@@ -341,6 +342,85 @@ public class WebUtil {
             final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             
             connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setReadTimeout(10000);
+            connection.setRequestProperty("Content-Type", "application/json");
+
+            connection.setReadTimeout(10000);
+            
+            for(final Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.addRequestProperty(entry.getKey(), entry.getValue());
+            }   
+            
+            connection.connect();
+            
+            {
+                
+                final OutputStream writing = connection.getOutputStream();
+                
+                try {
+                    
+                    final InputStream reading = new ByteArrayInputStream(body.getBytes("UTF-8"));
+                    
+                    StreamUtil.copyTo(reading, writing);
+                    
+                }
+                finally {
+                    writing.close();
+                }
+                
+            }
+            
+            if(connection.getResponseCode() != 200) {
+                throw new IOException("server returned code " + connection.getResponseCode());
+            }
+            
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();            
+            final InputStream in = connection.getInputStream();
+            
+            if(in != null) {
+                
+                try {
+                    StreamUtil.copyTo(in, out);
+                }
+                finally {
+                    in.close();
+                }
+                
+            }
+            else {
+                throw new IOException("Failed to get response");
+            }
+            
+            return new WebResponse(new String(out.toByteArray()), connection.getHeaderFields());
+                      
+        } 
+        catch (MalformedURLException e) {
+            
+            logger.error("ERROR:", e);
+            throw new IOException("ERROR:");
+            
+        }
+        catch (ProtocolException e) {
+            
+            logger.error("ERROR:", e);
+            throw new IOException("Error:");
+            
+        } 
+    }
+
+    public static WebResponse doPutJSON(
+        final URL url,
+        final Map<String, String> headers, 
+        final String body
+    ) throws IOException {
+        
+        try {
+            
+            final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            
+            connection.setRequestMethod("PUT");
             connection.setDoOutput(true);
             connection.setDoInput(true);
             connection.setReadTimeout(10000);
