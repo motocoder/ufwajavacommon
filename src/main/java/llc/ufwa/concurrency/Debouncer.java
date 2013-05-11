@@ -116,7 +116,7 @@ public class Debouncer {
                                                 lock.wait(delay);
                                             }
                         				    catch (InterruptedException e) {
-                                                logger.error("Deboucer interrupted:", e);
+                                                logger.error("<Debouncer><1>, Deboucer interrupted:", e);
                                             }
                         				    
                     				    }
@@ -158,7 +158,7 @@ public class Debouncer {
                 
             }
 		    catch (ResourceException e) {
-                throw new RuntimeException("this shouldn't happen", e);
+                throw new RuntimeException("<Debouncer><2>, this shouldn't happen", e);
             }
 		    
 		}
@@ -188,7 +188,7 @@ public class Debouncer {
                 shouldRun.push(b);
             }
             catch (ResourceException e) {
-                throw new RuntimeException("Debouncer failed to push. " + e.getMessage(), e);
+                throw new RuntimeException("<Debouncer><3>, Debouncer failed to push. " + e.getMessage(), e);
             }
             
         }

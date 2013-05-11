@@ -62,7 +62,7 @@ public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Val
     public boolean exists(Key key) throws ResourceException {
         
         if(key == null){
-            throw new NullPointerException("key cannot be null");
+            throw new NullPointerException("<CachedResourceLoader><1>, " + "key cannot be null");
         }
         
         final Boolean searchCacheValue = searchCache.get(key);
@@ -107,7 +107,7 @@ public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Val
     public Value get(Key key) throws ResourceException {
         
         if(key == null){
-            throw new NullPointerException("key cannot be null");
+            throw new NullPointerException("<CachedResourceLoader><2>, " + "key cannot be null");
         }
         
         final Value cachedValue = valueCache.get(key);
@@ -150,7 +150,7 @@ public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Val
     private Value queryAndCacheValue(final Key key) throws ResourceException {
         
         if(key == null){
-            throw new NullPointerException("key cannot be null");
+            throw new NullPointerException("<CachedResourceLoader><3>, " + "key cannot be null");
         }
         
         final Value returnVal = internal.get(key);
@@ -182,11 +182,11 @@ public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Val
     public List<Value> getAll(List<Key> keys) throws ResourceException {
         
         if(keys == null) {
-            throw new NullPointerException("Keys cannot be null");
+            throw new NullPointerException("<CachedResourceLoader><4>, " + "Keys cannot be null");
         }
         
         if(keys.contains(null)) {
-            throw new NullPointerException("Keys cannot contain null");
+            throw new NullPointerException("<CachedResourceLoader><5>, " + "Keys cannot contain null");
         }
         
         final Map<Key, Value> values = new HashMap<Key, Value>();
@@ -229,7 +229,7 @@ public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Val
             final List<Value> returned = internal.getAll(toQuery);
             
             if(toQuery.size() != returned.size()) {
-                throw new ResourceException("queried values size not the same as keys size");
+                throw new ResourceException("<CachedResourceLoader><6>, " + "queried values size not the same as keys size");
             }
             
             for(int i = 0; i < toQuery.size(); i++) {

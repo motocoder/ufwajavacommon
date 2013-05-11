@@ -17,11 +17,11 @@ public class ListCache<Key, Value> implements Cache<Key, Value> {
     public ListCache(final List<Cache<Key, Value>> caches, boolean pullThrough) {
         
         if(caches == null) {
-            throw new NullPointerException("Caches cannot be null");
+            throw new NullPointerException("<ListCache><1>, Caches cannot be null");
         }
         
         if(caches.contains(null)) {
-            throw new NullPointerException("caches cannot contain null");
+            throw new NullPointerException("<ListCache><2>, caches cannot contain null");
         }
         
         this.pullThrough = pullThrough;        
@@ -33,7 +33,7 @@ public class ListCache<Key, Value> implements Cache<Key, Value> {
     public boolean exists(Key key) throws ResourceException {
        
         if(key == null) {
-            throw new NullPointerException("key cannot be null");
+            throw new NullPointerException("<ListCache><3>, key cannot be null");
         }
         
         for(final Cache<Key, Value> cache : caches) {
@@ -51,7 +51,7 @@ public class ListCache<Key, Value> implements Cache<Key, Value> {
     public Value get(Key key) throws ResourceException {
         
         if(key == null) {
-            throw new NullPointerException("key cannot be null");
+            throw new NullPointerException("<ListCache><4>, key cannot be null");
         }
         int i = 0;
         
@@ -96,11 +96,11 @@ public class ListCache<Key, Value> implements Cache<Key, Value> {
     public List<Value> getAll(List<Key> keys) throws ResourceException {
         
         if(keys == null) {
-            throw new NullPointerException("keys cannot be null");
+            throw new NullPointerException("<ListCache><5>, keys cannot be null");
         }
         
         if(keys.contains(null)) {
-            throw new NullPointerException("Keys cannot contain null");
+            throw new NullPointerException("<ListCache><6>, Keys cannot contain null");
         }
         
         final Set<Key> unfound = new HashSet<Key>(keys);
@@ -122,7 +122,7 @@ public class ListCache<Key, Value> implements Cache<Key, Value> {
             final List<Value> queried = cache.getAll(querying);
             
             if(querying.size() != queried.size()) {
-                throw new ResourceException("something wierd just happened");
+                throw new ResourceException("<ListCache><7>, something wierd just happened");
             }
             
             final int size = querying.size();
@@ -201,7 +201,7 @@ public class ListCache<Key, Value> implements Cache<Key, Value> {
     public void remove(Key key) {
         
         if(key == null) {
-            throw new NullPointerException("key cannot be null");
+            throw new NullPointerException("<ListCache><8>, key cannot be null");
         }
         
         for(final Cache<Key, Value> cache : caches) {
@@ -214,7 +214,7 @@ public class ListCache<Key, Value> implements Cache<Key, Value> {
     public void put(Key key, Value value) {
         
         if(key == null) {
-            throw new NullPointerException("key cannot be null");
+            throw new NullPointerException("<ListCache><9>, key cannot be null");
         }
         
         for(final Cache<Key, Value> cache : caches) {

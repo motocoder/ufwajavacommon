@@ -87,7 +87,7 @@ public class RetryingOnExceptionResourceLoader<Key, Value> extends DefaultResour
             }
             catch(ResourceException e) {
                 
-                logger.info("Caught Exception: ", e);
+                logger.info("<RetryingOnExceptionResourceLoader><1>, " + "Caught Exception: ", e);
                 
                 if(exceptionTypes.contains(e.getClass())) {
                     
@@ -124,7 +124,7 @@ public class RetryingOnExceptionResourceLoader<Key, Value> extends DefaultResour
             }
             catch(ResourceException e) {
 
-                logger.info("Caught Exception: ", e);
+                logger.info("<RetryingOnExceptionResourceLoader><2>, " + "Caught Exception: ", e);
                 
                 if(exceptionTypes.contains(e.getClass())) {
                     

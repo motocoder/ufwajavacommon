@@ -29,15 +29,15 @@ public class CollectionUtil {
     ) {
                 
         if(chunkSize % 2 != 0) {
-            throw new IllegalArgumentException("Chunk size must be factor of 2");
+            throw new IllegalArgumentException("<CollectionUtil><1>, " + "Chunk size must be factor of 2");
         }
         
         if(position >= original.size()) {
-            throw new IllegalArgumentException("You cannot start at a position bigger than the original");
+            throw new IllegalArgumentException("<CollectionUtil><2>, " + "You cannot start at a position bigger than the original");
         }
         
         if(chunkSize > original.size()) {
-            throw new IllegalArgumentException("You cannot get a chunk bigger than the original");
+            throw new IllegalArgumentException("<CollectionUtil><3>, " + "You cannot get a chunk bigger than the original");
         }
         
         final int halfChunk = chunkSize / 2;
@@ -83,14 +83,14 @@ public class CollectionUtil {
 		}
 		catch (InstantiationException e) {
 			
-			logger.error("ERROR:", e);
-			throw new RuntimeException("Error:");
+			logger.error("<CollectionUtil><4>, " + "ERROR:", e);
+			throw new RuntimeException("<CollectionUtil><5>, " + "Error:");
 			
 		}
 		catch (IllegalAccessException e) {
 			
-			logger.error("ERROR:", e);
-			throw new RuntimeException("Error:");
+			logger.error("<CollectionUtil><6>, " + "ERROR:", e);
+			throw new RuntimeException("<CollectionUtil><7>, " + "Error:");
 			
 		}
 		
@@ -107,14 +107,14 @@ public class CollectionUtil {
     			}
     			catch (InstantiationException e) {
     				
-    				logger.error("ERROR:", e);
-    				throw new RuntimeException("Error:");
+    				logger.error("<CollectionUtil><8>, " + "ERROR:", e);
+    				throw new RuntimeException("<CollectionUtil><9>, " + "Error:");
     				
     			}
     			catch (IllegalAccessException e) {
     				
-    				logger.error("ERROR:", e);
-    				throw new RuntimeException("Error:");
+    				logger.error("<CollectionUtil><10>, " + "ERROR:", e);
+    				throw new RuntimeException("<CollectionUtil><11>, " + "Error:");
     				
     			}
     			

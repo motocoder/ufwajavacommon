@@ -36,7 +36,7 @@ public class FileHandler {
             return conn.getInputStream();
         } 
         catch ( Exception ex ) {
-            logger.error("Could not get input stream for url " + url, ex);
+            logger.error("<FileHandler><1>, " + "Could not get input stream for url " + url, ex);
             return null;
         }
     }
@@ -58,7 +58,7 @@ public class FileHandler {
             finalString = inBuffer.toString();
         }
         catch(IOException ex) {
-            logger.error("Error checking for path to test mode file ", ex);
+            logger.error("<FileHandler><2>, " + "Error checking for path to test mode file ", ex);
         }
         
         if(finalString == null) {
@@ -105,7 +105,7 @@ public class FileHandler {
             
         }
         catch(Exception ex) {
-            logger.error("Could not copy fileStream from web to local", ex);
+            logger.error("<FileHandler><3>, " + "Could not copy fileStream from web to local", ex);
         }
     }
     public static BufferedReader getFileReader(String fileName) {
@@ -115,7 +115,7 @@ public class FileHandler {
             
         }
         catch(Exception ex) {
-            logger.error("Could not open file " + fileName, ex);
+            logger.error("<FileHandler><4>, " + "Could not open file " + fileName, ex);
             return null;
         }
     }
@@ -145,7 +145,7 @@ public class FileHandler {
           fos.close();
 
         } catch ( Exception ex ) {
-          logger.error("Exception copying file ", ex);
+          logger.error("<FileHandler><5>, " + "Exception copying file ", ex);
           return false;
         }
         return true;
@@ -168,7 +168,7 @@ public class FileHandler {
             finalString = inBuffer.toString();
         }
         catch(IOException ex) {
-            logger.error("Error checking for path to test mode file ", ex);
+            logger.error("<FileHandler><6>, " + "Error checking for path to test mode file ", ex);
         }
         
         if(finalString == null) {
@@ -284,7 +284,7 @@ public class FileHandler {
           return sb.toString();
 
         } catch (Exception ex) {
-          logger.error("error", ex);
+          logger.error("<FileHandler><7>, " + "error", ex);
           return null;
         }
       }

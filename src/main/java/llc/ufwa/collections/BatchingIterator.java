@@ -62,7 +62,7 @@ public class BatchingIterator<Key> implements Iterator<List<Key>> {
 
     @Override
     public void remove() {
-        throw new RuntimeException("not supported");
+        throw new RuntimeException("<BatchingIterator><1>, not supported");
     }
 
 }

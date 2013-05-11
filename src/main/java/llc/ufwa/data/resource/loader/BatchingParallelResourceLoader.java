@@ -54,7 +54,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
     ) {
         
         if(new HashSet<Key>(positions).size() != positions.size()) {
-            throw new IllegalArgumentException("Positions must contain no duplicates");
+            throw new IllegalArgumentException("<BatchingParallelResourceLoader><1>, Positions must contain no duplicates");
         }
         
         this.internal = internal;
@@ -81,7 +81,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
     
     @Override
     public boolean exists(Key key) throws ResourceException {
-        throw new RuntimeException("Not supported");
+        throw new RuntimeException("<BatchingParallelResourceLoader><2>, Not supported");
     }
 
     /**
@@ -96,7 +96,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
     
     @Override
     public Value get(Key key) throws ResourceException {
-        throw new RuntimeException("Not supported");
+        throw new RuntimeException("<BatchingParallelResourceLoader><3>, Not supported");
     }
     
     /**
@@ -110,7 +110,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
 
     @Override
     public List<Value> getAll(List<Key> keys) throws ResourceException {
-        throw new RuntimeException("Not supported");
+        throw new RuntimeException("<BatchingParallelResourceLoader><4>, Not supported");
     }
     
     /**
@@ -135,7 +135,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
         if(lastIndex >= 0) { 
             
             if(newIndex == null) {
-                throw new IllegalArgumentException("Key was not available in positions list");
+                throw new IllegalArgumentException("<BatchingParallelResourceLoader><5>, Key was not available in positions list");
             }
                         
             if(Math.abs(newIndex - lastIndex) > batchRadius) {
@@ -169,7 +169,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
         else {
             
             if(newIndex == null) {
-                throw new IllegalArgumentException("Key was not available in positions list");
+                throw new IllegalArgumentException("<BatchingParallelResourceLoader><6>, Key was not available in positions list");
             }
             
             doGetAll(key, onComplete);
@@ -337,7 +337,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
     public CallbackControl existsParallel(
         final Callback<Object, ResourceEvent<Boolean>> onComplete, Key key
     ) {
-        throw new RuntimeException("Not supported");
+        throw new RuntimeException("<BatchingParallelResourceLoader><7>, Not supported");
     }
     
     /**
@@ -351,7 +351,7 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
     public void getAllParallel(
         final Map<Key, Callback<Object, ResourceEvent<Value>>> callbackMap
     ) {
-        throw new RuntimeException("Not supported");
+        throw new RuntimeException("<BatchingParallelResourceLoader><8>, Not supported");
     }
 
 }

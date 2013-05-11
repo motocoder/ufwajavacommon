@@ -70,11 +70,11 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
     ) {
         
         if(internal == null || threads == null || callbackThreads == null || loggingTag == null) {
-            throw new NullPointerException("No constructor arguments can be null.");
+            throw new NullPointerException("<ParallelResourceLoaderImpl><1>, " + "No constructor arguments can be null.");
         }
         
         if(depth < 1) {
-            throw new IllegalArgumentException("You cannot specify a depth of less than 1");
+            throw new IllegalArgumentException("<ParallelResourceLoaderImpl><2>, " + "You cannot specify a depth of less than 1");
         }
         
         this.loggingTag = loggingTag; 
@@ -133,7 +133,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
     public List<Value> getAll(List<Key> keysOrig) throws ResourceException {
 
         if(keysOrig == null) {
-            throw new NullPointerException("List of keys must not be null");
+            throw new NullPointerException("<ParallelResourceLoaderImpl><3>, " + "List of keys must not be null");
         }
         
         if(keysOrig.size() == 0) {
@@ -148,7 +148,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         final List<Key> uniques = new ArrayList<Key>(new HashSet<Key>(keys));
         
         if(uniques.contains(null)) {
-            throw new NullPointerException("Null is not a valid key");
+            throw new NullPointerException("<ParallelResourceLoaderImpl><4>, " + "Null is not a valid key");
         }
         
         synchronized(outStates) { 
@@ -178,7 +178,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                                     removedCallback.call(
                                         new ResourceEvent<Value>(
                                             null,
-                                            new CanceledResourceException("Too deep canceled"),
+                                            new CanceledResourceException("<ParallelResourceLoaderImpl><5>, " + "Too deep canceled"),
                                             ResourceEvent.UNKNOWN
                                         )
                                     );
@@ -248,7 +248,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                                     thrownList.add(e);
                                 }
                                 
-                                logger.info("Error loading resource in ParellelResourceLoaderImpl " + loggingTag, e);
+                                logger.info("<ParallelResourceLoaderImpl><6>, " + "Error loading resource in ParellelResourceLoaderImpl " + loggingTag, e);
                                 
                             }
                             catch(Exception e) {
@@ -257,7 +257,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                                     thrownList.add(new ResourceException(e));
                                 }
                                 
-                                logger.error("Error loading resource in ParellelResourceLoaderImpl " + loggingTag, e);
+                                logger.error("<ParallelResourceLoaderImpl><8>, " + "<ParallelResourceLoaderImpl><7>, " + "Error loading resource in ParellelResourceLoaderImpl " + loggingTag, e);
                                 
                             }
                             finally {
@@ -267,7 +267,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                                     logger.error("Invalid getAll() response, failing all keys!");
                                     
                                     for(int i = 0; i < newOuts.size(); i++) {
-                                        thrownList.add(new ResourceException("Invalid getAll response length, failing all keys"));
+                                        thrownList.add(new ResourceException("<ParallelResourceLoaderImpl><9>, " + "Invalid getAll response length, failing all keys"));
                                     } 
                                     
                                 }
@@ -374,7 +374,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                     responses.wait(100);
                 } 
                 catch (InterruptedException e) {
-                    throw new ResourceException(e);
+                    throw new ResourceException("<ParallelResourceLoaderImpl><10>, " + e);
                 }
                 
             }
@@ -469,7 +469,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
         final List<Key> uniques = new ArrayList<Key>(new HashSet<Key>(keys));
         
         if(uniques.contains(null)) {
-            throw new NullPointerException("Null is not a valid key");
+            throw new NullPointerException("<ParallelResourceLoaderImpl><11>, " + "Null is not a valid key");
         }
         
         synchronized(outStates) {
@@ -499,7 +499,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                                     removedCallback.call(
                                         new ResourceEvent<Value>(
                                             null,
-                                            new CanceledResourceException("Too deep canceled"),
+                                            new CanceledResourceException("<ParallelResourceLoaderImpl><12>, " + "Too deep canceled"),
                                             ResourceEvent.UNKNOWN
                                         )
                                     );
@@ -554,7 +554,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                                     thrownList.add(e);
                                 }
                                 
-                                logger.info("Error loading resource in ParellelResourceLoaderImpl " + loggingTag, e);
+                                logger.info("<ParallelResourceLoaderImpl><13>, " + "Error loading resource in ParellelResourceLoaderImpl " + loggingTag, e);
                                 
                             }
                             catch(Exception e) {
@@ -563,7 +563,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                                     thrownList.add(new ResourceException(e));
                                 }
                                 
-                                logger.error("Error loading resource in ParellelResourceLoaderImpl " + loggingTag, e);
+                                logger.error("<ParallelResourceLoaderImpl><14>, " + "Error loading resource in ParellelResourceLoaderImpl " + loggingTag, e);
                                 
                             }
                             finally {
@@ -573,7 +573,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                                     logger.error("Invalid getAll() response, failing all keys!");
                                     
                                     for(int i = 0; i < newOuts.size(); i++) {
-                                        thrownList.add(new ResourceException("Invalid getAll response length, failing all keys"));
+                                        thrownList.add(new ResourceException("<ParallelResourceLoaderImpl><15>, " + "Invalid getAll response length, failing all keys"));
                                     } 
                                     
                                 }
@@ -727,7 +727,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                 
             }
                     
-            final ResourceEvent<Value> event = new ResourceEvent<Value>(null, new CanceledResourceException("Was cancelled"), ResourceEvent.UNKNOWN);
+            final ResourceEvent<Value> event = new ResourceEvent<Value>(null, new CanceledResourceException("<ParallelResourceLoaderImpl><16>, " + "Was cancelled"), ResourceEvent.UNKNOWN);
             
             for(final Callback<Object, ResourceEvent<Value>> callback : callbacks) {
                 
@@ -783,7 +783,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
     ) throws ResourceException {
         
         if(key == null) {
-            throw new NullPointerException("Key must not be null");
+            throw new NullPointerException("<ParallelResourceLoaderImpl><17>, " + "Key must not be null");
         }
         
         final SettableResourceProvider<ResourceEvent<Value>> provider = new SettableResourceProvider<ResourceEvent<Value>>();
@@ -825,7 +825,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                     provider.wait();
                 } 
                 catch (InterruptedException e) {
-                   throw new RuntimeException("get was interrupted" + loggingTag);
+                   throw new RuntimeException("<ParallelResourceLoaderImpl><18>, " + "get was interrupted" + loggingTag);
                 }
                 
             }
@@ -886,11 +886,11 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
     ) {
               
         if(onComplete == null) {
-            throw new NullPointerException("Callback must not be null");
+            throw new NullPointerException("<ParallelResourceLoaderImpl><19>, " + "Callback must not be null");
         } 
         
         if(key == null) {
-            throw new NullPointerException("Key must not be null");
+            throw new NullPointerException("<ParallelResourceLoaderImpl><20>, " + "Key must not be null");
         }
         
         final CallbackControl returnVal;
@@ -920,7 +920,7 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                             removedCallback.call(
                                 new ResourceEvent<Value>(
                                     null,
-                                    new CanceledResourceException("Too deep canceled"),
+                                    new CanceledResourceException("<ParallelResourceLoaderImpl><21>, " + "Too deep canceled"),
                                     ResourceEvent.UNKNOWN
                                 )
                             );
@@ -958,13 +958,13 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                             catch(ResourceException e) {
                                 
                                 thrown = e;
-                                logger.info("ResourceException Error loading resource in ParellelResourceLoaderImpl " + loggingTag, e);
+                                logger.info("<ParallelResourceLoaderImpl><22>, " + "ResourceException Error loading resource in ParellelResourceLoaderImpl " + loggingTag, e);
                                 
                             }
                             catch(Exception e) {
                                 
                                 thrown = e;
-                                logger.error("Exception Error loading resource in ParellelResourceLoaderImpl " + loggingTag, e);
+                                logger.error("<ParallelResourceLoaderImpl><23>, " + "Exception Error loading resource in ParellelResourceLoaderImpl " + loggingTag, e);
                                 
                             }
                             finally {

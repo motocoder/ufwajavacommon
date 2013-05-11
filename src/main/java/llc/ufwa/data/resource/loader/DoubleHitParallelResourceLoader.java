@@ -110,7 +110,7 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
             final List<Value> firstReturn = secondary.getAll(firstRequest);
             
             if(firstReturn.size() != firstRequest.size()) {
-                throw new ResourceException("incompatible return list");
+                throw new ResourceException("<DoubleHitParallelResourceLoader><1>, " + "incompatible return list");
             }
             
             for(int i = 0; i < firstReturn.size(); i++) {
@@ -137,7 +137,7 @@ public class DoubleHitParallelResourceLoader<Key, Value> implements ParallelReso
             final List<Value> secondReturn = primary.getAll(secondRequest);
             
             if(secondReturn.size() != secondRequest.size()) {
-                throw new ResourceException("incompatible return list");
+                throw new ResourceException("<DoubleHitParallelResourceLoader><2>, " + "incompatible return list");
             }
             
             for(int i = 0; i < secondReturn.size(); i++) {

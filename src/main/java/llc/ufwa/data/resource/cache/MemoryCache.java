@@ -62,7 +62,7 @@ public class MemoryCache<Key, Value> extends DefaultResourceLoader<Key, Value> i
     ) {
 
         if(sizer == null) {
-            throw new NullPointerException("Size cannot be null");
+            throw new NullPointerException("<MemoryCache><1>, Size cannot be null");
         }
         
         this.sizer = sizer;
@@ -107,7 +107,7 @@ public class MemoryCache<Key, Value> extends DefaultResourceLoader<Key, Value> i
     public void remove(Key key) {
         
         if(key == null) {
-            throw new NullPointerException("Key cannot be null");
+            throw new NullPointerException("<MemoryCache><2>, Key cannot be null");
         }
         
         final Long insertionTime = insertionTimes.get(key);
@@ -128,8 +128,8 @@ public class MemoryCache<Key, Value> extends DefaultResourceLoader<Key, Value> i
                 } 
                 catch (ResourceException e) {
                     
-                    logger.error("What the heck?");
-                    throw new RuntimeException(e);
+                    logger.error("<MemoryCache><3>, What the heck?");
+                    throw new RuntimeException("<MemoryCache><4>, " + e);
                     
                 }
                 
@@ -153,11 +153,11 @@ public class MemoryCache<Key, Value> extends DefaultResourceLoader<Key, Value> i
     public void put(Key key, Value value) {
         
         if(value == null) {
-            throw new NullPointerException("value cannot be null this isn't a map");
+            throw new NullPointerException("<MemoryCache><5>, value cannot be null this isn't a map");
         }
         
         if(key == null) {
-            throw new NullPointerException("Key cannot be null");
+            throw new NullPointerException("<MemoryCache><6>, Key cannot be null");
         }
         
         final long time = System.currentTimeMillis();
@@ -182,8 +182,8 @@ public class MemoryCache<Key, Value> extends DefaultResourceLoader<Key, Value> i
             } 
             catch (ResourceException e) {
                 
-                logger.error("ERROR:", e);
-                throw new RuntimeException(e);
+                logger.error("<MemoryCache><7>, ERROR:", e);
+                throw new RuntimeException("<MemoryCache><8>, " + e);
                 
             }
             

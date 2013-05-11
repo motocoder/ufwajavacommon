@@ -55,7 +55,7 @@ public class WebUtil {
                 
             }
             else {
-                throw new IOException("Failed to get response");
+                throw new IOException("<WebUtil><1>" + "Failed to get response");
             }
             
             return out.toByteArray();
@@ -63,14 +63,14 @@ public class WebUtil {
         } 
         catch (MalformedURLException e) {
             
-            logger.error("ERROR:", e);
-            throw new IOException("ERROR:");
+            logger.error("<WebUtil><2>" + "ERROR:", e);
+            throw new IOException("<WebUtil><3>" + "ERROR:");
             
         }
         catch (ProtocolException e) {
             
-            logger.error("ERROR:", e);
-            throw new IOException("Error:");
+            logger.error("<WebUtil><4>" + "ERROR:", e);
+            throw new IOException("<WebUtil><5>" + "Error:");
             
         } 
     }
@@ -128,7 +128,7 @@ public class WebUtil {
                 
             }
             else {
-                throw new IOException("Failed to get response");
+                throw new IOException("<WebUtil><6>" + "Failed to get response");
             }
             
             return new String(out.toByteArray());
@@ -136,14 +136,14 @@ public class WebUtil {
         } 
         catch (MalformedURLException e) {
             
-            logger.error("ERROR:", e);
-            throw new IOException("ERROR:");
+            logger.error("<WebUtil><7>" + "ERROR:", e);
+            throw new IOException("<WebUtil><8>" + "ERROR:");
             
         }
         catch (ProtocolException e) {
             
-            logger.error("ERROR:", e);
-            throw new IOException("Error:");
+            logger.error("<WebUtil><9>" + "ERROR:", e);
+            throw new IOException("<WebUtil><10>" + "Error:");
             
         } 
         
@@ -183,7 +183,7 @@ public class WebUtil {
                     
                 }
                 else {
-                    throw new IOException("Failed to get response");
+                    throw new IOException("<WebUtil><11>" + "Failed to get response");
                 }
                 
                 return new String(out.toByteArray());
@@ -191,14 +191,14 @@ public class WebUtil {
             } 
             catch (MalformedURLException e) {
                 
-                logger.error("ERROR:", e);
-                throw new IOException("ERROR:");
+                logger.error("<WebUtil><12>" + "ERROR:", e);
+                throw new IOException("<WebUtil><13>" + "ERROR:");
                 
             }
             catch (ProtocolException e) {
                 
-                logger.error("ERROR:", e);
-                throw new IOException("Error:");
+                logger.error("<WebUtil><14>" + "ERROR:", e);
+                throw new IOException("<WebUtil><15>" + "Error:");
                 
             } 
             
@@ -223,14 +223,14 @@ public class WebUtil {
         } 
         catch (MalformedURLException e) {
             
-            logger.error("ERROR:", e);
-            throw new IOException("ERROR:");
+            logger.error("<WebUtil><16>" + "ERROR:", e);
+            throw new IOException("<WebUtil><17>" + "ERROR:");
             
         }
         catch (ProtocolException e) {
             
-            logger.error("ERROR:", e);
-            throw new IOException("Error:");
+            logger.error("<WebUtil><18>" + "ERROR:", e);
+            throw new IOException("<WebUtil><19>" + "Error:");
             
         } 
     }
@@ -287,7 +287,7 @@ public class WebUtil {
                 
             }
             else {
-                throw new IOException("Failed to get response");
+                throw new IOException("<WebUtil><20>" + "Failed to get response");
             }
             
             return new String(out.toByteArray());
@@ -295,14 +295,14 @@ public class WebUtil {
         } 
         catch (MalformedURLException e) {
             
-            logger.error("ERROR:", e);
-            throw new IOException("ERROR:");
+            logger.error("<WebUtil><21>" + "ERROR:", e);
+            throw new IOException("<WebUtil><22>" + "ERROR:");
             
         }
         catch (ProtocolException e) {
             
-            logger.error("ERROR:", e);
-            throw new IOException("Error:");
+            logger.error("<WebUtil><23>" + "ERROR:", e);
+            throw new IOException("<WebUtil><24>" + "Error:");
             
         } 
     
@@ -373,7 +373,7 @@ public class WebUtil {
             }
             
             if(connection.getResponseCode() != 200) {
-                throw new IOException("server returned code " + connection.getResponseCode());
+                throw new IOException("<WebUtil><25>" + "server returned code " + connection.getResponseCode());
             }
             
             final ByteArrayOutputStream out = new ByteArrayOutputStream();            
@@ -390,7 +390,7 @@ public class WebUtil {
                 
             }
             else {
-                throw new IOException("Failed to get response");
+                throw new IOException("<WebUtil><26>" + "Failed to get response");
             }
             
             return new WebResponse(new String(out.toByteArray()), connection.getHeaderFields());
@@ -398,14 +398,14 @@ public class WebUtil {
         } 
         catch (MalformedURLException e) {
             
-            logger.error("ERROR:", e);
-            throw new IOException("ERROR:");
+            logger.error("<WebUtil><27>" + "ERROR:", e);
+            throw new IOException("<WebUtil><28>" + "ERROR:");
             
         }
         catch (ProtocolException e) {
             
-            logger.error("ERROR:", e);
-            throw new IOException("Error:");
+            logger.error("<WebUtil><29>" + "ERROR:", e);
+            throw new IOException("<WebUtil><30>" + "Error:");
             
         } 
     }
@@ -452,7 +452,7 @@ public class WebUtil {
             }
             
             if(connection.getResponseCode() != 200) {
-                throw new IOException("server returned code " + connection.getResponseCode());
+                throw new IOException("<WebUtil><31>" + "server returned code " + connection.getResponseCode());
             }
             
             final ByteArrayOutputStream out = new ByteArrayOutputStream();            
@@ -469,7 +469,7 @@ public class WebUtil {
                 
             }
             else {
-                throw new IOException("Failed to get response");
+                throw new IOException("<WebUtil><32>" + "Failed to get response");
             }
             
             return new WebResponse(new String(out.toByteArray()), connection.getHeaderFields());
@@ -477,14 +477,14 @@ public class WebUtil {
         } 
         catch (MalformedURLException e) {
             
-            logger.error("ERROR:", e);
-            throw new IOException("ERROR:");
+            logger.error("<WebUtil><33>" + "ERROR:", e);
+            throw new IOException("<WebUtil><34>" + "ERROR:");
             
         }
         catch (ProtocolException e) {
             
-            logger.error("ERROR:", e);
-            throw new IOException("Error:");
+            logger.error("<WebUtil><35>" + "ERROR:", e);
+            throw new IOException("<WebUtil><36>" + "Error:");
             
         } 
     }

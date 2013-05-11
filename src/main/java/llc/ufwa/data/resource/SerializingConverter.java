@@ -14,7 +14,7 @@ public class SerializingConverter<Value> implements Converter<Value, byte []> {
             return DataUtils.serialize(old);
         }
         catch (IOException e) {
-            throw new ResourceException(e);
+            throw new ResourceException("<SerializingConverter><1>, " + e);
         }
         
     }
@@ -27,10 +27,10 @@ public class SerializingConverter<Value> implements Converter<Value, byte []> {
             return (Value) DataUtils.deserialize(newVal);
         }
         catch (IOException e) {
-            throw new ResourceException(e);
+            throw new ResourceException("<SerializingConverter><2>, " + e);
         }
         catch (ClassNotFoundException e) {
-            throw new ResourceException(e);
+            throw new ResourceException("<SerializingConverter><3>, " + e);
         }
         
     }

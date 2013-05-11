@@ -74,7 +74,7 @@ public class UDPReceiveService {
                               
                             } 
                             catch (IOException e) {
-                                logger.error("ERROR:", e);
+                                logger.error("<UDPReceiveService><1>, ERROR:", e);
                             }
                               
                         }
@@ -87,7 +87,7 @@ public class UDPReceiveService {
             
         } 
         catch (SocketException e) {
-            throw new RuntimeException("Failed to start UDP server.");
+            throw new RuntimeException("<UDPReceiveService><2>, Failed to start UDP server.");
         } 
         
     }
@@ -162,10 +162,10 @@ public class UDPReceiveService {
                 
             }
             catch (IOException e) {
-                logger.error("ERROR:", e);
+                logger.error("<UDPReceiveService><3>, ERROR:", e);
             }
             catch (ClassNotFoundException e) {
-                logger.error("ERROR:", e);
+                logger.error("<UDPReceiveService><4>, ERROR:", e);
             }
             
         }

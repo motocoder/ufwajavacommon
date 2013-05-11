@@ -15,7 +15,7 @@ public class StopWatch
     public void start() {
         
         if(start > 0) {
-            throw new IllegalStateException("You have already started the StopWatch!");
+            throw new IllegalStateException("<StopWatch><1>" + "You have already started the StopWatch!");
         }
         
         start = System.currentTimeMillis();
@@ -32,7 +32,7 @@ public class StopWatch
     public void stop() {
         
         if(stop > 0) {
-            throw new IllegalStateException("You had already stopped the StopWatch!");
+            throw new IllegalStateException("<StopWatch><2>" + "You had already stopped the StopWatch!");
         }
         
         stop = System.currentTimeMillis();
@@ -42,7 +42,7 @@ public class StopWatch
     public long getTime() {
         
         if(start < 0) {
-            throw new IllegalStateException("You must start the StopWatch to get a time!");
+            throw new IllegalStateException("<StopWatch><3>" + "You must start the StopWatch to get a time!");
         }
         else {
             

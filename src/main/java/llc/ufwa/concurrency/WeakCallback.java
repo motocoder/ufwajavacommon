@@ -40,7 +40,7 @@ public class WeakCallback<Caller, Value> implements Callback<Caller, Value>{
         else {
             
             if(throwExceptionOnNotThere) {
-                throw new RuntimeException("Callback was garbage collected");
+                throw new RuntimeException("<WeakCallback><1>, Callback was garbage collected");
             }
             else {
                 logger.warn("weakcallback was garbage collected");

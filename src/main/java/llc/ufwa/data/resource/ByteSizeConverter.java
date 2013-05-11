@@ -11,7 +11,7 @@ public class ByteSizeConverter implements Converter<byte [], Integer> {
 
     @Override
     public byte[] restore(Integer newVal) throws ResourceException {
-        throw new RuntimeException("This should never happen");
+        throw new RuntimeException("<ByteSizeConverter><1>, This should never happen");
     }
 
 }

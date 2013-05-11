@@ -30,7 +30,7 @@ public class AllDisplays<Display extends InjectingDisplay> {
     public AllDisplays(Class<Display> clazz, ClassLoader classloader) {
         
         if(clazz == null) {
-            throw new NullPointerException("Class cannot be null");
+            throw new NullPointerException("<AllDisplays><1>, Class cannot be null");
         }
         
         final InvocationHandler handler = new InvocationHandler() {

@@ -22,11 +22,11 @@ public class ValueConvertingCache<Key, Value, OldValue> implements Cache<Key, Va
     ) {
         
         if(converter == null) {
-            throw new NullPointerException("converter must not be null");
+            throw new NullPointerException("<ValueConvertingCache><1>, converter must not be null");
         }
         
         if(internal == null) {
-            throw new NullPointerException("Internal must not be null");
+            throw new NullPointerException("<ValueConvertingCache><2>, Internal must not be null");
         }
                 
         this.converter = converter;
@@ -40,11 +40,11 @@ public class ValueConvertingCache<Key, Value, OldValue> implements Cache<Key, Va
     ) {
         
         if(internal == null) {
-            throw new NullPointerException("Internal must not be null");
+            throw new NullPointerException("<ValueConvertingCache><3>, Internal must not be null");
         }
         
         if(converter == null) {
-            throw new NullPointerException("converter must not be null");
+            throw new NullPointerException("<ValueConvertingCache><4>, converter must not be null");
         }
         
         this.converter = converter;
@@ -107,7 +107,7 @@ public class ValueConvertingCache<Key, Value, OldValue> implements Cache<Key, Va
             internal.put(key, converter.convert(value));
         } 
         catch (ResourceException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("<ValueConvertingCache><5>, " + e);
         }
     }
     

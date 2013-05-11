@@ -35,7 +35,7 @@ public class DelayBetweenExecutor implements Executor {
                 Thread.sleep(sleep);
             } 
             catch(InterruptedException e) {
-                logger.info("interrupted", e);
+                logger.info("<DelayBetweenExecutor><1>, interrupted", e);
             }
             
         }

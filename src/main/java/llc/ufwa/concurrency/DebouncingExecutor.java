@@ -51,7 +51,7 @@ public class DebouncingExecutor implements Executor {
 	                                    runnable.run();
 	                                }
 	                                catch(Exception e) {
-	                                    throw new RuntimeException(e);
+	                                    throw new RuntimeException("<DebouncingExecutor><1>, " + e);
 	                                }
 	                                
 	                                if(watch.getTime() > 500) {

@@ -30,7 +30,7 @@ public class RunOnUIDisplay<Interface extends InjectingDisplay> {
     ) {
         
         if(internal == null) {
-            throw new NullPointerException("Class cannot be null");
+            throw new NullPointerException("<RunOnUIDisplay><1>, Class cannot be null");
         }
         
         final ClassLoader classloader = this.getClass().getClassLoader();
@@ -72,15 +72,15 @@ public class RunOnUIDisplay<Interface extends InjectingDisplay> {
                             method.invoke(internal, args);
                         } 
                         catch (IllegalArgumentException e) {
-                            logger.error("ERROR:", e);
+                            logger.error("<RunOnUIDisplay><2>, ERROR:", e);
                         } 
                         catch (IllegalAccessException e) {
-                            logger.error("ERROR:", e);
+                            logger.error("<RunOnUIDisplay><3>, ERROR:", e);
                         }
                         catch (InvocationTargetException e) {
                             
-                            logger.error("ERROR:", e.getCause());
-                            logger.error("ERROR:", e);
+                            logger.error("<RunOnUIDisplay><4>, ERROR:", e.getCause());
+                            logger.error("<RunOnUIDisplay><5>, ERROR:", e);
                             
                         }   
 

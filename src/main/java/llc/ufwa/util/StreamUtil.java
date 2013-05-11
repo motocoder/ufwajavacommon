@@ -31,15 +31,15 @@ public class StreamUtil {
     ) throws IOException {
         
         if(in == null) {
-            throw new NullPointerException("In cannot be null");
+            throw new NullPointerException("<StreamUtil><1>" + "In cannot be null");
         }
         
         if(outs == null) {
-            throw new NullPointerException("Out cannot be null");
+            throw new NullPointerException("<StreamUtil><2>" + "Out cannot be null");
         }
         
         if(outs.contains(null)) {
-            throw new NullPointerException("outs cannot contain null");
+            throw new NullPointerException("<StreamUtil><3>" + "outs cannot contain null");
         }
         
         final byte [] buffer = new byte[bufferSize];

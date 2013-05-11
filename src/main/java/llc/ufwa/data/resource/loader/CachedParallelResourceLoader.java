@@ -68,7 +68,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
     ) {
        
         if(threads == null) {
-            throw new NullPointerException(loggingTag + ": Threads cannot be null");
+            throw new NullPointerException("<CachedParallelResourceLoader><1>, " + loggingTag + ": Threads cannot be null");
         }
         
         if(loggingTag == null) {
@@ -303,7 +303,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                     final List<Value> got = pair.getLoader().getAll(getting);
                     
                     if(got.size() != getting.size()) {
-                        throw new RuntimeException("loader must always return same amount as keys");
+                        throw new RuntimeException("<CachedParallelResourceLoader><2>, " + "loader must always return same amount as keys");
                     }
                     
                     for(int i = 0; i < got.size(); i++) {
@@ -611,19 +611,19 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
     ) {
         
         if(internal == null) {
-            throw new NullPointerException(loggingTag + ": Internal loader cannot be null");
+            throw new NullPointerException("<CachedParallelResourceLoader><3>, " + loggingTag + ": Internal loader cannot be null");
         }
         
         if(threads == null) {
-            throw new NullPointerException(loggingTag + ": Threads cannot be null");
+            throw new NullPointerException("<CachedParallelResourceLoader><4>, " + loggingTag + ": Threads cannot be null");
         }
         
         if(cache == null) {
-            throw new NullPointerException(cache + ": cache cannot be null");
+            throw new NullPointerException("<CachedParallelResourceLoader><5>, " + cache + ": cache cannot be null");
         }
         
         if(searchCache == null) {
-            throw new NullPointerException(searchCache + ": searchCache cannot be null");
+            throw new NullPointerException("<CachedParallelResourceLoader><6>, " + searchCache + ": searchCache cannot be null");
         }
         
         if(loggingTag == null) {
@@ -667,7 +667,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
     public boolean exists(Key key) throws ResourceException {
         
         if(key == null) {
-            throw new NullPointerException("Key cannot be null");
+            throw new NullPointerException("<CachedParallelResourceLoader><7>, " + "Key cannot be null");
         }
         
         final boolean returnVal;
@@ -698,7 +698,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
     public Value get(Key key) throws ResourceException {
         
         if(key == null) {
-            throw new NullPointerException(loggingTag + ": key cannot be null");
+            throw new NullPointerException("<CachedParallelResourceLoader><8>, " + loggingTag + ": key cannot be null");
         }
         
         final Boolean searchValue = searchCache.get(key);
@@ -745,11 +745,11 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
     public List<Value> getAll(List<Key> keys) throws ResourceException {
 
         if(keys == null) {
-            throw new NullPointerException(loggingTag + ": key cannot be null");
+            throw new NullPointerException("<CachedParallelResourceLoader><9>, " + loggingTag + ": key cannot be null");
         }
         
         if(keys.contains(null)) {
-            throw new NullPointerException(loggingTag + ": key cannot be null");
+            throw new NullPointerException("<CachedParallelResourceLoader><10>, " + loggingTag + ": key cannot be null");
         }
         
         final Map<Key, Value> returnVals = new HashMap<Key, Value>();
@@ -829,11 +829,11 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         CallbackControl returnVal;
         
         if(onComplete == null) {
-            throw new NullPointerException(loggingTag + ": onComplete must not be null");
+            throw new NullPointerException("<CachedParallelResourceLoader><11>, " + loggingTag + ": onComplete must not be null");
         }
         
         if(key == null) {
-            throw new NullPointerException(loggingTag + ": key must not be null");
+            throw new NullPointerException("<CachedParallelResourceLoader><12>, " + loggingTag + ": key must not be null");
         }
         
         try {
@@ -1143,11 +1143,11 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
     ) {
     	
         if(onComplete == null) {
-            throw new NullPointerException(loggingTag + ": onComplete must not be null");
+            throw new NullPointerException("<CachedParallelResourceLoader><13>, " + loggingTag + ": onComplete must not be null");
         }
         
         if(key == null) {
-            throw new NullPointerException(loggingTag + ": key must not be null");
+            throw new NullPointerException("<CachedParallelResourceLoader><14>, " + loggingTag + ": key must not be null");
         }
         
         CallbackControl returnVal;
@@ -1230,7 +1230,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
         }
         catch(final ResourceException e) {
             
-            logger.warn("exception thrown:", e);
+            logger.warn("<CachedParallelResourceLoader><15>, " + "exception thrown:", e);
             
             final ResourceEvent<Value> completed = new ResourceEvent<Value>(null, e, ResourceEvent.UNKNOWN);
 

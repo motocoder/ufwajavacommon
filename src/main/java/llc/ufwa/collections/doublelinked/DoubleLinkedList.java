@@ -116,7 +116,7 @@ public class DoubleLinkedList<T extends DoubleLinkedItem> implements Collection<
 	
 		
 		if(dataIDMap.contains(itemToAdd)) {
-			throw new IndexOutOfBoundsException("Object already in list");
+			throw new IndexOutOfBoundsException("<DoubleLinkedList><1>, Object already in list");
 		}
 		
 		if(dataIDMap.contains(before)){
@@ -137,7 +137,7 @@ public class DoubleLinkedList<T extends DoubleLinkedItem> implements Collection<
 			returnVal = true;
 		}
 		else {
-			throw new IndexOutOfBoundsException("Object to add after is not in the list");
+			throw new IndexOutOfBoundsException("<DoubleLinkedList><2>, Object to add after is not in the list");
 		}
 
 		return returnVal;
@@ -151,7 +151,7 @@ public class DoubleLinkedList<T extends DoubleLinkedItem> implements Collection<
 		
 			
 		if(dataIDMap.contains(itemToAdd)) {
-			throw new IndexOutOfBoundsException("Object already in the list");
+			throw new IndexOutOfBoundsException("<DoubleLinkedList><3>, Object already in the list");
 		}
 		
 		if(dataIDMap.contains(after)) {
@@ -175,7 +175,7 @@ public class DoubleLinkedList<T extends DoubleLinkedItem> implements Collection<
 			
 			returnVal = true;		}
 		else {
-			throw new IndexOutOfBoundsException("Object after not in list");
+			throw new IndexOutOfBoundsException("<DoubleLinkedList><4>, Object after not in list");
 		}
 		
 		return returnVal;
@@ -191,11 +191,11 @@ public class DoubleLinkedList<T extends DoubleLinkedItem> implements Collection<
 		boolean returnVal = false;
 		
 		if (!dataIDMap.contains(itemToMove)) {
-			throw new IndexOutOfBoundsException("Moving object not in list");
+			throw new IndexOutOfBoundsException("<DoubleLinkedList><5>, Moving object not in list");
 		}
 		
 		if (!dataIDMap.contains(target)) {
-			throw new IndexOutOfBoundsException("Target object not in list");
+			throw new IndexOutOfBoundsException("<DoubleLinkedList><6>, Target object not in list");
 		}
 		
 		if (itemToMove != target) {
@@ -216,11 +216,11 @@ public class DoubleLinkedList<T extends DoubleLinkedItem> implements Collection<
 		boolean returnVal = false;				
 
 		if (!dataIDMap.contains(itemToMove)) {
-			throw new IndexOutOfBoundsException("Moving object not in list");
+			throw new IndexOutOfBoundsException("<DoubleLinkedList><7>, Moving object not in list");
 		}
 		
 		if (!dataIDMap.contains(target)) {
-			throw new IndexOutOfBoundsException("Target object not in list");
+			throw new IndexOutOfBoundsException("<DoubleLinkedList><8>, Target object not in list");
 		}
 
 		if (itemToMove != target) {
@@ -419,7 +419,7 @@ public class DoubleLinkedList<T extends DoubleLinkedItem> implements Collection<
 			}
 			else {
 				if(index > size() ) {
-					throw new IndexOutOfBoundsException("index " + index + " is out of bounds");
+					throw new IndexOutOfBoundsException("<DoubleLinkedList><9>, index " + index + " is out of bounds");
 				}
 				else {
 					add(toInsert);
@@ -443,7 +443,7 @@ public class DoubleLinkedList<T extends DoubleLinkedItem> implements Collection<
 	public T get(int index) {
 		
 		if(index >= size() || index < 0) {
-			throw new IndexOutOfBoundsException("index " + index + " is out of bounds!");
+			throw new IndexOutOfBoundsException("<DoubleLinkedList><10>, index " + index + " is out of bounds!");
 		}
 		
 		T currentItem = firstItem;
@@ -518,7 +518,7 @@ public class DoubleLinkedList<T extends DoubleLinkedItem> implements Collection<
 		final T returnVal = get(index);
 		
 		if(returnVal == null) {
-			throw new IndexOutOfBoundsException("get(index) returned null");
+			throw new IndexOutOfBoundsException("<DoubleLinkedList><11>, get(index) returned null");
 		}
 		
 		remove(returnVal);

@@ -44,7 +44,7 @@ public class UDPSendService {
         final byte [] dataBytes = DataUtils.serialize(data);
         
         if(dataBytes.length > MAX_PACKET_SIZE) {
-            throw new RuntimeException("Data exceeded max UDP size");
+            throw new RuntimeException("<UDPSendService><1>, Data exceeded max UDP size");
         }
         
         final DatagramPacket packet = new DatagramPacket(dataBytes, dataBytes.length, serverHost, remotePort);

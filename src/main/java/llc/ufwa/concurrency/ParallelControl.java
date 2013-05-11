@@ -17,7 +17,7 @@ public class ParallelControl<Value> {
             while(myUnblock > unblockedCount) {
                 
                 if(Thread.currentThread().isInterrupted()) {
-                    throw new InterruptedException("was interrupted");
+                    throw new InterruptedException("<ParallelControl><1>, was interrupted");
                 }
                 
                 if(unblockAll) { 

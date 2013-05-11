@@ -31,15 +31,15 @@ public class ListResourceLoader<Key, Value> implements ResourceLoader<Key, Value
     public ListResourceLoader(final List<ResourceLoader<Key, Value>> caches) {
         
         if(caches == null) {
-            throw new NullPointerException("Caches cannot be null");
+            throw new NullPointerException("<ListResourceLoader><1>, " + "Caches cannot be null");
         }
         
         if(caches.isEmpty()) {
-            throw new IllegalArgumentException("Caches cannot be empty");
+            throw new IllegalArgumentException("<ListResourceLoader><2>, " + "Caches cannot be empty");
         }
         
         if(caches.contains(null)) {
-            throw new NullPointerException("caches cannot contain null");
+            throw new NullPointerException("<ListResourceLoader><3>, " + "caches cannot contain null");
         }      
         this.caches = new ArrayList<ResourceLoader<Key, Value>>(caches);
         
@@ -58,7 +58,7 @@ public class ListResourceLoader<Key, Value> implements ResourceLoader<Key, Value
     public boolean exists(Key key) throws ResourceException {
        
         if(key == null) {
-            throw new NullPointerException("key cannot be null");
+            throw new NullPointerException("<ListResourceLoader><4>, " + "key cannot be null");
         }
         
         for(final ResourceLoader<Key, Value> cache : caches) {
@@ -86,7 +86,7 @@ public class ListResourceLoader<Key, Value> implements ResourceLoader<Key, Value
     public Value get(Key key) throws ResourceException {
         
         if(key == null) {
-            throw new NullPointerException("key cannot be null");
+            throw new NullPointerException("<ListResourceLoader><5>, " + "key cannot be null");
         }
         int i = 0;
         
@@ -125,11 +125,11 @@ public class ListResourceLoader<Key, Value> implements ResourceLoader<Key, Value
     public List<Value> getAll(List<Key> keys) throws ResourceException {
         
         if(keys == null) {
-            throw new NullPointerException("keys cannot be null");
+            throw new NullPointerException("<ListResourceLoader><6>, " + "keys cannot be null");
         }
         
         if(keys.contains(null)) {
-            throw new NullPointerException("Keys cannot contain null");
+            throw new NullPointerException("<ListResourceLoader><7>, " + "Keys cannot contain null");
         }
         
         final Set<Key> unfound = new HashSet<Key>(keys);
@@ -151,7 +151,7 @@ public class ListResourceLoader<Key, Value> implements ResourceLoader<Key, Value
             final List<Value> queried = cache.getAll(querying);
             
             if(querying.size() != queried.size()) {
-                throw new ResourceException("something wierd just happened");
+                throw new ResourceException("<ListResourceLoader><8>, " + "something wierd just happened");
             }
             
             final int size = querying.size();

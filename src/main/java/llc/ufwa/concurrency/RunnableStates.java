@@ -87,7 +87,7 @@ public class RunnableStates {
             id = idProvider.provide();
         } 
         catch (ResourceException e) {
-            throw new RuntimeException("This should never happen");
+            throw new RuntimeException("<RunnableStates><1>, This should never happen");
         }
         
         if(combined.contains(runnable)) {
@@ -130,7 +130,7 @@ public class RunnableStates {
         final SequencedRunnable returnVal;
         
         if((combined.size()) > limit) {
-            throw new RuntimeException("Should never have more than limit runing");
+            throw new RuntimeException("<RunnableStates><2>, Should never have more than limit runing");
         }
 
         if(combined.size() == limit && this.waitingToRun.size() != 0) {
@@ -174,7 +174,7 @@ public class RunnableStates {
                 
             }
             else {
-                throw new RuntimeException("should not get here");
+                throw new RuntimeException("<RunnableStates><3>, should not get here");
             }
             
         }
@@ -313,7 +313,7 @@ public class RunnableStates {
             running.add(runnable);
             
             if(combined.size() > limit) {
-                throw new RuntimeException("what the fuck");
+                throw new RuntimeException("<RunnableStates><4>, what the fuck");
             }
             
             this.notifyAll();
@@ -322,7 +322,7 @@ public class RunnableStates {
             
         }
         else {
-            throw new RuntimeException("shouldn't get here");
+            throw new RuntimeException("<RunnableStates><5>, shouldn't get here");
         }
         
     }

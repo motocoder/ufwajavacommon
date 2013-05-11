@@ -56,7 +56,7 @@ public class FifoCache<Item> implements Queue<Item> {
             
         } 
         catch (ResourceException e) {
-            throw new RuntimeException("There is something wrong with your provider");
+            throw new RuntimeException("<FifoCache><1>, There is something wrong with your provider");
         }
         
         final long largestFinal = largest;
@@ -86,7 +86,7 @@ public class FifoCache<Item> implements Queue<Item> {
             return idQueueProvider.provide().size();
         } 
         catch (ResourceException e) {
-            throw new RuntimeException("There is something wrong with your provider");
+            throw new RuntimeException("<FifoCache><2>, There is something wrong with your provider");
         }
         
     }
@@ -98,7 +98,7 @@ public class FifoCache<Item> implements Queue<Item> {
             return idQueueProvider.provide().isEmpty();
         } 
         catch (ResourceException e) {
-            throw new RuntimeException("There is something wrong with your provider");
+            throw new RuntimeException("<FifoCache><3>, There is something wrong with your provider");
         }
         
     }
@@ -109,7 +109,7 @@ public class FifoCache<Item> implements Queue<Item> {
             return idQueueProvider.provide().contains(o);
         } 
         catch (ResourceException e) {
-            throw new RuntimeException("There is something wrong with your provider");
+            throw new RuntimeException("<FifoCache><4>, There is something wrong with your provider");
         }
         
     }
@@ -117,7 +117,7 @@ public class FifoCache<Item> implements Queue<Item> {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Iterator iterator() {
-        throw new RuntimeException("Not supported");
+        throw new RuntimeException("<FifoCache><5>, Not supported");
     }
 
     @Override
@@ -134,8 +134,8 @@ public class FifoCache<Item> implements Queue<Item> {
                 }
                 catch (ResourceException e) {
                     
-                    logger.error("ERROR:", e);
-                    throw new RuntimeException(e);
+                    logger.error("<FifoCache><6>, ERROR:", e);
+                    throw new RuntimeException("<FifoCache><7>, " + e);
                     
                 }
             }
@@ -144,7 +144,7 @@ public class FifoCache<Item> implements Queue<Item> {
             
         } 
         catch (ResourceException e) {
-            throw new RuntimeException("There is something wrong with your provider");
+            throw new RuntimeException("<FifoCache><8>, There is something wrong with your provider");
         }
         
     }
@@ -157,31 +157,31 @@ public class FifoCache<Item> implements Queue<Item> {
 
     @Override
     public boolean remove(Object o) {        
-        throw new RuntimeException("not supported");
+        throw new RuntimeException("<FifoCache><9>, not supported");
     }
 
     @SuppressWarnings("rawtypes")
     @Override
     public boolean containsAll(Collection c) {
-        throw new RuntimeException("not supported");
+        throw new RuntimeException("<FifoCache><10>, not supported");
     }
 
     @SuppressWarnings("rawtypes")
     @Override
     public boolean addAll(Collection c) {
-        throw new RuntimeException("not supported");
+        throw new RuntimeException("<FifoCache><11>, not supported");
     }
 
     @SuppressWarnings("rawtypes")
     @Override
     public boolean removeAll(Collection c) {
-        throw new RuntimeException("not supported");
+        throw new RuntimeException("<FifoCache><12>, not supported");
     }
 
     @SuppressWarnings("rawtypes")
     @Override
     public boolean retainAll(Collection c) {
-        throw new RuntimeException("not supported");
+        throw new RuntimeException("<FifoCache><13>, not supported");
     }
 
     @Override
@@ -198,7 +198,7 @@ public class FifoCache<Item> implements Queue<Item> {
             
         } 
         catch (ResourceException e) {
-            throw new RuntimeException("There is something wrong with your provider");
+            throw new RuntimeException("<FifoCache><14>, There is something wrong with your provider");
         }
         
     }
@@ -220,7 +220,7 @@ public class FifoCache<Item> implements Queue<Item> {
             
         } 
         catch (ResourceException t) {
-            throw new RuntimeException("There is something wrong with your provider");
+            throw new RuntimeException("<FifoCache><15>, There is something wrong with your provider");
         }
         
     }
@@ -240,7 +240,7 @@ public class FifoCache<Item> implements Queue<Item> {
         final Item item = poll();
         
         if(item == null) {
-            throw new IndexOutOfBoundsException("nothing in the FIFO");
+            throw new IndexOutOfBoundsException("<FifoCache><16>, nothing in the FIFO");
         }
         else {
             return item;
@@ -271,7 +271,7 @@ public class FifoCache<Item> implements Queue<Item> {
                     
                 } 
                 catch (ResourceException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("<FifoCache><17>, " + e);
                 }
                 
                 
@@ -282,7 +282,7 @@ public class FifoCache<Item> implements Queue<Item> {
             
         } 
         catch (ResourceException e) {
-            throw new RuntimeException("There is something wrong with your provider");
+            throw new RuntimeException("<FifoCache><18>, There is something wrong with your provider");
         }
        
         
@@ -294,7 +294,7 @@ public class FifoCache<Item> implements Queue<Item> {
         final Item item = peek();
         
         if(item == null) {
-            throw new IndexOutOfBoundsException("nothing in the FIFO");
+            throw new IndexOutOfBoundsException("<FifoCache><19>, nothing in the FIFO");
         }
         else {
             return item;
@@ -323,7 +323,7 @@ public class FifoCache<Item> implements Queue<Item> {
                     
                 } 
                 catch (ResourceException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("<FifoCache><20>, " + e);
                 }
                 
             }
@@ -333,7 +333,7 @@ public class FifoCache<Item> implements Queue<Item> {
             
         } 
         catch (ResourceException e) {
-            throw new RuntimeException("There is something wrong with your provider");
+            throw new RuntimeException("<FifoCache><21>, There is something wrong with your provider");
         }
         
     }

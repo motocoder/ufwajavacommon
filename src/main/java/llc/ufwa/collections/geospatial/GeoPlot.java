@@ -254,7 +254,7 @@ public class GeoPlot <T extends GeoItem> implements GeoGraph<T> {
 
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		throw new RuntimeException("Method not supported yet");
+		throw new RuntimeException("<GeoPlot><1>, Method not supported yet");
 	}
 
 	@Override
@@ -280,7 +280,7 @@ public class GeoPlot <T extends GeoItem> implements GeoGraph<T> {
 			returnVal = true;
 		}
 		else {
-			throw new IllegalArgumentException("First parameter must already be in the graph");
+			throw new IllegalArgumentException("<GeoPlot><2>, First parameter must already be in the graph");
 		}
 		
 		return returnVal;
@@ -324,7 +324,7 @@ public class GeoPlot <T extends GeoItem> implements GeoGraph<T> {
 			final Set<T> secondLinks = links.get(second);
 			
 			if(firstLinks == null || secondLinks == null) {
-				throw new IllegalArgumentException("Not linked");
+				throw new IllegalArgumentException("<GeoPlot><3>, Not linked");
 			}
 			
 			returnVal = firstLinks.remove(second) && secondLinks.remove(first);
@@ -351,10 +351,10 @@ public class GeoPlot <T extends GeoItem> implements GeoGraph<T> {
 	public Set<T> getClosest(T item) {
 		
 		if(!contains.contains(item)) {
-			throw new IllegalArgumentException("Must be in plot to have a closest");
+			throw new IllegalArgumentException("<GeoPlot><4>, Must be in plot to have a closest");
 		}
 		else if(contains.size() == 1) {
-			throw new IllegalArgumentException("Must not be the only one in the plot to have a closest");
+			throw new IllegalArgumentException("<GeoPlot><5>, Must not be the only one in the plot to have a closest");
 		}
 		
 		final Set<Integer> maxSet = new TreeSet<Integer>(new Comparator<Integer>() {
@@ -657,7 +657,7 @@ public class GeoPlot <T extends GeoItem> implements GeoGraph<T> {
 					break;
 				}
 				default:
-					throw new IllegalArgumentException("Invalid axis");
+					throw new IllegalArgumentException("<GeoPlot><6>, Invalid axis");
 			}
 			
 			return returnVal;
@@ -680,7 +680,7 @@ public class GeoPlot <T extends GeoItem> implements GeoGraph<T> {
 
 	@Override
 	public List<T> shortestPath(T first, T second) {
-		throw new RuntimeException("Not yet supported");
+		throw new RuntimeException("<GeoPlot><7>, Not yet supported");
 	}
 	
 	@SuppressWarnings({ "unchecked", "hiding" })
@@ -726,15 +726,15 @@ public class GeoPlot <T extends GeoItem> implements GeoGraph<T> {
 	) {
 		
 		if(xStart > xStop) {
-			throw new IllegalArgumentException("xStart must be lessThan or equal to xStop");
+			throw new IllegalArgumentException("<GeoPlot><8>, xStart must be lessThan or equal to xStop");
 		}
 		
 		if(yStart > yStop) {
-			throw new IllegalArgumentException("yStart must be lessThan or equal to yStop");
+			throw new IllegalArgumentException("<GeoPlot><9>, yStart must be lessThan or equal to yStop");
 		}
 		
 		if(zStart > zStop) {
-			throw new IllegalArgumentException("zStart must be lessThan or equal to zStop");
+			throw new IllegalArgumentException("<GeoPlot><10>, zStart must be lessThan or equal to zStop");
 		}
 		
 		final Set<T> returnVals = new HashSet<T>();

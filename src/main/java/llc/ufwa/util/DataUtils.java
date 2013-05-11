@@ -21,7 +21,7 @@ public class DataUtils {
     public static byte [] serialize(final Object object) throws IOException {
         
         if(object == null) {
-            throw new NullPointerException("object cannot be null");
+            throw new NullPointerException("<DataUtils><1>, " + "object cannot be null");
         }
         
         final ByteArrayOutputStream returnVal = new ByteArrayOutputStream();
@@ -50,7 +50,7 @@ public class DataUtils {
     public static <T> T deserialize(final byte [] bytes) throws IOException, ClassNotFoundException {
         
         if(bytes == null) {
-            throw new NullPointerException("bytes cannot be null");
+            throw new NullPointerException("<DataUtils><2>, " + "bytes cannot be null");
         }
         
         final ByteArrayInputStream bytesIn = new ByteArrayInputStream(bytes);

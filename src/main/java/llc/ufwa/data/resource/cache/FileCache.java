@@ -77,7 +77,7 @@ public final class FileCache implements Cache<String, InputStream> {
 				retVal = true;
 			} else {
 				// Something very wrong has occurred, PANIC!
-				throw new IllegalArgumentException("Cache location already exists and it is not a directory");
+				throw new IllegalArgumentException("<FileCache><1>, Cache location already exists and it is not a directory");
 			}
 		} else {
 		    
@@ -115,7 +115,7 @@ public final class FileCache implements Cache<String, InputStream> {
 			while(states.getCurrentSize() > maxSize) {
 
 				if(sortedFiles.size() <= 0)  {
-					throw new RuntimeException("Cache thinks it is bigger than max size but contains zero files.");
+					throw new RuntimeException("<FileCache><2>, Cache thinks it is bigger than max size but contains zero files.");
 				}
 
 				final File last = sortedFiles.last();
@@ -217,7 +217,7 @@ public final class FileCache implements Cache<String, InputStream> {
 
 				} 
 				catch(FileNotFoundException e) {
-					throw new RuntimeException("This cannot happen");	                
+					throw new RuntimeException("<FileCache><3>, This cannot happen");	                
 				}
 
 			}
@@ -239,7 +239,7 @@ public final class FileCache implements Cache<String, InputStream> {
 
 		}
 		catch(IOException e) {
-			throw new RuntimeException("This shouldn't happen", e);    
+			throw new RuntimeException("<FileCache><4>, This shouldn't happen", e);    
 		}
 
 	}
@@ -298,7 +298,7 @@ public final class FileCache implements Cache<String, InputStream> {
 
 		}
 		catch (IOException e) {
-			throw new RuntimeException("This shouldn't happen", e);
+			throw new RuntimeException("<FileCache><5>, This shouldn't happen", e);
 		}
 
 		clean();

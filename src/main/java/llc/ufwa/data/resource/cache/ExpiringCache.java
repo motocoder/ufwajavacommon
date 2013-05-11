@@ -31,15 +31,15 @@ public class ExpiringCache<Key, Value> implements Cache<Key, Value>{
     ) {
                 
         if(internal == null) {
-            throw new NullPointerException("Internal cannot be null");
+            throw new NullPointerException("<ExpiringCache><1>, Internal cannot be null");
         }
         
         if(timeout <= 0) {
-            throw new IllegalArgumentException("Timeout must be > 0");
+            throw new IllegalArgumentException("<ExpiringCache><2>, Timeout must be > 0");
         }
         
         if(cleanupTimeout <= 0) {
-            throw new IllegalArgumentException("CleanupTimeout must be > 0");
+            throw new IllegalArgumentException("<ExpiringCache><3>, CleanupTimeout must be > 0");
         }
         
         this.cleanupTimeout = cleanupTimeout;
@@ -52,7 +52,7 @@ public class ExpiringCache<Key, Value> implements Cache<Key, Value>{
     public boolean exists(Key key) throws ResourceException {
         
         if(key == null) {
-            throw new NullPointerException("Key cannot be null");
+            throw new NullPointerException("<ExpiringCache><4>, Key cannot be null");
         }
         
         final long time = System.currentTimeMillis();
@@ -94,7 +94,7 @@ public class ExpiringCache<Key, Value> implements Cache<Key, Value>{
     public Value get(Key key) throws ResourceException {
         
         if(key == null) {
-            throw new NullPointerException("Key cannot be null");
+            throw new NullPointerException("<ExpiringCache><5>, Key cannot be null");
         }
         
         final long time = System.currentTimeMillis();
@@ -136,11 +136,11 @@ public class ExpiringCache<Key, Value> implements Cache<Key, Value>{
     public List<Value> getAll(List<Key> keys) throws ResourceException {
         
         if(keys == null) {
-            throw new NullPointerException("Keys cannot be null");
+            throw new NullPointerException("<ExpiringCache><6>, Keys cannot be null");
         }
         
         if(keys.contains(null)) {
-            throw new NullPointerException("Key cannot be null");
+            throw new NullPointerException("<ExpiringCache><7>, Key cannot be null");
         }
         
         final long time = System.currentTimeMillis();
@@ -210,7 +210,7 @@ public class ExpiringCache<Key, Value> implements Cache<Key, Value>{
     public void remove(Key key) {
         
         if(key == null) {
-            throw new NullPointerException("Key cannot be null");
+            throw new NullPointerException("<ExpiringCache><8>, Key cannot be null");
         }
 
         this.internal.remove(key);
@@ -221,12 +221,12 @@ public class ExpiringCache<Key, Value> implements Cache<Key, Value>{
     public void put(Key key, Value value) {
         
         if(key == null) {
-            throw new NullPointerException("Key cannot be null");
+            throw new NullPointerException("<ExpiringCache><9>, Key cannot be null");
         }
         
         
         if(value == null) {
-            throw new NullPointerException("Value cannot be null");
+            throw new NullPointerException("<ExpiringCache><10>, Value cannot be null");
         }
         
         final long time = System.currentTimeMillis();       

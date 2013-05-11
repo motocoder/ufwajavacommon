@@ -87,7 +87,7 @@ public abstract class SequentialJobRunner<Job> {
                             }
                             catch (JobRunningException e) {
                                 
-                                logger.error("COULD NOT PREPARE:", e);
+                                logger.error("<SequentialJobRunner><1>, COULD NOT PREPARE:", e);
                                 
                                 synchronized(jobCache) {
                                     
@@ -106,7 +106,7 @@ public abstract class SequentialJobRunner<Job> {
                                 }
                                 catch(JobRunningException e) {
                                     
-                                    logger.error("Error:", e);
+                                    logger.error("<SequentialJobRunner><2>, Error:", e);
                                     
                                     synchronized(jobCache) {
                                          

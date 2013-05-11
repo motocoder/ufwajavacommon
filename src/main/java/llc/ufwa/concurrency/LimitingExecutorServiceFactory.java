@@ -92,7 +92,7 @@ public class LimitingExecutorServiceFactory {
                                                         
                                                     }
                                                     catch(Throwable t) {
-                                                        logger.error("ERROR:", t);
+                                                        logger.error("<LimitingExecutorServiceFactory><1>, ERROR:", t);
                                                     }
                                                     
                                                 }
@@ -115,7 +115,7 @@ public class LimitingExecutorServiceFactory {
                         } 
                         catch (InterruptedException e) {
                             
-                            logger.error("FATAL ERROR:", e);
+                            logger.error("<LimitingExecutorServiceFactory><2>, FATAL ERROR:", e);
                             break;
                         }
                         

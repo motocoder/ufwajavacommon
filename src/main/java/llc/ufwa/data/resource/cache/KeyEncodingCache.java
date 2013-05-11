@@ -66,7 +66,7 @@ public class KeyEncodingCache<Value> implements Cache<String, Value> {
             return internal.get(URLEncoder.encode(key, charSet));
         } 
         catch (UnsupportedEncodingException e) {
-            throw new ResourceException(e);
+            throw new ResourceException("<KeyEncodingCache><1>, " + e);
         }
         
     }
@@ -84,7 +84,7 @@ public class KeyEncodingCache<Value> implements Cache<String, Value> {
         
         } 
         catch (UnsupportedEncodingException e) {
-            throw new ResourceException(e);
+            throw new ResourceException("<KeyEncodingCache><2>, " + e);
         }
         
         return internal.getAll(encoded);

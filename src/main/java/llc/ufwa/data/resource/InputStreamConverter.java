@@ -29,8 +29,8 @@ public class InputStreamConverter implements Converter<InputStream, byte []> {
         } 
         catch (IOException e) {
             
-            logger.error("ERROR:", e);
-            throw new ResourceException("Couldn't convert", e);
+            logger.error("<InputStreamConverter><1>, ERROR:", e);
+            throw new ResourceException("<InputStreamConverter><2>, Couldn't convert", e);
             
         }
         finally {
@@ -39,7 +39,7 @@ public class InputStreamConverter implements Converter<InputStream, byte []> {
                 old.close();
             } 
             catch (IOException e) {
-                throw new ResourceException("Couldn't convert", e);
+                throw new ResourceException("<InputStreamConverter><3>, Couldn't convert", e);
             }
             
         }
