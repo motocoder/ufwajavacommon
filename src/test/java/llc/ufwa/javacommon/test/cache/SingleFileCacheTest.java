@@ -28,7 +28,7 @@ public class SingleFileCacheTest {
         final File root = new File("./target/test-files/temp-hash/");
         deleteRoot(root);
         
-        final FileHash hash = new FileHash(root, new FakeHashBlobManagerImpl(), 1000);
+        final FileHash<String, String> hash = new FileHash<String, String>(root, new FakeHashManagerImpl<String, String>(), 1000);
         
         checkFileEmpty(root);
         
@@ -36,14 +36,13 @@ public class SingleFileCacheTest {
         
         for(int i = 0; i < TEST_COUNT; i++) {
         
-            hash.put(String.valueOf(i), new HashDataBlob(i, String.valueOf(i), i));
+            hash.put(String.valueOf(i), String.valueOf(i));
             
-            final HashDataBlob seg = hash.get(String.valueOf(i));
+            final String seg = hash.get(String.valueOf(i));
             
             TestCase.assertNotNull(seg);
             
-            TestCase.assertTrue(seg.getIndex() >= 0);
-            TestCase.assertEquals(seg.getDataLength(), i);
+            TestCase.assertEquals(String.valueOf(i), seg);
             
         }
         
@@ -55,7 +54,7 @@ public class SingleFileCacheTest {
         
         for(int i = 0; i < TEST_COUNT; i++) {
             
-            final HashDataBlob val = hash.get(String.valueOf(i));
+            final String val = hash.get(String.valueOf(i));
             
             TestCase.assertNull(val);
             
