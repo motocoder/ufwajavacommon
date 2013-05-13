@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import llc.ufwa.data.exception.HashBlobException;
@@ -26,7 +28,7 @@ import org.apache.log4j.Logger;
  * @author Sean Wagner
  *
  */
-public class FileHash {
+public class FileHash<Key, Value> {
     
     private static final Logger logger = Logger.getLogger(FileHash.class);
 
@@ -35,12 +37,12 @@ public class FileHash {
     private final int hashSize;
     private final File file;
     private final Converter<byte [], Integer> converter = new ByteArrayIntegerConverter();
-    private final HashDataBlobManager blobManager;
+    private final HashDataManager<Key, Value> blobManager;
     
     
     public FileHash(
         final File file,
-        final HashDataBlobManager blobManager,
+        final HashDataManager<Key, Value> blobManager,
         final int hashSize
     ) {
         
@@ -96,8 +98,8 @@ public class FileHash {
     }
     
     public void put(
-      final String key,
-      final HashDataBlob blob
+      final Key key,
+      final Value blob
     ) {
         
         final int limitedHash = key.hashCode() % hashSize;
@@ -122,11 +124,11 @@ public class FileHash {
                
                int blobIndex = converter.convert(currentKeyIn);
              
-               final Set<HashDataBlob> toWrite = new HashSet<HashDataBlob>();
+               final Set<Entry<Key, Value>> toWrite = new HashSet<Entry<Key, Value>>();
                
                if(blobIndex >= 0) {
                    
-                   final Set<HashDataBlob> blobs = blobManager.getBlobsAt(blobIndex);
+                   final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
                    
                    toWrite.addAll(blobs);
                    
@@ -142,8 +144,21 @@ public class FileHash {
                    
                }
                
-               toWrite.remove(blob);               
-               toWrite.add(blob);
+               Entry<Key, Value> remove = null;
+               
+               for(final Map.Entry<Key, Value> entry : toWrite) {
+                   
+                   if(entry.getKey().equals(key)) {
+                       remove = entry;
+                   }
+                   
+               }
+               
+               toWrite.remove(remove);               
+                              
+               toWrite.add(
+                   new DefaultEntry<Key, Value>(key, blob)
+               );
                
                blobManager.setBlobs(blobIndex, toWrite);
                
@@ -179,8 +194,8 @@ public class FileHash {
             
     }
     
-    public HashDataBlob get(
-      final String key
+    public Value get(
+      final Key key
     ) {
       
         final int limitedHash = key.hashCode() % hashSize;
@@ -205,17 +220,17 @@ public class FileHash {
              
                int blobIndex = converter.convert(currentKeyIn);
              
-               HashDataBlob returnVal = null;
+               Value returnVal = null;
                
                if(blobIndex >= 0) {
                  
-                   final Set<HashDataBlob> blobs = blobManager.getBlobsAt(blobIndex);
+                   final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
                  
-                   for(HashDataBlob blob : blobs) {
+                   for(Entry<Key, Value> blob : blobs) {
                        
                        if(blob.getKey().equals(key)) {
                            
-                           returnVal = blob;
+                           returnVal = blob.getValue();
                            break;
                            
                        }
@@ -258,7 +273,7 @@ public class FileHash {
           
     }
 
-    public void remove(String key) {
+    public void remove(Key key) {
         
         final int limitedHash = key.hashCode() % hashSize;
         
@@ -286,11 +301,11 @@ public class FileHash {
                
                if(blobIndex >= 0) {
                  
-                   HashDataBlob removing = null;
+                   Entry<Key, Value> removing = null;
                    
-                   final Set<HashDataBlob> blobs = blobManager.getBlobsAt(blobIndex);
+                   final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
                  
-                   for(HashDataBlob blob : blobs) {
+                   for(Entry<Key, Value> blob : blobs) {
                        
                        if(blob.getKey().equals(key)) {
                            
@@ -347,6 +362,41 @@ public class FileHash {
             logger.error("failed hash blob", e);
             throw new RuntimeException("failed hash blob", e);
         
+        }
+        
+    }
+    
+    private static class DefaultEntry<Key, Value> implements Map.Entry<Key, Value> {
+
+        private final Key key;
+        private volatile Value value;
+
+        public DefaultEntry(
+            final Key key,
+            final Value value
+        ) {
+            
+            this.key = key;
+            this.value = value;
+            
+        }
+        @Override
+        public Key getKey() {
+            return key;
+        }
+
+        @Override
+        public Value getValue() {
+            return value;
+        }
+
+        @Override
+        public Value setValue(Value value) {
+            
+            this.value = value;
+            
+            return value;
+            
         }
         
     }
