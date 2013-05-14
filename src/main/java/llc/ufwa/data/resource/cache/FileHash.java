@@ -135,7 +135,9 @@ public class FileHash<Key, Value> {
                    //if there is already something hashed here, retrieve the hash bucket and add to it
                    final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
                    
-                   toWrite.addAll(blobs); 
+                   if(blobs != null) {
+                       toWrite.addAll(blobs);
+                   }
                    
                }
                
@@ -235,17 +237,29 @@ public class FileHash<Key, Value> {
                  
                     //if there is values on this hash
                     final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
+                    
+                    if(blobs == null) { //data corrupt lets remove our reference.
+                        
+                        final byte[] bytesIndex = converter.restore(-1);
+                        
+                        random.seek(hashedIndex);
+                        random.write(bytesIndex); 
+                        
+                    }
+                    else {
                  
-                    for(Entry<Key, Value> blob : blobs) {
-                       
-                        if(blob.getKey().equals(key)) {
+                        for(Entry<Key, Value> blob : blobs) {
                            
-                            //return the value mapped to this key
-                            returnVal = blob.getValue();
-                            break;
+                            if(blob.getKey().equals(key)) {
+                               
+                                //return the value mapped to this key
+                                returnVal = blob.getValue();
+                                break;
+                               
+                            }
                            
                         }
-                       
+                        
                     }
                  
                 } 
@@ -320,16 +334,28 @@ public class FileHash<Key, Value> {
                    logger.debug("blobIndex2 " + blobIndex);
                    
                    final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
+                   
+                   if(blobs == null) { //data corrupt lets remove our reference.
+                       
+                       final byte[] bytesIndex = converter.restore(-1);
+                       
+                       random.seek(hashedIndex);
+                       random.write(bytesIndex); 
+                       
+                   }
+                   else {
                  
-                   for(Entry<Key, Value> blob : blobs) {
-                       
-                       logger.debug("blob at index " + blob.getKey());
-                       
-                       if(blob.getKey().equals(key)) {
+                       for(Entry<Key, Value> blob : blobs) {
                            
-                           //once we find a key that matches removed the value
-                           removing = blob;
-                           break;
+                           logger.debug("blob at index " + blob.getKey());
+                           
+                           if(blob.getKey().equals(key)) {
+                               
+                               //once we find a key that matches removed the value
+                               removing = blob;
+                               break;
+                               
+                           }
                            
                        }
                        
