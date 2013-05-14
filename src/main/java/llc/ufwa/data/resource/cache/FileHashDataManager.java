@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 public class FileHashDataManager<Key> implements HashDataManager<Key, InputStream> {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileHashDataManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileHashDataManager.class); 
     
     private final File root;
     private final File tempFileDirectory;
@@ -53,6 +53,11 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             
         };
     
+    /**
+     * 
+     * @param root
+     * @param tempFileDirectory
+     */
     public FileHashDataManager(
         final File root,
         final File tempFileDirectory
@@ -89,10 +94,11 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
           
             try {
               
-                random.seek(blobIndex);
+                random.seek(blobIndex); //go to index
                 
                 final byte [] intIn = new byte[4];
                 
+                //read the segment length
                 final int segLength;
                 
                 {
@@ -103,10 +109,9 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                   
                 }
                 
-                logger.debug("reading segLength " + segLength);
-                
                 int dataRead = 0;
                 
+                //while we approach the end
                 while(dataRead + 4 < segLength) {
 
                     final File tempFile = new File(tempFileDirectory, this.idProvider.provide());
@@ -119,25 +124,16 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     
                     fill = converter.convert(intIn);
                     
-                    logger.debug("fill " + fill);
-                    
-                    
-                    
-                    logger.debug("reading keyLength " + fill);
-                    
-                    logger.debug("currentPointer: " + random.getFilePointer());
-                    
-                    if(dataRead == 4 && fill < 0) {
+                    if(dataRead == 4 && fill < 0) { //return null if there is nothing here, we do this for empty segments
                         return null;
                     }
                     
-                    if(dataRead > 4 && fill < 0) { //segment was short recycled one.
-                        
-                        logger.debug("recycling");
+                    if(dataRead > 4 && fill < 0) { //segment was short recycled one. we are done
                         break;
                         
                     }
 
+                    //extract a key from the data
                     final Key key;
                     
                     {
@@ -159,11 +155,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                                     amountToRead = buffer.length;
                                 }
                                 
-                                logger.debug("amount to read " + amountToRead);
-                                
                                 final int read = random.read(buffer, 0, amountToRead);
-                                
-                                logger.debug("read " + read);
                                 
                                 dataRead += read;
                                 
@@ -192,23 +184,18 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         
                     }
                     
-                    logger.debug("reading value for key: " + key);
-                    
+                    //extract the data for this key                    
                     final int dataFill;
                     
-                    logger.debug("currentPointer: " + random.getFilePointer());
                     random.read(intIn);
                     
                     dataRead += 4;
                     
                     dataFill = converter.convert(intIn);
-                    
-                    logger.debug("reading data fill " + dataFill);
-                    logger.debug("reading dataRead before data: " + dataRead);
-                    
+                   
                     {
                         final byte [] buffer = new byte[1024];
-                        final FileOutputStream out = new FileOutputStream(tempFile);
+                        final FileOutputStream out = new FileOutputStream(tempFile); //store the data in a temporary file
                         
                         try {
                         
@@ -222,8 +209,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                                 else {
                                     amountToRead = buffer.length;
                                 }
-                                
-                                logger.debug("amount to read " + amountToRead);
                                 
                                 final int read = random.read(buffer, 0, amountToRead);
                                 
@@ -248,6 +233,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         }
                     }
                     
+                    //add this to prepared values
                     DefaultEntry<Key, File> entry = new DefaultEntry<Key, File>(key, tempFile);
                     
                     tempFiles.add(entry);
@@ -259,6 +245,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 random.close();
             }
             
+            
+            //return inputstreams to the new data
             final Set<Entry<Key, InputStream>> returnVals = new HashSet<Entry<Key, InputStream>>();
             
             for(final Entry<Key, File> temp : tempFiles) {
@@ -349,8 +337,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     
                 }
                 
-                logger.debug(entry.getKey() + " file size after temp " + tempFile.length());
-                
                 final byte [] keyData = DataUtils.serialize(entry.getKey());
                 
                 totalSize += tempFile.length();
@@ -374,8 +360,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
         //if the data was at an existing index we need to check if the segment is big enough for all the new data.
         if(blobIndex >= 0) {
             
-            logger.debug("writting to existing");
-            
             try {
               
                 final RandomAccessFile random = new RandomAccessFile(root, "rws");
@@ -393,17 +377,17 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 
                     final int segLength;
                   
+                    //read in this segments length
                     {
                       
-                        random.read(currentKeyIn);
+                        random.read(currentKeyIn); 
                     
                         segLength = converter.convert(currentKeyIn);
                       
                     }
                   
+                    //if the segment is too small for the new data
                     if(segLength < totalSize) {
-                        
-                        logger.debug("erasing");
                         
                         //erase the current segment and add it to free segs
                         final byte[] fill = converter.restore(-1);
@@ -463,8 +447,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             
         }
         
-        logger.debug("writting this shit");
-        
         //write this shit in
         try {
             
@@ -482,13 +464,12 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 
                 int totalWritten = 0;
                 
+                //write out the keys and their data
                 for(final Entry<Key, File> tempFile : tempFiles) {
                     
                     final byte[] keyData = keyDatas.get(tempFile.getKey());
                     final byte[] keyLengthBytes = converter.restore(keyData.length);
                     
-                    logger.debug("writting keyLength " + keyData.length);
-                   
                     totalWritten += keyData.length + 8;
                             
                     random.write(keyLengthBytes);
@@ -497,8 +478,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     final int fileLength = (int)tempFile.getValue().length();
                     
                     final byte[] sizeBytes = converter.restore(fileLength);
-                    
-                    logger.debug("writting value size " + fileLength + " for key " + tempFile.getKey());
                     
                     random.write(sizeBytes);
                     
@@ -542,9 +521,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     
                 }
                 
+                //if our segment is bigger than our data by 4 or more bytes, write a terminating -1                
                 if(totalSize >= totalWritten + 4) {
-                    
-                    logger.debug("terminating");
                     
                     final byte[] terminatorBytes = converter.restore(-1);
                     random.write(terminatorBytes);
@@ -586,16 +564,12 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
     
     private int findFreeSegment(final int totalSize) throws HashBlobException {
         
-        logger.debug("finding free seg");
-        
         final NavigableMap<Integer, Set<Integer>> tail = this.freeSegments.tailMap(totalSize, true);
         
         int returnVal = -1;
         
         //first look into the existing free segments
         if(tail.size() == 0) {
-            
-            logger.debug("pulling from existing pool");
             
             int blobIndex = 0;
             
@@ -611,8 +585,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                       
                         if((blobIndex + 4) >= length) {
                             
-                            logger.debug("reached end of file " + blobIndex + " " + length);
-                            
                             //end of file reached found nothing;
                             blobIndex = -1;
                             break;
@@ -621,8 +593,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                       
                         final byte [] currentKeyIn = new byte[4];
                         random.seek(blobIndex);
-                    
-                        logger.debug("position " + random.getFilePointer());
                         
                         final int segLength;
                         final int fill;
@@ -643,15 +613,10 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                           
                         }
                         
-                        logger.debug("finding length " + segLength);
-                        logger.debug("fill " + fill);
-                        logger.debug("finding needs " + totalSize);
-                        
                         if(fill == -1) { //encountered free segment, add it to known free.
                             
                             if(segLength >= totalSize) {
                                 
-                                logger.debug("found existing");
                                 returnVal = blobIndex;
                                 break;
                                 
@@ -673,7 +638,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                             
                         }
                         
-                        blobIndex += 8 + segLength;
+                        blobIndex += 8 + segLength; //skip to next segment
                         
                     } 
                     finally {
@@ -721,8 +686,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         
                         final byte [] lengthData = converter.restore(totalSize);
                         
-                        logger.debug("created new seg length " + totalSize);
-                        
                         random.seek(length);
                         
                         random.write(lengthData);
@@ -763,14 +726,11 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 }
                 
             }
-            else {
-                logger.debug("using existing segment at " + returnVal);
-            }
             
         }
         else {
             
-            logger.debug("using existing free seg");
+            //use existing free segment that we already know about.
             
             final Entry<Integer, Set<Integer>> first = tail.firstEntry();
             
