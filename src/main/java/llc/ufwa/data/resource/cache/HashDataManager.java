@@ -9,8 +9,6 @@ public interface HashDataManager<Key, Value> {
    
     Set<Entry<Key, Value>> getBlobsAt(final int blobIndex) throws HashBlobException;
 
-    int newBucket() throws HashBlobException;
-
-    void setBlobs(final int blobIndex, final Set<Entry<Key, Value>> blobs) throws HashBlobException;
+    int setBlobs(final int blobIndex, final Set<Entry<Key, Value>> blobs) throws HashBlobException;
    
 }

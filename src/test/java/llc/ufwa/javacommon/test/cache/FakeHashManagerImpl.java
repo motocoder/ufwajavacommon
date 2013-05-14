@@ -20,13 +20,16 @@ public class FakeHashManagerImpl<Key, Value> implements HashDataManager<Key, Val
     }
 
     @Override
-    public int newBucket() throws HashBlobException {
-        return index++;
-    }
-
-    @Override
-    public void setBlobs(int blobIndex, Set<Entry<Key, Value>> blobsIn) throws HashBlobException {
+    public int setBlobs(int blobIndex, Set<Entry<Key, Value>> blobsIn) throws HashBlobException {
+        
+        if(blobIndex < 0) {
+            blobIndex = index++;
+        }
+        
         blobs.put(blobIndex, blobsIn);        
+        
+        return blobIndex;
+        
     }
     
 }
