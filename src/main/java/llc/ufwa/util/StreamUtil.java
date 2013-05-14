@@ -18,6 +18,7 @@ public class StreamUtil {
     }
     
     /**
+     * flushes doesn't close
      * 
      * @param in
      * @param outs
@@ -65,6 +66,7 @@ public class StreamUtil {
     }
 
     /**
+     * flushes doesn't close
      * 
      * @param in
      * @param out
@@ -84,6 +86,14 @@ public class StreamUtil {
         
     }
 
+    /**
+     * 
+     * flushes doesn't close
+     * 
+     * @param is
+     * @param out
+     * @throws IOException
+     */
     public static void copyTo(InputStream is, OutputStream out) throws IOException {
         copyTo(is, out, DEFAULT_BUFFER_SIZE);
     }

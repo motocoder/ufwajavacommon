@@ -4,17 +4,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import llc.ufwa.data.DefaultEntry;
 import llc.ufwa.data.exception.HashBlobException;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.ByteArrayIntegerConverter;
@@ -122,7 +120,7 @@ public class FileHash<Key, Value> {
                    throw new RuntimeException("hash was not initialized properly");
                }
                
-               int blobIndex = converter.convert(currentKeyIn);
+               final int blobIndex = converter.convert(currentKeyIn);
              
                final Set<Entry<Key, Value>> toWrite = new HashSet<Entry<Key, Value>>();
                
@@ -130,18 +128,11 @@ public class FileHash<Key, Value> {
                    
                    final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
                    
-                   toWrite.addAll(blobs);
+                   toWrite.addAll(blobs); 
                    
                }
                else {
-                   
-                   blobIndex = blobManager.newBucket();
-                   
-                   final byte[] bytesIndex = converter.restore(blobIndex);
-                 
-                   random.seek(hashedIndex);
-                   random.write(bytesIndex); 
-                   
+                   logger.debug("blobIndex " + blobIndex);
                }
                
                Entry<Key, Value> remove = null;
@@ -160,7 +151,16 @@ public class FileHash<Key, Value> {
                    new DefaultEntry<Key, Value>(key, blob)
                );
                
-               blobManager.setBlobs(blobIndex, toWrite);
+               final int blobIndexAfterSet = blobManager.setBlobs(blobIndex, toWrite);
+               
+               if(blobIndexAfterSet != blobIndex) {
+
+                   final byte[] bytesIndex = converter.restore(blobIndexAfterSet);
+                   
+                   random.seek(hashedIndex);
+                   random.write(bytesIndex);
+                   
+               }
                
             }
             finally {
@@ -275,6 +275,8 @@ public class FileHash<Key, Value> {
 
     public void remove(Key key) {
         
+        logger.debug("removing key " + key);
+        
         final int limitedHash = key.hashCode() % hashSize;
         
         int hashedIndex = limitedHash * (BUCKET_SIZE); 
@@ -296,16 +298,18 @@ public class FileHash<Key, Value> {
                }
              
                int blobIndex = converter.convert(currentKeyIn);
-             
-               
                
                if(blobIndex >= 0) {
                  
                    Entry<Key, Value> removing = null;
                    
+                   logger.debug("blobIndex2 " + blobIndex);
+                   
                    final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
                  
                    for(Entry<Key, Value> blob : blobs) {
+                       
+                       logger.debug("blob at index " + blob.getKey());
                        
                        if(blob.getKey().equals(key)) {
                            
@@ -318,10 +322,14 @@ public class FileHash<Key, Value> {
                    
                    if(removing != null) {
                        
+                       logger.debug("removing not null");
+                       
                        blobs.remove(removing);
                        blobManager.setBlobs(blobIndex, blobs);
                        
                        if(blobs.size() == 0) {
+                           
+                           logger.debug("blobs size 0");
                            
                            final byte[] bytesIndex = converter.restore(-1);
                          
@@ -366,40 +374,7 @@ public class FileHash<Key, Value> {
         
     }
     
-    private static class DefaultEntry<Key, Value> implements Map.Entry<Key, Value> {
-
-        private final Key key;
-        private volatile Value value;
-
-        public DefaultEntry(
-            final Key key,
-            final Value value
-        ) {
-            
-            this.key = key;
-            this.value = value;
-            
-        }
-        @Override
-        public Key getKey() {
-            return key;
-        }
-
-        @Override
-        public Value getValue() {
-            return value;
-        }
-
-        @Override
-        public Value setValue(Value value) {
-            
-            this.value = value;
-            
-            return value;
-            
-        }
-        
-    }
+    
             
 //    
 //    public void put(
