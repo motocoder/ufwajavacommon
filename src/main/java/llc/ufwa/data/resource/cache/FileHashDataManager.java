@@ -19,6 +19,8 @@ import java.util.TreeMap;
 
 import llc.ufwa.connection.stream.WrappingInputStream;
 import llc.ufwa.data.DefaultEntry;
+import llc.ufwa.data.exception.BadDataException;
+import llc.ufwa.data.exception.CorruptDataException;
 import llc.ufwa.data.exception.HashBlobException;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.ByteArrayIntegerConverter;
@@ -109,6 +111,13 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                   
                 }
                 
+                if(segLength < -1 || segLength == 0 || segLength > random.length()) { 
+                    
+                    //This segment was not initialized properly, it is bad we need to never attempt to use it, delete
+                    throw new BadDataException();
+                    
+                }
+                
                 int dataRead = 0;
                 
                 //while we approach the end
@@ -131,6 +140,10 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     if(dataRead > 4 && fill < 0) { //segment was short recycled one. we are done
                         break;
                         
+                    }
+                    
+                    if(fill > segLength) { //corrupt data
+                        throw new CorruptDataException();
                     }
 
                     //extract a key from the data
@@ -160,7 +173,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                                 dataRead += read;
                                 
                                 if(read != amountToRead) {
-                                    throw new HashBlobException("cannot read entire segment");
+                                    throw new CorruptDataException();
                                 }
                                 
                                 out.write(buffer, 0, read);
@@ -176,7 +189,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                             
                         }
                         catch (ClassNotFoundException e) {
-                            throw new HashBlobException("Could no deserialize key", e);
+                            throw new CorruptDataException();
                         }
                         finally {
                             out.close();
@@ -191,7 +204,15 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     
                     dataRead += 4;
                     
+                    if(dataRead > segLength) {
+                        throw new CorruptDataException();
+                    }
+                    
                     dataFill = converter.convert(intIn);
+                    
+                    if(dataRead + dataFill > segLength) {
+                        throw new CorruptDataException();
+                    }
                    
                     {
                         final byte [] buffer = new byte[1024];
@@ -241,6 +262,18 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 }
                 
             } 
+            catch (CorruptDataException e) {
+                
+                eraseSegment(blobIndex);    
+                return null;
+                
+            } 
+            catch (BadDataException e) {
+                
+                deleteSegment(blobIndex);    
+                return null;
+                
+            }
             finally {
                 random.close();
             }
@@ -300,6 +333,135 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
         
     }
     
+    /**
+     * This makes the segment invisible.
+     * 
+     * This should only be used in the event of critical failure.
+     * 
+     * @param blobIndex
+     * @throws HashBlobException
+     */
+    private void deleteSegment(int blobIndex) throws HashBlobException {
+        
+        try {
+            
+            final RandomAccessFile random = new RandomAccessFile(root, "rws");
+          
+            try {
+              
+                random.seek(blobIndex); //go to index
+                
+                //erase the current segment and add it to free segs
+                final byte[] fillToWrite = converter.restore(-1);
+                random.write(fillToWrite);
+                
+            } 
+            finally {
+                random.close();
+            }
+            
+        } 
+        catch (FileNotFoundException e) {
+          
+            logger.error("Failed to allocate new bucket", e);
+          
+            throw new HashBlobException("failed to allocate new bucket", e);
+          
+        }
+        catch (ResourceException e) {
+            
+            logger.error("Failed to allocate new bucket3", e);
+             
+            throw new HashBlobException("failed to allocate new bucket3", e);
+            
+        }
+        catch (IOException e) {
+          
+            logger.error("Failed to allocate new bucket2", e);
+          
+            throw new HashBlobException("failed to allocate new bucket2", e);
+          
+        }
+        
+    }
+
+    /**
+     * Clears out the data at this segment freeing it up.
+     * 
+     * @param blobIndex
+     * @throws HashBlobException
+     */
+    private void eraseSegment(int blobIndex) throws HashBlobException {
+        
+        try {
+                        
+            final RandomAccessFile random = new RandomAccessFile(root, "rws");
+          
+            try {
+              
+                random.seek(blobIndex); //go to index
+                
+                final byte [] intIn = new byte[4];
+                
+                //read the segment length
+                final int segLength;
+                
+                {
+                  
+                    random.read(intIn);
+                
+                    segLength = converter.convert(intIn);
+                  
+                }
+                
+                
+                //erase the current segment and add it to free segs
+                final byte[] fillToWrite = converter.restore(-1);
+                random.write(fillToWrite);
+                
+                Set<Integer> segs = this.freeSegments.get(segLength);
+                
+                if(segs == null) {
+                    
+                    segs = new HashSet<Integer>();
+                    this.freeSegments.put(segLength, segs);
+                    
+                }
+                
+                segs.add(blobIndex);
+                
+            } 
+            finally {
+                random.close();
+            }
+            
+        } 
+        catch (FileNotFoundException e) {
+          
+            logger.error("Failed to allocate new bucket", e);
+          
+            throw new HashBlobException("failed to allocate new bucket", e);
+          
+        }
+        catch (ResourceException e) {
+            
+            logger.error("Failed to allocate new bucket3", e);
+             
+            throw new HashBlobException("failed to allocate new bucket3", e);
+            
+        }
+        catch (IOException e) {
+          
+            logger.error("Failed to allocate new bucket2", e);
+          
+            throw new HashBlobException("failed to allocate new bucket2", e);
+          
+        }
+        
+        
+        
+    }
+
     @Override
     public int setBlobs(int blobIndex, Set<Entry<Key, InputStream>> blobs) throws HashBlobException {
         
@@ -460,19 +622,31 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     throw new HashBlobException("invalid index");
                 }
               
-                random.seek(writtingIndex + 4); //skip the length
+                random.seek(writtingIndex + 4 + 4); //skip the length
                 
                 int totalWritten = 0;
+                
+                byte [] firstKeyData = null;
                 
                 //write out the keys and their data
                 for(final Entry<Key, File> tempFile : tempFiles) {
                     
                     final byte[] keyData = keyDatas.get(tempFile.getKey());
-                    final byte[] keyLengthBytes = converter.restore(keyData.length);
+                    
+                    if(firstKeyData == null) {
+                        firstKeyData = keyData;
+                    }
+                    else {
+                        
+                        final byte[] keyLengthBytes = converter.restore(keyData.length);
+                        
+                        random.write(keyLengthBytes);
+                        
+                    }
                     
                     totalWritten += keyData.length + 8;
                             
-                    random.write(keyLengthBytes);
+                    
                     random.write(keyData);
                     
                     final int fileLength = (int)tempFile.getValue().length();
@@ -526,6 +700,18 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     
                     final byte[] terminatorBytes = converter.restore(-1);
                     random.write(terminatorBytes);
+                    
+                }
+                                
+                //We are setting the first keylength last because that is what is used to determine if this segment is used. 
+                //This will hopefully make it as crash proof as possible.
+                if(firstKeyData != null) {
+
+                    random.seek(writtingIndex + 4); //skip the length
+                    
+                    final byte[] keyLengthBytes = converter.restore(firstKeyData.length);
+                    
+                    random.write(keyLengthBytes);
                     
                 }
                 
