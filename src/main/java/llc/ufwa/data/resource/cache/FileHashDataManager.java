@@ -33,6 +33,33 @@ import llc.ufwa.util.StreamUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Hash manager backed by file system.
+ * 
+ * Format:
+ *  [SKDLP{N*[KDLP]}]
+ * 
+ * Where:
+ * S == 4 bytes, segment length, -1 value if it has been discarded due to corruption
+ * K == 4 bytes, key length, first key is -1 if the entire segment is empty
+ * D == K bytes, key data, serialized
+ * L == 4 bytes, data length
+ * P == L bytes, data payload
+ * {N*[KDLP]} == repeat of key/value data for however many key/vals are in this segment.
+ * 
+ * Segments are allocated when none that fit can be found.
+ * Segments are reused. 
+ * Segments are searched for beginning of file to end, and a cache is remembered for which are free in memory.
+ * 
+ * If a segment is determined to be corrupt it will be erased. 
+ * If a segments length value is corrupt, the entire segment is deleted and ignored forever. (This should rarely happen)
+ * 
+ * TODO Consolidate reads/writes.
+ * 
+ * @author Sean Wagner
+ *
+ * @param <Key>
+ */
 public class FileHashDataManager<Key> implements HashDataManager<Key, InputStream> {
 
     private static final Logger logger = LoggerFactory.getLogger(FileHashDataManager.class); 
