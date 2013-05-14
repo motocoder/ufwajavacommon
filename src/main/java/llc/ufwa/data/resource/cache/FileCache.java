@@ -38,7 +38,7 @@ public final class FileCache implements Cache<String, InputStream> {
 
 			}
 
-			);
+		);
 
 	private final File parent;    
 	private final long expiresTimeout;
@@ -55,10 +55,10 @@ public final class FileCache implements Cache<String, InputStream> {
 	 * 
 	 */
 	public FileCache(
-			final File parent,
-			final long maxSize,
-			final long expiresTimeout
-			) {
+		final File parent,
+		final long maxSize,
+		final long expiresTimeout
+	) {
 
 		this.parent = parent;
 		this.expiresTimeout = expiresTimeout;
