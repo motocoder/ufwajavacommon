@@ -11,9 +11,15 @@ import java.util.Set;
 import llc.ufwa.data.beans.Entry;
 import llc.ufwa.data.exception.ResourceException;
 
+/**
+ * This class is used for expiring the values. It only works on memory caches. This will not work on a file cache.
+ * 
+ * @author Sean Wagner
+ *
+ * @param <Key>
+ * @param <Value>
+ */
 public class ExpiringCache<Key, Value> implements Cache<Key, Value>{
-    
-    
     
     private final LinkedList<Entry<Key, Long>> lastUpdated = new LinkedList<Entry<Key, Long>>();
     
