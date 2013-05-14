@@ -21,7 +21,7 @@ import llc.ufwa.data.resource.Converter;
 import org.apache.log4j.Logger;
 
 /**
- * this is a file backed hashing mechanism.
+ * this is a file backed hashing mechanism. 
  * 
  * @author Sean Wagner
  *
