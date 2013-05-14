@@ -53,6 +53,7 @@ public class FileHash<Key, Value> {
         this.blobManager = blobManager;        
         this.file = file;
         
+        //if the file doesn't exist, initialize an empty hash of the desired size
         if(!file.exists()) {
             
             try {
@@ -95,14 +96,19 @@ public class FileHash<Key, Value> {
         }
     }
     
+    /**
+     * 
+     * @param key
+     * @param blob
+     */
     public void put(
       final Key key,
       final Value blob
     ) {
         
-        final int limitedHash = key.hashCode() % hashSize;
+        final int limitedHash = key.hashCode() % hashSize; //limit the hash size to our hash
       
-        int hashedIndex = limitedHash * (BUCKET_SIZE); 
+        int hashedIndex = limitedHash * (BUCKET_SIZE); //multiply by bucket size so we know index.
      
         try {
           
@@ -114,9 +120,9 @@ public class FileHash<Key, Value> {
                random.seek(hashedIndex);
                
                //read in key at this hash location.
-               final int read = random.read(currentKeyIn);
+               final int read = random.read(currentKeyIn); //read in the current value
                
-               if(read <= 0) {
+               if(read <= 0) { //file was too short, empty values weren't filled in
                    throw new RuntimeException("hash was not initialized properly");
                }
                
@@ -126,15 +132,14 @@ public class FileHash<Key, Value> {
                
                if(blobIndex >= 0) {
                    
+                   //if there is already something hashed here, retrieve the hash bucket and add to it
                    final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
                    
                    toWrite.addAll(blobs); 
                    
                }
-               else {
-                   logger.debug("blobIndex " + blobIndex);
-               }
                
+               //if this key was already in the bucket remove it.
                Entry<Key, Value> remove = null;
                
                for(final Map.Entry<Key, Value> entry : toWrite) {
@@ -147,10 +152,12 @@ public class FileHash<Key, Value> {
                
                toWrite.remove(remove);               
                               
+               //then add it to the bucket again
                toWrite.add(
                    new DefaultEntry<Key, Value>(key, blob)
                );
                
+               //save the new values, if a new index is allocated, store it in the hash
                final int blobIndexAfterSet = blobManager.setBlobs(blobIndex, toWrite);
                
                if(blobIndexAfterSet != blobIndex) {
@@ -198,48 +205,53 @@ public class FileHash<Key, Value> {
       final Key key
     ) {
       
-        final int limitedHash = key.hashCode() % hashSize;
+        final int limitedHash = key.hashCode() % hashSize; //limit the hash to our hash size
     
-        int hashedIndex = limitedHash * (BUCKET_SIZE); 
+        int hashedIndex = limitedHash * (BUCKET_SIZE); //determine byte index
         
         try {
         
             final RandomAccessFile random = new RandomAccessFile(file, "rws");
           
             try {
-            
-               final byte [] currentKeyIn = new byte[4];
-               random.seek(hashedIndex);
-             
-               //read in key at this hash location.
-               final int read = random.read(currentKeyIn);
-             
-               if(read <= 0) {
-                   throw new RuntimeException("hash was not initialized properly");
-               }
-             
-               int blobIndex = converter.convert(currentKeyIn);
-             
-               Value returnVal = null;
+                
                
-               if(blobIndex >= 0) {
-                 
-                   final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
-                 
-                   for(Entry<Key, Value> blob : blobs) {
-                       
-                       if(blob.getKey().equals(key)) {
-                           
-                           returnVal = blob.getValue();
-                           break;
-                           
-                       }
-                       
-                   }
-                 
-               }
+                final byte [] currentKeyIn = new byte[4];
+                random.seek(hashedIndex);
              
-               return returnVal;
+                //read in key at this hash location.
+                final int read = random.read(currentKeyIn);
+             
+                if(read <= 0) { //file should have been initialized to hash size
+                    throw new RuntimeException("hash was not initialized properly");
+                }
+             
+                //convert the values read into an index
+                int blobIndex = converter.convert(currentKeyIn);
+             
+                Value returnVal = null;
+               
+                if(blobIndex >= 0) {
+                 
+                    //if there is values on this hash
+                    final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
+                 
+                    for(Entry<Key, Value> blob : blobs) {
+                       
+                        if(blob.getKey().equals(key)) {
+                           
+                            //return the value mapped to this key
+                            returnVal = blob.getValue();
+                            break;
+                           
+                        }
+                       
+                    }
+                 
+                } 
+                //else the returnval will be null
+             
+                return returnVal;
              
             }
             finally {
@@ -277,7 +289,7 @@ public class FileHash<Key, Value> {
         
         logger.debug("removing key " + key);
         
-        final int limitedHash = key.hashCode() % hashSize;
+        final int limitedHash = key.hashCode() % hashSize; //limit the hash size
         
         int hashedIndex = limitedHash * (BUCKET_SIZE); 
         
@@ -297,8 +309,10 @@ public class FileHash<Key, Value> {
                    throw new RuntimeException("hash was not initialized properly");
                }
              
+               //convert to an index
                int blobIndex = converter.convert(currentKeyIn);
                
+               //if there is a value on this hash, retrieve its value
                if(blobIndex >= 0) {
                  
                    Entry<Key, Value> removing = null;
@@ -313,6 +327,7 @@ public class FileHash<Key, Value> {
                        
                        if(blob.getKey().equals(key)) {
                            
+                           //once we find a key that matches removed the value
                            removing = blob;
                            break;
                            
@@ -322,12 +337,15 @@ public class FileHash<Key, Value> {
                    
                    if(removing != null) {
                        
+                       //save the blobs after removing the value mapped to our key
                        logger.debug("removing not null");
                        
                        blobs.remove(removing);
                        blobManager.setBlobs(blobIndex, blobs);
                        
                        if(blobs.size() == 0) {
+                           
+                           //if blobs is empty, remove the hash as well.
                            
                            logger.debug("blobs size 0");
                            
@@ -374,371 +392,4 @@ public class FileHash<Key, Value> {
         
     }
     
-    
-            
-//    
-//    public void put(
-//        final String key,
-//        final int length,
-//        final InputStream data
-//    ) {
-//        
-//        final int limitedHash = key.hashCode() % hashSize;
-//        
-//        int hashedIndex = limitedHash * (BUCKET_SIZE);
-//        
-//        final int start = hashedIndex;
-//        
-//        while(true) {
-//        
-//            try {
-//                
-//                final RandomAccessFile random = new RandomAccessFile(file, "rws");
-//                
-//                try {
-//                   
-//                    final byte [] currentKeyIn = new byte[4];
-//                    random.seek(hashedIndex);
-//                    
-//                    //read in key at this hash location.
-//                    final int read = random.read(currentKeyIn);
-//                    
-//                    final boolean write;
-//                    
-//                    if(read <= 0) { //nothing there, write
-//                    
-//                        write = true;    
-//                        
-//                    }
-//                    else {
-//                        
-//                        final int blobIndex = converter.convert(currentKeyIn);
-//                        
-//                        if(blobIndex < 0) {
-//                            write = true;
-//                        }
-//                        else {
-//                            
-//                            final HashDataBlob blobAtCurrent = blobManager.getBlobAt(blobIndex);
-//                            
-//                            // if same key write
-//                            if(blobAtCurrent.getKey().equals(key)) {
-//                                write = true;
-//                            }
-//                            else if(blobAtCurrent.getKey().hashCode() == key.hashCode()) {
-//                                
-//                                //skip to next hash location
-//                                
-//                                blobManager.update(
-//                                    new HashDataBlob(
-//                                        blobAtCurrent.getIndex(),
-//                                        blobAtCurrent.getKey(), 
-//                                        blobAtCurrent.getHashesAfter() + 1,
-//                                        blobAtCurrent.getDataLength()
-//                                    )
-//                                );
-//                                
-//                                write = false;
-                                
-//                            }
-//                            else {
-//                                write = false;
-//                            }
-//                            
-//                        }
-//                        
-//                    }
-//                    
-//                    if(write) {
-//                        
-//                        final int index = blobManager.allocate(length);
-//                        
-//                        final HashDataBlob blob = new HashDataBlob(index, key, 0, length);
-//                        
-//                        blobManager.write(blob, data);
-//                    
-//                        final byte[] bytesIndex = converter.restore(index);
-//                        
-//                        if(hashedIndex == 308) {
-//                            logger.debug("put at 308 " + index);
-//                        }
-//                        
-//                        random.seek(hashedIndex);
-//                        random.write(bytesIndex);        
-//                        break;
-//                        
-//                    }
-//                    else {
-//                        
-//                        hashedIndex += BUCKET_SIZE;
-//                        
-//                        if(hashedIndex >= hashSize * (BUCKET_SIZE)) {
-//                            hashedIndex = 0;
-//                        }
-//                        else if(hashedIndex == start) {
-//                            throw new RuntimeException("hash is full");
-//                        }
-//                        
-//                    }
-//                    
-//                }
-//                finally {
-//                    random.close();
-//                }
-//                
-//            } 
-//            catch (FileNotFoundException e) {
-//                logger.error("file not found in fileHash putHash", e);
-//            } 
-//            catch (IOException e) {
-//                logger.error("io exception in fileHash putHash", e);
-//            } 
-//            catch (ResourceException e) {
-//                logger.error("failed to convert in putHash", e);
-//            } 
-//            catch (HashBlobException e) {
-//                logger.error("failed hash blob", e);
-//            }
-//        }
-//        
-//    }
-//    
-//    public HashDataBlob get(final String key) {
-//        
-//        final int limitedHash = key.hashCode() % hashSize;
-//        
-//        int hashedIndex = limitedHash * (BUCKET_SIZE);
-//        
-//        final int start = hashedIndex;
-//        HashDataBlob returnVal = null;
-//        
-//        boolean first = true;
-//        boolean firstDifferent 
-//        
-//        
-//        while(true) {
-//            
-//            try {
-//                
-//                final RandomAccessFile random = new RandomAccessFile(file, "rws");
-//                
-//                try {
-//                    
-//                    final byte [] currentKeyIn = new byte[4];
-//                    random.seek(hashedIndex);
-//                    
-//                    //read in key at this hash location.
-//                    final int read = random.read(currentKeyIn);
-//                    
-//                    final boolean write;
-//                    
-//                    if(read <= 0) { //nothing there, write
-//                    
-//                        write = true;    
-//                        
-//                    }
-//                    else {
-//                        
-//                        final int blobIndex = converter.convert(currentKeyIn);
-//                        
-//                        if(blobIndex < 0) {
-//                            break;                            
-//                        }
-//                        else {
-//                            
-//                            final HashDataBlob blobAtCurrent = blobManager.getBlobAt(blobIndex);
-//                            
-//                            // if same key write
-//                            if(blobAtCurrent.getKey().equals(key)) {
-//                                write = true;
-//                            }
-//                            else if(blobAtCurrent.getKey().hashCode() == key.hashCode()) {
-//                                
-//                                if(blobAtCurrent.getHashesAfter() == 0) {
-//                                    break;
-//                                    
-//                                }
-//                                else {//skip to next hash location
-//                                    
-//                                    logger.debug("after " + blobAtCurrent.getHashesAfter());
-//                                    write = false;
-//                                }
-//                            }
-//                            else {
-//                                write = false;
-//                            }
-//                                
-//                        }
-//                        
-//                    }
-//                    
-//                    if(write) {
-//                    
-//                        final byte[] bytesIndex = new byte [4];
-//                        
-//                        random.seek(hashedIndex);
-//                        random.read(bytesIndex);
-//                        
-//                        final int index = converter.convert(bytesIndex);
-//                        
-//                        returnVal = blobManager.getBlobAt(index);
-//                        break;
-//                        
-//                    }
-//                    else {
-//                        hashedIndex += BUCKET_SIZE;
-//                        
-//                        if(hashedIndex >= hashSize * (BUCKET_SIZE)) {
-//                            hashedIndex = 0;
-//                        }
-//                        else if(hashedIndex == start) {
-//                            
-//                            throw new RuntimeException("hash is full");
-//                        }
-//                        
-//                    }
-//                }
-//                finally {
-//                    random.close();
-//                }
-//                
-//            } 
-//            catch (FileNotFoundException e) {
-//                logger.error("file not found in fileHash putHash", e);
-//            } 
-//            catch (IOException e) {
-//                logger.error("io exception in fileHash putHash", e);
-//            } 
-//            catch (ResourceException e) {
-//                logger.error("failed to convert in putHash", e);
-//            } 
-//            catch (HashBlobException e) {
-//                logger.error("failed hash blob", e);
-//            }
-//        }   
-//        
-//        return returnVal;
-//        
-//    }
-//    
-//    public void remove(final String key) {
-//        
-//        final int limitedHash = key.hashCode() % hashSize;
-//        
-//        int hashedIndex = limitedHash * (BUCKET_SIZE);
-//        
-//        final int start = hashedIndex;
-//        
-//        while(true) {
-//            
-//            try {
-//                
-//                final RandomAccessFile random = new RandomAccessFile(file, "rws");
-//                
-//                try {
-//                    
-//                    final byte [] currentKeyIn = new byte[4];
-//                    random.seek(hashedIndex);
-//                    
-//                    //read in key at this hash location.
-//                    final int read = random.read(currentKeyIn);
-//                    
-//                    final boolean write;
-//                    
-//                    if(read <= 0) { //nothing there, write
-//                        write = true;                          
-//                    }
-//                    else {
-//                        
-//                        final int blobIndex = converter.convert(currentKeyIn);
-//                        
-//                        if(blobIndex < 0) {
-//                            write = false;                       
-//                        }
-//                        else {
-//                            
-//                            final HashDataBlob blobAtCurrent = blobManager.getBlobAt(blobIndex);
-//                            
-//                            // if same key write
-//                            if(blobAtCurrent.getKey().equals(key)) {
-//                                write = true;
-//                            } 
-//                            else if(blobAtCurrent.getKey().hashCode() == key.hashCode()) {
-//                                
-//                                if(blobAtCurrent.getHashesAfter() == 0) {
-//                                    logger.debug("couldnt find " + key);
-//                                    break;                                
-//                                }
-//                                else {//skip to next hash location
-//                                    
-//                                    blobManager.update(
-//                                        new HashDataBlob(
-//                                            blobAtCurrent.getIndex(),
-//                                            blobAtCurrent.getKey(),
-//                                            blobAtCurrent.getHashesAfter() - 1,
-//                                            blobAtCurrent.getDataLength()
-//                                        )
-//                                    );
-//                                    
-//                                    write = false;
-//                                    
-//                                }
-//                                
-//                            }
-//                            else {
-//                                write = false;
-//                            }
-//                            
-//                        }
-//                        
-//                    }
-//                    
-//                    if(write) {
-//                    
-//                        final int index = -1;
-//                        
-//                        final byte[] bytesIndex = converter.restore(index);
-//                        
-////                        if(hashedIndex == 308) {
-//                            logger.debug("remove at " + hashedIndex + " " + index);
-////                        }
-//                        
-//                        random.seek(hashedIndex);
-//                        random.write(bytesIndex);   
-//                        break;
-//                        
-//                    }
-//                    else {
-//                        
-//                        hashedIndex += BUCKET_SIZE;
-//                        
-//                        if(hashedIndex >= hashSize * (BUCKET_SIZE)) {
-//                            hashedIndex = 0;
-//                        }
-//                        else if(hashedIndex == start) {
-//                            throw new RuntimeException("hash is full");
-//                        }
-//                        
-//                    }
-//                }
-//                finally {
-//                    random.close();
-//                }
-//                
-//            } 
-//            catch (FileNotFoundException e) {
-//                logger.error("file not found in fileHash putHash", e);
-//            } 
-//            catch (IOException e) {
-//                logger.error("io exception in fileHash putHash", e);
-//            } 
-//            catch (ResourceException e) {
-//                logger.error("failed to convert in putHash", e);
-//            } 
-//            catch (HashBlobException e) {
-//                logger.error("failed hash blob", e);
-//            }
-//        }   
-//        
-//    }
 }
