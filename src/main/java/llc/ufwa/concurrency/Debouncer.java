@@ -56,18 +56,60 @@ public class Debouncer {
 	    );
 	}
 	
+	public Debouncer(
+        final Callback<Object, Object> callback,
+        final Executor executor,
+        final Executor callbackThreads,
+        final long delay
+    ) {
+        this(
+            callback, 
+            executor,
+            delay, 
+            new PushProvider<Boolean>() {
+
+                @Override
+                public boolean exists() throws ResourceException {
+                    return true;
+                }
+    
+                @Override
+                public Boolean provide() throws ResourceException {
+                    return true;
+                }
+
+                @Override
+                public void push(Boolean value) throws ResourceException {                    
+                }
+            },
+            callbackThreads
+        );
+    }
+	
+	public Debouncer(
+	        final Callback<Object, Object> callback,
+	        final Executor executor,
+	        final long delay,
+	        final PushProvider<Boolean> shouldRun
+	    ) {
+	    
+	    this(callback, executor, delay, shouldRun, executor);
+	}
+	
 	/**
 	 * 
 	 * @param callback - This is run when signaled after the delay
-	 * @param executor - Runs the callback call on this.
-	 * @param delay - runs the callback after this delay.
-	 * @param shouldRun - returns boolean if should run
+     * @param executor - Runs the callback call on this.
+     * @param delay - runs the callback after this delay.
+     * @param shouldRun - returns boolean if should run
+	 * @param callbackThreads - executor to run callback on
 	 */
 	public Debouncer(
 	    final Callback<Object, Object> callback,
 	    final Executor executor,
 	    final long delay,
-	    final PushProvider<Boolean> shouldRun
+	    final PushProvider<Boolean> shouldRun,
+	    final Executor callbackThreads
 	) {
 	    
 	    this.shouldRun = shouldRun;
