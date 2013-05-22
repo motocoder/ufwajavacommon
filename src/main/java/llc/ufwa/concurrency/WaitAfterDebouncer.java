@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
  * @author seanwagner
  *
  */
-public class Debouncer {
+public class WaitAfterDebouncer {
 	
-	private static final Logger logger = LoggerFactory.getLogger(Debouncer.class);
+	private static final Logger logger = LoggerFactory.getLogger(WaitAfterDebouncer.class);
 	
 	private final Callback<Object, Object> callback;
 	private final Executor executor;
@@ -28,7 +28,7 @@ public class Debouncer {
     
     private boolean signalOut;
     
-	public Debouncer(
+	public WaitAfterDebouncer(
         final Callback<Object, Object> callback,
         final Executor executor,
         final long delay
@@ -56,7 +56,7 @@ public class Debouncer {
 	    );
 	}
 	
-	public Debouncer(
+	public WaitAfterDebouncer(
         final Callback<Object, Object> callback,
         final Executor executor,
         final Executor callbackThreads,
@@ -82,10 +82,11 @@ public class Debouncer {
                 public void push(Boolean value) throws ResourceException {                    
                 }
             }
+            
         );
     }
 	
-	public Debouncer(
+	public WaitAfterDebouncer(
 	        final Callback<Object, Object> callback,
 	        final Executor executor,
 	        final long delay,
@@ -128,25 +129,6 @@ public class Debouncer {
                     			@Override
                     			public void run() {
                     			    
-                    			    logger.debug("debouncer waiting " + System.currentTimeMillis());
-                    			    
-                    				synchronized(lock) {
-                    				    
-                    				    if(delay != 0) {
-                        				    
-                    				        try {
-                                                lock.wait(delay);
-                                            }
-                        				    catch (InterruptedException e) {
-                                                logger.error("<Debouncer><1>, Deboucer interrupted:", e);
-                                            }
-                        				    
-                    				    }
-                    				    
-                    				}
-                    				
-                    				logger.debug("debouncer not waiting" + System.currentTimeMillis());
-
         						    logger.debug("started debouncer");
         						    
         						    executor.execute(
@@ -162,7 +144,26 @@ public class Debouncer {
                                         
                                     );
         						    
-        						    synchronized(Debouncer.this) {
+        						    logger.debug("debouncer waiting " + System.currentTimeMillis());
+                                    
+                                    synchronized(lock) {
+                                        
+                                        if(delay != 0) {
+                                            
+                                            try {
+                                                lock.wait(delay);
+                                            }
+                                            catch (InterruptedException e) {
+                                                logger.error("<Debouncer><1>, Deboucer interrupted:", e);
+                                            }
+                                            
+                                        }
+                                        
+                                    }
+                                    
+                                    logger.debug("debouncer not waiting" + System.currentTimeMillis());
+        						    
+        						    synchronized(WaitAfterDebouncer.this) {
                                         signalOut = false;
                                     }
         						    			

@@ -38,6 +38,12 @@ public class PointUtils {
 		
 	}
 	
+	/**
+	 * 
+	 * @param point1
+	 * @param point2
+	 * @return - meters
+	 */
 	public static double computeDistance(GeoItem point1, GeoItem point2) {
 		
 		final double zDelta = Math.abs(point1.getAltitude() - point2.getAltitude());
