@@ -296,6 +296,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             }
             
         };
+
+    private final Converter<Key, byte[]> keySerializer;
     
     /**
      * 
@@ -304,7 +306,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
      */
     public FileHashDataManager(
         final File root,
-        final File tempFileDirectory
+        final File tempFileDirectory,
+        final Converter<Key, byte []> keySerializer
     ) { 
         
         if(root.isDirectory()) {
@@ -321,6 +324,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
         
         this.root = root;
         this.tempFileDirectory = tempFileDirectory;
+        this.keySerializer = keySerializer;
         
     }
     
@@ -427,11 +431,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                                                             
                             }
                             
-                            key = DataUtils.deserialize(out.toByteArray()); 
+                            key = keySerializer.restore(out.toByteArray()); 
                             
-                        }
-                        catch (ClassNotFoundException e) {
-                            throw new CorruptDataException();
                         }
                         finally {
                             out.close();
@@ -741,7 +742,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     
                 }
                 
-                final byte [] keyData = DataUtils.serialize(entry.getKey());
+                final byte [] keyData = keySerializer.convert(entry.getKey()); 
                 
                 totalSize += tempFile.length();
                 totalSize += keyData.length;
@@ -754,6 +755,12 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 
                 logger.error("Failed to allocate temp file");
                 throw new HashBlobException("Failed to allocate temp file");
+                
+                
+            } catch (ResourceException e) {
+                
+                logger.error("Failed to serialize when allocating temp file");
+                throw new HashBlobException("Failed to serialize when allocating temp file");
                 
             }
             
