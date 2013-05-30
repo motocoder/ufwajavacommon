@@ -60,10 +60,6 @@ public abstract class GenDataReader {
                 
                 final int index = (currentIndex - currentDataClassStart) * 2;
                 
-                logger.debug("currentData " + currentData);
-                logger.debug("index " + index);
-                logger.debug("substring " + currentData.substring(index, index + 2));
-                
                 final byte[] returnBytes = StringUtilities.hexStringToByteArray(currentData.substring(index, index + 2));
                 
                 if(returnBytes.length != 1) {
@@ -71,8 +67,6 @@ public abstract class GenDataReader {
                 }
                 
                 currentIndex++;
-                
-                logger.debug("returnVal " + (returnBytes[0] & 0xff));
                 
                 return returnBytes[0] & 0xff;
                 
@@ -90,7 +84,8 @@ public abstract class GenDataReader {
                 
             }
             
-        });
+        }
+        );
         
     }
     
