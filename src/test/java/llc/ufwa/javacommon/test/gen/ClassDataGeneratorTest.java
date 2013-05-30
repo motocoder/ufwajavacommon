@@ -23,13 +23,13 @@ public class ClassDataGeneratorTest {
         
     }
     
-//    private static final Logger logger = LoggerFactory.getLogger(ClassDataGeneratorTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClassDataGeneratorTest.class);
 //    
 //    @Test
 //    public void testGenerator() {
 //        
 //        final File outputFolder = new File("./target/test-files/temp-gen/");
-//        final File dataIn = new File("./src/test/java/llc/ufwa/javacommon/test/gen/test_data_in.xml");
+//        final File dataIn = new File("./src/test/java/llc/ufwa/javacommon/test/gen/1.jpg");
 //        
 //        int b = 159;
 //        int c = 11;

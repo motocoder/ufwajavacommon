@@ -1,9 +1,12 @@
 package llc.ufwa.data;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class DefaultEntry<Key, Value> implements Map.Entry<Key, Value> {
+public class DefaultEntry<Key, Value> implements Map.Entry<Key, Value>, Serializable {
 
+    private static final long serialVersionUID = 1450937660141010085L;
+    
     private final Key key;
     private volatile Value value;
 

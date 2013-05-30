@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
+import llc.ufwa.util.StreamUtil;
 import llc.ufwa.util.StringUtilities;
 
-import org.apache.log4j.lf5.util.StreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,11 +61,11 @@ public class ClassDataGenerator {
             
             try {
                 
-                final OutputStream out = new GZIPOutputStream(new FileOutputStream(tempFile));
+                final GZIPOutputStream out = new GZIPOutputStream(new FileOutputStream(tempFile));
                 
                 try {
                     
-                    StreamUtils.copy(in, out);
+                    StreamUtil.copyTo(in, out);
                     
                     out.flush();
                     
@@ -104,11 +104,10 @@ public class ClassDataGenerator {
                             
                             final int read = in.read(buffer);
                             
+                            logger.debug("read " + read);
+                            
                             if(read > 0) {
-                                
-                                logger.debug("first byte " + (buffer[0] + 128));
-                                logger.debug("second byte " + (buffer[1] + 128));
-                                
+
                                 currentChunkSize += read;
              
                                 final byte [] toWrite = Arrays.copyOf(buffer, read);
@@ -120,6 +119,8 @@ public class ClassDataGenerator {
                                 
                             }
                             else {
+                                
+                                logger.debug("read 0 done");
                                 
                                 chunkOut.write("\";}".getBytes(Charset.forName("UTF-8")));
                                 chunkOut.write(("public int length(){return " + currentChunkSize + ";}}").getBytes(Charset.forName("UTF-8")));
@@ -143,7 +144,7 @@ public class ClassDataGenerator {
                             currentChunkSize = 0;
                             chunk++;
                             
-                            chunkOut = new FileOutputStream(new File(outputFolder, name + "Chunk" + chunk));
+                            chunkOut = new FileOutputStream(new File(outputFolder, name + "Chunk" + chunk + ".java"));
                             chunkJavaFiles.add(chunkOut);
                             
                             chunkOut.write(("package " + packageName +";import llc.ufwa.gen.DataClass;").getBytes(Charset.forName("UTF-8")));
@@ -191,7 +192,7 @@ public class ClassDataGenerator {
             
             //generate GenDataReader
             
-            final File dataReaderFile = new File(outputFolder, name + "Reader");
+            final File dataReaderFile = new File(outputFolder, name + "Reader.java");
             final FileOutputStream readerOut = new FileOutputStream(dataReaderFile);
             
             try {
