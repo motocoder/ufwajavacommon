@@ -24,29 +24,29 @@ public class ClassDataGeneratorTest {
     }
     
     private static final Logger logger = LoggerFactory.getLogger(ClassDataGeneratorTest.class);
-//    
-//    @Test
-//    public void testGenerator() {
-//        
-//        final File outputFolder = new File("./target/test-files/temp-gen/");
-//        final File dataIn = new File("./src/test/java/llc/ufwa/javacommon/test/gen/1.jpg");
-//        
-//        int b = 159;
-//        int c = 11;
-//        
-//        logger.debug("magic " + String.valueOf((c << 8) | b));
-//        
-//        try {
-//            ClassDataGenerator.generateClassFilesFor(dataIn, outputFolder, "TestGen", "llc.ufwa.gen");
-//        } 
-//        catch (IOException e) {
-//            
-//            logger.error("Failed test", e);
-//            TestCase.fail();
-//            
-//        }
-//        
-//    }
+    
+    @Test
+    public void testGenerator() {
+        
+        final File outputFolder = new File("./target/test-files/temp-gen/");
+        final File dataIn = new File("./src/test/java/llc/ufwa/javacommon/test/gen/test_data.xml");
+        
+        int b = 159;
+        int c = 11;
+        
+        logger.debug("magic " + String.valueOf((c << 8) | b));
+        
+        try {
+            ClassDataGenerator.generateClassFilesFor(dataIn, outputFolder, "TestGen", "llc.ufwa.gen");
+        } 
+        catch (IOException e) {
+            
+            logger.error("Failed test", e);
+            TestCase.fail();
+            
+        }
+        
+    }
 //    
 //    @Test
 //    public void testGeneratorValue() {
