@@ -16,6 +16,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 import llc.ufwa.data.DefaultEntry;
 import llc.ufwa.data.exception.HashBlobException;
+import llc.ufwa.data.resource.SerializingConverter;
 import llc.ufwa.data.resource.cache.FileHash;
 import llc.ufwa.data.resource.cache.FileHashDataManager;
 import llc.ufwa.data.resource.cache.HashDataManager;
@@ -45,7 +46,7 @@ public class FileHashTest {
         deleteRoot(tempFolder);
         deleteRoot(dataFolder);
         
-        final FileHashDataManager<String> manager = new FileHashDataManager<String>(dataFolder, tempFolder);
+        final FileHashDataManager<String> manager = new FileHashDataManager<String>(dataFolder, tempFolder, new SerializingConverter<String>());
         final Set<Entry<String, InputStream>> toSet = new HashSet<Entry<String, InputStream>>();
         
         toSet.add(new DefaultEntry<String, InputStream>("key", new ByteArrayInputStream("key".getBytes())));
@@ -343,7 +344,7 @@ public class FileHashTest {
         deleteRoot(tempFolder);
         deleteRoot(dataFolder);
         
-        final HashDataManager<String, InputStream> manager = new LoggingManager(new FileHashDataManager<String>(dataFolder, tempFolder));
+        final HashDataManager<String, InputStream> manager = new LoggingManager(new FileHashDataManager<String>(dataFolder, tempFolder, new SerializingConverter<String>()));
         
         final FileHash<String, InputStream> hash = new FileHash<String, InputStream>(root, manager, 1000);
         
