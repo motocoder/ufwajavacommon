@@ -74,6 +74,54 @@ public class WebUtil {
             
         } 
     }
+    
+    public static byte [] doDeleteBytes(final URL url, final Map<String, String> headers) throws IOException {
+        
+        try {
+            
+            final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            
+            connection.setRequestMethod("DELETE");
+            connection.setReadTimeout(10000);
+            
+            for(final Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.addRequestProperty(entry.getKey(), entry.getValue());
+            }          
+            connection.connect();
+            
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();            
+            final InputStream in = connection.getInputStream();
+            
+            if(in != null) {
+                
+                try {
+                    StreamUtil.copyTo(in, out);
+                }
+                finally {
+                    in.close();
+                }
+                
+            }
+            else {
+                throw new IOException("<WebUtil><1>" + "Failed to get response");
+            }
+            
+            return out.toByteArray();
+                      
+        } 
+        catch (MalformedURLException e) {
+            
+            logger.error("<WebUtil><2>" + "ERROR:", e);
+            throw new IOException("<WebUtil><3>" + "ERROR:");
+            
+        }
+        catch (ProtocolException e) {
+            
+            logger.error("<WebUtil><4>" + "ERROR:", e);
+            throw new IOException("<WebUtil><5>" + "Error:");
+            
+        } 
+    }
 
     public static String doPutXML(
         final URL url,
@@ -312,6 +360,7 @@ public class WebUtil {
         
         private final String response;
         private final Map<String, List<String>> headers = new HashMap<String, List<String>>(); 
+        private final boolean wasError;
         
         public WebResponse(
             final String response, 
@@ -319,12 +368,29 @@ public class WebUtil {
         ) {
             this.response = response;
             this.headers.putAll(headers);
+            this.wasError = false;
+        }
+        
+        public WebResponse(
+            final String response, 
+            final Map<String, List<String>> headers,
+            final boolean wasError
+        ) {
+            
+            this.response = response;
+            this.headers.putAll(headers);
+            this.wasError = wasError;
+            
         }
         
         public String getResponse() {
             return response;
         }
         
+        public boolean wasError() {
+            return wasError;
+        }
+
         public List<String> getHeader(String headerName) {
             return headers.get(headerName);
         }
@@ -345,7 +411,7 @@ public class WebUtil {
             connection.setDoOutput(true);
             connection.setDoInput(true);
             connection.setReadTimeout(10000);
-            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
 
             connection.setReadTimeout(10000);
             
@@ -372,8 +438,25 @@ public class WebUtil {
                 
             }
             
-            if(connection.getResponseCode() != 200) {
-                throw new IOException("<WebUtil><25>" + "server returned code " + connection.getResponseCode());
+            if(connection.getResponseCode() != 200 && connection.getResponseCode() != 201) {
+                
+                final InputStream in = connection.getErrorStream();
+                
+                final ByteArrayOutputStream out = new ByteArrayOutputStream();            
+                
+                if(in != null) {
+                    
+                    try {
+                        StreamUtil.copyTo(in, out);
+                    }
+                    finally {
+                        in.close();
+                    }
+                    
+                }
+                
+                return new WebResponse(new String(out.toByteArray()), connection.getHeaderFields(), true);
+                
             }
             
             final ByteArrayOutputStream out = new ByteArrayOutputStream();            
@@ -487,6 +570,10 @@ public class WebUtil {
             throw new IOException("<WebUtil><36>" + "Error:");
             
         } 
+    }
+
+    public static String doDelete(URL url, Map<String, String> headers) throws IOException {
+        return new String(doDeleteBytes(url, headers));      
     }
 
 }
