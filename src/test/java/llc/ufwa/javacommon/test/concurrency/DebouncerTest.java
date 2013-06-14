@@ -254,7 +254,7 @@ public class DebouncerTest {
 	        }
 	    };
 		
-	    for (int x = 0; x < 25; x++) {
+	    for (int x = 0; x < 5; x++) {
 	    	new Thread(r).start();
 	    }
     	
@@ -264,7 +264,7 @@ public class DebouncerTest {
     @Test 
     public void testExecutorServiceDebouncerRunAfter() {
         
-    	for (int x = 1; x < 5; x++) {
+    	for (int x = 1; x < 3; x++) {
     		
 	        final ParallelControl<Integer> control = new ParallelControl<Integer>();
 	        
@@ -291,7 +291,7 @@ public class DebouncerTest {
 	            }}, new ScheduledThreadPoolExecutor(10), 700, ExecutorServiceDebouncer.RunType.RUN_AFTER);
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -302,7 +302,7 @@ public class DebouncerTest {
 	        }
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -310,12 +310,12 @@ public class DebouncerTest {
 
 	        TestCase.assertEquals(1, (int)control.getValue());
 	        
-	        for (int x1 = 0; x1 < 10000; x1++) {
+	        for (int x1 = 0; x1 < 1000; x1++) {
 	        	debouncer.signal();
 	        }
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -326,7 +326,7 @@ public class DebouncerTest {
 	        debouncer.signal();
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -337,7 +337,7 @@ public class DebouncerTest {
 	        debouncer.signal();
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -348,7 +348,7 @@ public class DebouncerTest {
 	        debouncer.signal();
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -359,7 +359,7 @@ public class DebouncerTest {
 	        debouncer.signal();
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -368,7 +368,7 @@ public class DebouncerTest {
 	        TestCase.assertEquals(6, (int)control.getValue());
 	        
 	        try {
-	            Thread.sleep(3000);
+	            Thread.sleep(1000);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -379,7 +379,7 @@ public class DebouncerTest {
 	        debouncer.shutdownNow();
 	        
 	        try {
-	            Thread.sleep(3000);
+	            Thread.sleep(1000);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -394,7 +394,7 @@ public class DebouncerTest {
     @Test 
     public void testExecutorServiceDebouncerRunBefore() {
         
-    	for (int x = 1; x < 5; x++) {
+    	for (int x = 1; x < 3; x++) {
 	    	
 	        final ParallelControl<Integer> control = new ParallelControl<Integer>();
 	        
@@ -421,7 +421,7 @@ public class DebouncerTest {
 	            }}, new ScheduledThreadPoolExecutor(10), 700, ExecutorServiceDebouncer.RunType.RUN_BEFORE);
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -432,7 +432,7 @@ public class DebouncerTest {
 	        }
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -440,12 +440,12 @@ public class DebouncerTest {
 
 	        TestCase.assertEquals(1, (int)control.getValue());
 	        
-	        for (int x1 = 0; x1 < 10000; x1++) {
+	        for (int x1 = 0; x1 < 1000; x1++) {
 	        	debouncer.signal();
 	        }
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -456,7 +456,7 @@ public class DebouncerTest {
 	        debouncer.signal();
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -467,7 +467,7 @@ public class DebouncerTest {
 	        debouncer.signal();
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -478,7 +478,7 @@ public class DebouncerTest {
 	        debouncer.signal();
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -489,7 +489,7 @@ public class DebouncerTest {
 	        debouncer.signal();
 	        
 	        try {
-	            Thread.sleep(1100);
+	            Thread.sleep(900);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -498,7 +498,7 @@ public class DebouncerTest {
 	        TestCase.assertEquals(6, (int)control.getValue());
 	        
 	        try {
-	            Thread.sleep(3000);
+	            Thread.sleep(1000);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
@@ -509,7 +509,7 @@ public class DebouncerTest {
 	        debouncer.shutdownNow();
 	        
 	        try {
-	            Thread.sleep(3000);
+	            Thread.sleep(1000);
 	        } 
 	        catch (InterruptedException e) {
 	            TestCase.fail();
