@@ -35,10 +35,12 @@ public class ExecutorServiceDebouncer {
     
     public enum RunType { RUN_BEFORE, RUN_AFTER };
 	private final RunType run;
-    
+    //TODO javadocs on all methods/contructors.
 	public ExecutorServiceDebouncer(
         final Callback<Object, Object> callback,
-        final ScheduledThreadPoolExecutor executor,
+        final ScheduledThreadPoolExecutor executor, //TODO make the ScheduledThreadPoolExecutor private. Currently if we pass in one
+        // that is used by other parts of the program, they will interfere and this class will not work properly.
+        // make the constructor take in a threadfactory instead.
         final long delay,
         final RunType run
     ) {
@@ -117,7 +119,9 @@ public class ExecutorServiceDebouncer {
 	 * Signal the debouncer to execute.
 	 */
 	public synchronized void signal() {
-		
+	    
+	    //TODO why is this unused?	
+	    
 		Runnable empty = new Runnable() {
 			@Override
 			public void run() {
