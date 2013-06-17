@@ -598,6 +598,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 final byte[] fillToWrite = converter.restore(-1);
                 random.write(fillToWrite);
                 
+                //TODO check value just written.
+                
             } 
             finally {
                 random.close();
@@ -661,6 +663,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 //erase the current segment and add it to free segs
                 final byte[] fillToWrite = converter.restore(-1);
                 random.write(fillToWrite);
+                //TODO check value just written.
                 
                 Set<Integer> segs = this.freeSegments.get(segLength);
                 
@@ -804,6 +807,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         final byte[] fill = converter.restore(-1);
                         random.write(fill);
                         
+                        //TODO check value just written.
+                        
                         Set<Integer> segs = this.freeSegments.get(segLength);
                         
                         if(segs == null) {
@@ -890,6 +895,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         final byte[] keyLengthBytes = converter.restore(keyData.length);
                         
                         random.write(keyLengthBytes);
+                        //TODO check value just written.
                         
                     }
                     
@@ -903,6 +909,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     final byte[] sizeBytes = converter.restore(fileLength);
                     
                     random.write(sizeBytes);
+                    
+                    //TODO check value just written.
                     
                     final FileInputStream input = new FileInputStream(tempFile.getValue());
                     
@@ -950,6 +958,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     final byte[] terminatorBytes = converter.restore(-1);
                     random.write(terminatorBytes);
                     
+                    //TODO check value just written.
+                    
                 }
                                 
                 //We are setting the first keylength last because that is what is used to determine if this segment is used. 
@@ -961,6 +971,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     final byte[] keyLengthBytes = converter.restore(firstKeyData.length);
                     
                     random.write(keyLengthBytes);
+                    
+                    //TODO check value just written.
                     
                 }
                 
@@ -1125,12 +1137,17 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         
                         random.write(lengthData);
                         
+                        //TODO check value just written.
+                        
                         final byte [] fillData = converter.restore(-1);
                     
                         random.write(fillData);
+                        //TODO check value just written.
                         
                         random.seek(totalSize + length + 4); //seek to last 4 bytes of seg.
                         random.write(fillData);
+                        
+                        //TODO check value just written.
                         
                     } 
                     finally {
