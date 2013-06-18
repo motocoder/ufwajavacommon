@@ -78,13 +78,15 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
         
         try {
             
-            LinkedList<Entry<String, Long>> lastUpdated = DataUtils.deserialize(persisting.get(LAST_UPDATED_KEY));
+        	LinkedList<Entry<String, Long>> lastUpdated;
             
-            if(lastUpdated == null) {
+            if(DataUtils.deserialize(persisting.get(LAST_UPDATED_KEY)) == null) {
                 
                 lastUpdated = new LinkedList<Entry<String, Long>>();
                 persisting.put(LAST_UPDATED_KEY, DataUtils.serialize(lastUpdated));
                 
+            } else {
+            	lastUpdated = DataUtils.deserialize(persisting.get(LAST_UPDATED_KEY));
             }
             
         } 
