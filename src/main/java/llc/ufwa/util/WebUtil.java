@@ -412,6 +412,9 @@ public class WebUtil {
             connection.setDoInput(true);
             connection.setReadTimeout(10000);
             connection.setRequestProperty("Accept", "application/json");
+            if(!headers.containsKey("Content-Type")) {
+                connection.addRequestProperty("Content-Type", "application/json");
+            }
 
             connection.setReadTimeout(10000);
             
