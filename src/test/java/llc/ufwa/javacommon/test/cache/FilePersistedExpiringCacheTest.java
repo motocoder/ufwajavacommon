@@ -25,6 +25,61 @@ public class FilePersistedExpiringCacheTest {
 
     private static final Logger logger = LoggerFactory.getLogger(FilePersistedExpiringCacheTest.class);
 
+    @Test
+    public void testExpiringPart() {
+    	
+    	try {
+    		
+	    	final long timeout = 1000;
+			
+	        final File dataFolder = new File("./target/test-files/temp");
+	        final File tempFolder = new File("./target/test-files/temp/data");
+	        
+	        deleteRoot(tempFolder);
+	
+	        final File internalFile = new File(tempFolder, "ad-properties"); 
+	        final File rootFile = new File(dataFolder, "ad-properties");
+	        
+			Cache<String, InputStream> internal = new FileCache(internalFile, -1L, timeout);
+			Cache<String, InputStream> InpersistingRoot = new FileCache(rootFile, -1L, timeout);
+	
+			final long cleanupTimeout = 1500;
+			
+			final Cache<String, InputStream> cache = new FilePersistedExpiringCache(internal, InpersistingRoot, timeout, cleanupTimeout);
+			
+			final String key = "dfsa";
+	        final String value = "dfsadsf";
+	        final String key2 = "fgdd";
+	        final String value2 = "dfgsds";
+	        String returnValue;
+	        
+	        // TEST PUT, GET, REMOVE, and EXISTS
+	        
+	        cache.put(key, new ByteArrayInputStream(value.getBytes()));
+	        
+	        InputStream baos = cache.get(key);
+			
+	        returnValue = getStringFromInputStream(baos);
+	        
+	        TestCase.assertEquals(value, returnValue);
+	        TestCase.assertEquals(cache.exists(key), true);
+
+	        Thread.sleep(timeout+100);
+	        
+	        TestCase.assertEquals(cache.exists(key), false); //this should be false because it's after the timeout time
+			
+		}
+		catch (ResourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    }
+    
 	@Test 
     public void testFilePersistedExpiringCacheTest() {
 		
