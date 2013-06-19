@@ -14,15 +14,19 @@ import junit.framework.TestCase;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.ByteArrayIntegerConverter;
 import llc.ufwa.data.resource.Converter;
+import llc.ufwa.data.resource.InputStreamConverter;
 import llc.ufwa.data.resource.IntegerStringConverter;
+import llc.ufwa.data.resource.ReverseConverter;
 import llc.ufwa.data.resource.StringSizeConverter;
 import llc.ufwa.data.resource.cache.Cache;
 import llc.ufwa.data.resource.cache.ExpiringCache;
 import llc.ufwa.data.resource.cache.FileCache;
 import llc.ufwa.data.resource.cache.FilePersistedExpiringCache;
 import llc.ufwa.data.resource.cache.FilePersistedMaxSizeCache;
+import llc.ufwa.data.resource.cache.KeyEncodingCache;
 import llc.ufwa.data.resource.cache.MemoryCache;
 import llc.ufwa.data.resource.cache.SynchronizedCache;
+import llc.ufwa.data.resource.cache.ValueConvertingCache;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -33,6 +37,72 @@ public class FilePersistedMaxSizeCacheTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(FilePersistedMaxSizeCacheTest.class);
 
+	private static final byte [] TEN_BYTES = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+	
+	@Test
+	public void testMaxSizePart() {
+
+		final Converter<Integer, String> converter = new IntegerStringConverter();
+		
+		final Cache<String, String> cache = new FilePersistedMaxSizeCache<String>(
+							new SynchronizedCache<String, String>(
+			                    new ExpiringCache<String, String>(
+			                        new MemoryCache<String, String>()
+			                    ,
+			                    100,
+			                    100)),
+	                    	
+			                    converter,
+			    				
+			    				20
+		    				);
+
+		try {
+			
+			final String TEN_BYTES_STRING = new String(TEN_BYTES);
+
+			cache.put("1", TEN_BYTES_STRING);
+
+			Thread.sleep(50);
+
+			cache.put("2", TEN_BYTES_STRING);
+
+			Thread.sleep(50);
+
+			cache.put("3", TEN_BYTES_STRING);
+
+			Thread.sleep(50);
+
+			cache.put("4", TEN_BYTES_STRING);
+
+			Thread.sleep(50);
+
+			cache.put("5", TEN_BYTES_STRING);
+
+		}
+		catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+
+		try {
+
+			TestCase.assertNull(cache.get("1"));
+			TestCase.assertNull(cache.get("2"));
+			TestCase.assertNull(cache.get("3"));
+			TestCase.assertNotNull(cache.get("4"));
+			TestCase.assertNotNull(cache.get("5"));
+
+		} 
+		catch (ResourceException e) {
+
+			TestCase.fail("cant get here");
+			e.printStackTrace();
+
+		}
+		
+	}
+	
+	
 	@Test 
     public void testFilePersistedExpiringCacheTest() {
 		
