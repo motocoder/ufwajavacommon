@@ -33,9 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class FilePersistedMaxSizeCacheTest {
+public class FilePersistedMaxSizeCacheDisabled {
 
-	private static final Logger logger = LoggerFactory.getLogger(FilePersistedMaxSizeCacheTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(FilePersistedMaxSizeCacheDisabled.class);
 
 	private static final byte [] TEN_BYTES = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 	

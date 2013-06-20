@@ -12,19 +12,76 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 import llc.ufwa.data.exception.ResourceException;
-import llc.ufwa.data.resource.cache.FileHashCache;
+import llc.ufwa.data.resource.cache.Cache;
+import llc.ufwa.data.resource.cache.FileCache;
+import llc.ufwa.data.resource.cache.FilePersistedExpiringCache;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class FileHashCacheTest {
+public class FilePersistedExpiringCacheDisabled {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileHashCacheTest.class);
-	
+    private static final Logger logger = LoggerFactory.getLogger(FilePersistedExpiringCacheDisabled.class);
+
+//    @Test
+//    public void testExpiringPart() {
+//    	
+//    	try {
+//    		
+//	    	final long timeout = 1000;
+//			
+//	        final File dataFolder = new File("./target/test-files/temp");
+//	        final File tempFolder = new File("./target/test-files/temp/data");
+//	        
+//	        deleteRoot(tempFolder);
+//	
+//	        final File internalFile = new File(tempFolder, "ad-properties"); 
+//	        final File rootFile = new File(dataFolder, "ad-properties");
+//	        
+//			Cache<String, InputStream> internal = new FileCache(internalFile, -1L, timeout);
+//			Cache<String, InputStream> InpersistingRoot = new FileCache(rootFile, -1L, timeout);
+//	
+//			final long cleanupTimeout = 1500;
+//			
+//			final Cache<String, InputStream> cache = new FilePersistedExpiringCache(internal, InpersistingRoot, timeout, cleanupTimeout);
+//			
+//			final String key = "dfsa";
+//	        final String value = "dfsadsf";
+//	        final String key2 = "fgdd";
+//	        final String value2 = "dfgsds";
+//	        String returnValue;
+//	        
+//	        // TEST PUT, GET, REMOVE, and EXISTS
+//	        
+//	        cache.put(key, new ByteArrayInputStream(value.getBytes()));
+//	        
+//	        InputStream baos = cache.get(key);
+//			
+//	        returnValue = getStringFromInputStream(baos);
+//	        
+//	        TestCase.assertEquals(value, returnValue);
+//	        TestCase.assertEquals(cache.exists(key), true);
+//
+//	        Thread.sleep(timeout+100);
+//	        
+//	        TestCase.assertEquals(cache.exists(key), false); //this should be false because it's after the timeout time
+//			
+//		}
+//		catch (ResourceException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//    	
+//    }
+//    
 //	@Test 
-//    public void testFileHashCache() {
+//    public void testFilePersistedExpiringCacheTest() {
 //		
 //		for (int x = 0; x < 10; x++) {
 //			universalTest();
@@ -33,16 +90,14 @@ public class FileHashCacheTest {
 //	}
 //	
 //	@Test 
-//    public void testFileHashCacheMultiThreaded() {
+//    public void testFilePersistedExpiringCacheTestMultiThreaded() {
 //		
 //		for (int x = 0; x < 15; x++) {
 //			 new Thread() {
 //	                
 //	                @Override
 //	                public void run() {
-//	                	
-//            			universalTest();
-//	                	
+//	                	universalTest();
 //	                }
 //	                
 //			 }.start();
@@ -51,21 +106,30 @@ public class FileHashCacheTest {
 //	}
 //	
 //	public void universalTest() {
-//		
+//
 //		try {
+//			
+//			final long timeout = 1000;
 //			
 //			Random random = new Random();
 //			int suffix = random.nextInt(4000);
 //			
-//	        final File tempFolder = new File("./target/test-files/temp-data" + String.valueOf(suffix));
-//	        final File dataFolder = new File("./target/test-files/temp-data/data" + String.valueOf(suffix));
+//	        final File dataFolder = new File("./target/test-files/temp");
+//	        final File tempFolder = new File("./target/test-files/temp/data" + String.valueOf(suffix));
 //	        
 //	        deleteRoot(tempFolder);
-//	        deleteRoot(dataFolder);
+//	
+//	        final File internalFile = new File(tempFolder, "ad-properties"); 
+//	        final File rootFile = new File(dataFolder, "ad-properties");
 //	        
-//	        final FileHashCache cache = new FileHashCache(dataFolder, tempFolder);
-//	        
-//	        final String key = "dfsa";
+//			Cache<String, InputStream> internal = new FileCache(internalFile, -1L, timeout);
+//			Cache<String, InputStream> InpersistingRoot = new FileCache(rootFile, -1L, timeout);
+//	
+//			final long cleanupTimeout = 1500;
+//			
+//			final Cache<String, InputStream> cache = new FilePersistedExpiringCache(internal, InpersistingRoot, timeout, cleanupTimeout);
+//			
+//			final String key = "dfsa";
 //	        final String value = "dfsadsf";
 //	        final String key2 = "fgdd";
 //	        final String value2 = "dfgsds";
@@ -95,7 +159,7 @@ public class FileHashCacheTest {
 //	        
 //	        cache.put(key, new ByteArrayInputStream(value.getBytes()));
 //	        cache.put(key2, new ByteArrayInputStream(value2.getBytes()));
-//
+//	
 //	        TestCase.assertEquals(cache.exists(key), true);
 //	        TestCase.assertEquals(cache.exists(key2), true);
 //	        
@@ -116,7 +180,7 @@ public class FileHashCacheTest {
 //		       
 //	        TestCase.assertEquals(cache.exists(key), false);
 //	        TestCase.assertEquals(cache.exists(key2), false);
-//	        
+//        
 //		}
 //		catch (ResourceException e) {
 //			// TODO Auto-generated catch block
@@ -154,7 +218,7 @@ public class FileHashCacheTest {
 //		return sb.toString();
 // 
 //	}
-//	
+//
 //	void deleteRoot (File root) {
 //        if (root.exists()) {
 //            
@@ -166,5 +230,5 @@ public class FileHashCacheTest {
 //            root.delete();
 //        }
 //    }
-
+	
 }
