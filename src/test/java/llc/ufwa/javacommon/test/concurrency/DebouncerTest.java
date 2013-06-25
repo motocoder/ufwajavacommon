@@ -2,6 +2,7 @@ package llc.ufwa.javacommon.test.concurrency;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 
 import junit.framework.TestCase;
 
@@ -200,7 +201,7 @@ public class DebouncerTest {
 	                
 	                return null;
 	                
-	            }}, new ScheduledThreadPoolExecutor(10), 1000, ExecutorServiceDebouncer.RunType.RUN_AFTER);
+	            }}, Executors.defaultThreadFactory(), 1000, ExecutorServiceDebouncer.RunType.RUN_AFTER);
 	        
 	        debouncer.signal();
 	        debouncer.signal();
@@ -263,7 +264,7 @@ public class DebouncerTest {
     
     @Test 
     public void testExecutorServiceDebouncerRunAfter() {
-        
+    	
     	for (int x = 1; x < 3; x++) {
     		
 	        final ParallelControl<Integer> control = new ParallelControl<Integer>();
@@ -288,7 +289,7 @@ public class DebouncerTest {
 	                
 	                return null;
 	                
-	            }}, new ScheduledThreadPoolExecutor(10), 700, ExecutorServiceDebouncer.RunType.RUN_AFTER);
+	            }}, Executors.defaultThreadFactory(), 700, ExecutorServiceDebouncer.RunType.RUN_AFTER);
 	        
 	        try {
 	            Thread.sleep(900);
@@ -418,7 +419,7 @@ public class DebouncerTest {
 	                
 	                return null;
 	                
-	            }}, new ScheduledThreadPoolExecutor(10), 700, ExecutorServiceDebouncer.RunType.RUN_BEFORE);
+	            }}, Executors.defaultThreadFactory(), 700, ExecutorServiceDebouncer.RunType.RUN_BEFORE);
 	        
 	        try {
 	            Thread.sleep(900);

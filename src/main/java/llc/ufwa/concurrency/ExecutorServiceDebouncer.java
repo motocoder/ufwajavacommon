@@ -1,9 +1,9 @@
 package llc.ufwa.concurrency;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import llc.ufwa.data.exception.ResourceException;
@@ -29,24 +29,29 @@ public class ExecutorServiceDebouncer {
 	private final Object lock = new Object();
     private final PushProvider<Boolean> shouldRun;
     private final ScheduledThreadPoolExecutor pool;
-    private long time;
-    
     private boolean signalOut;
     
     public enum RunType { RUN_BEFORE, RUN_AFTER };
 	private final RunType run;
-    //TODO javadocs on all methods/contructors.
+	
+	/**
+	 * Debouncer to ignore repeated calls within a set delay.
+	 * 
+	 * @param callback callback used to execute code
+	 * @param threadFactory ThreadFactory passed in
+	 * @param delay time to ignore subsequent calls
+	 * @param run RunType to run the code before or after the delay
+	 * 
+	 */
 	public ExecutorServiceDebouncer(
         final Callback<Object, Object> callback,
-        final ScheduledThreadPoolExecutor executor, //TODO make the ScheduledThreadPoolExecutor private. Currently if we pass in one
-        // that is used by other parts of the program, they will interfere and this class will not work properly.
-        // make the constructor take in a threadfactory instead.
+        final ThreadFactory threadFactory,
         final long delay,
         final RunType run
     ) {
 	    this(
 	        callback, 
-	        executor,
+	        threadFactory,
 	        delay, 
 	        new PushProvider<Boolean>() {
 
@@ -70,14 +75,14 @@ public class ExecutorServiceDebouncer {
 	
 	public ExecutorServiceDebouncer(
         final Callback<Object, Object> callback,
-        final ScheduledThreadPoolExecutor executor,
+        final ThreadFactory threadFactory,
         final Executor callbackThreads,
         final long delay,
         final RunType run
     ) {
         this(
             callback, 
-            executor,
+            threadFactory,
             delay, 
             new PushProvider<Boolean>() {
 
@@ -101,16 +106,16 @@ public class ExecutorServiceDebouncer {
 	
 	public ExecutorServiceDebouncer(
 	        final Callback<Object, Object> callback,
-	        final ScheduledThreadPoolExecutor executor,
+	        final ThreadFactory threadFactory,
 	        final long delay,
 	        final PushProvider<Boolean> shouldRun,
 	        final RunType run
 	    ) {
-	    
+	    		
 	    this.shouldRun = shouldRun;
 		this.callback = callback;
 		this.delay = delay;
-		this.pool = executor;
+		this.pool = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(10, threadFactory);
 		this.run = run;
 		
 	}
@@ -120,15 +125,6 @@ public class ExecutorServiceDebouncer {
 	 */
 	public synchronized void signal() {
 	    
-	    //TODO why is this unused?	
-	    
-		Runnable empty = new Runnable() {
-			@Override
-			public void run() {
-			
-			}
-		};
-		
 		Runnable runnable = new Runnable() {
 		       
 			@Override
@@ -239,10 +235,6 @@ public class ExecutorServiceDebouncer {
             lock.notifyAll();
         }
         
-    }
-    
-    public long timer() {
-    	return (System.currentTimeMillis() - time);
     }
 
     public void push(boolean b) {
