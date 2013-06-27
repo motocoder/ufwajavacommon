@@ -13,21 +13,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import llc.ufwa.exception.FourOhOneException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import llc.ufwa.util.StreamUtil;
-import llc.ufwa.util.WebUtil.WebResponse;
 
 public class WebUtil {
     
     private static final Logger logger = LoggerFactory.getLogger(WebUtil.class);
     
-    public static String doGet(final URL url, final Map<String, String> headers) throws IOException {
+    public static String doGet(final URL url, final Map<String, String> headers) throws IOException, FourOhOneException {
         return new String(doGetBytes(url, headers));        
     }
     
-    public static byte [] doGetBytes(final URL url, final Map<String, String> headers) throws IOException {
+    public static byte [] doGetBytes(final URL url, final Map<String, String> headers) throws IOException, FourOhOneException {
         
         try {
             
@@ -43,6 +42,10 @@ public class WebUtil {
             
             final ByteArrayOutputStream out = new ByteArrayOutputStream();            
             final InputStream in = connection.getInputStream();
+            
+            if(connection.getResponseCode() == 401) {
+                throw new FourOhOneException();
+            }
             
             if(in != null) {
                 
@@ -75,7 +78,7 @@ public class WebUtil {
         } 
     }
     
-    public static byte [] doDeleteBytes(final URL url, final Map<String, String> headers) throws IOException {
+    public static byte [] doDeleteBytes(final URL url, final Map<String, String> headers) throws IOException, FourOhOneException {
         
         try {
             
@@ -88,6 +91,10 @@ public class WebUtil {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
             }          
             connection.connect();
+            
+            if(connection.getResponseCode() == 401) {
+                throw new FourOhOneException();
+            }
             
             final ByteArrayOutputStream out = new ByteArrayOutputStream();            
             final InputStream in = connection.getInputStream();
@@ -127,7 +134,7 @@ public class WebUtil {
         final URL url,
         final Map<String, String> headers,
         final String body
-    ) throws IOException {
+    ) throws IOException, FourOhOneException {
         
         try {
             
@@ -144,7 +151,7 @@ public class WebUtil {
             }   
             
             connection.connect();
-            
+                        
             {
                 
                 final OutputStream writing = connection.getOutputStream();
@@ -160,6 +167,10 @@ public class WebUtil {
                     writing.close();
                 }
                 
+            }
+            
+            if(connection.getResponseCode() == 401) {
+                throw new FourOhOneException();
             }
             
             final ByteArrayOutputStream out = new ByteArrayOutputStream();            
@@ -200,7 +211,7 @@ public class WebUtil {
     public static String doPut(
             final URL url,
             final Map<String, String> headers
-        ) throws IOException {
+        ) throws IOException, FourOhOneException {
             
             try {
                 
@@ -216,6 +227,10 @@ public class WebUtil {
                 }   
                 
                 connection.connect();
+                
+                if(connection.getResponseCode() == 401) {
+                    throw new FourOhOneException();
+                }
                 
                 final ByteArrayOutputStream out = new ByteArrayOutputStream();            
                 final InputStream in = connection.getInputStream();
@@ -252,7 +267,7 @@ public class WebUtil {
             
         }
 
-    public static InputStream doGetInputStream(URL url, Map<String, String> headers) throws IOException {
+    public static InputStream doGetInputStream(URL url, Map<String, String> headers) throws IOException, FourOhOneException {
 
         try {
             
@@ -263,8 +278,13 @@ public class WebUtil {
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
-            }          
+            }       
+            
             connection.connect();
+            
+            if(connection.getResponseCode() == 401) {
+                throw new FourOhOneException();
+            }
             
             return connection.getInputStream();
                       
@@ -287,7 +307,7 @@ public class WebUtil {
         final URL url,
         final Map<String, String> headers,
         final String body
-    ) throws IOException {
+    ) throws IOException, FourOhOneException {
         
         try {
             
@@ -303,6 +323,10 @@ public class WebUtil {
             }   
             
             connection.connect();
+            
+            if(connection.getResponseCode() == 401) {
+                throw new FourOhOneException();
+            }
             
             {
                 
@@ -401,7 +425,7 @@ public class WebUtil {
         final URL url, 
         final Map<String, String> headers,
         final String body
-    ) throws IOException {
+    ) throws IOException, FourOhOneException {
         
         try {
             
@@ -424,6 +448,8 @@ public class WebUtil {
             
             connection.connect();
             
+            
+            
             {
                 
                 final OutputStream writing = connection.getOutputStream();
@@ -441,7 +467,13 @@ public class WebUtil {
                 
             }
             
-            if(connection.getResponseCode() != 200 && connection.getResponseCode() != 201) {
+            final int responseCode = connection.getResponseCode();
+            
+            if(responseCode == 401) {
+                throw new FourOhOneException();
+            }
+            
+            if(responseCode != 200 && responseCode != 201) {
                 
                 final InputStream in = connection.getErrorStream();
                 
@@ -500,7 +532,7 @@ public class WebUtil {
         final URL url,
         final Map<String, String> headers, 
         final String body
-    ) throws IOException {
+    ) throws IOException, FourOhOneException {
         
         try {
             
@@ -535,6 +567,10 @@ public class WebUtil {
                     writing.close();
                 }
                 
+            }
+            
+            if(connection.getResponseCode() == 401) {
+                throw new FourOhOneException();
             }
             
             if(connection.getResponseCode() != 200) {
@@ -575,7 +611,7 @@ public class WebUtil {
         } 
     }
 
-    public static String doDelete(URL url, Map<String, String> headers) throws IOException {
+    public static String doDelete(URL url, Map<String, String> headers) throws IOException, FourOhOneException {
         return new String(doDeleteBytes(url, headers));      
     }
 
