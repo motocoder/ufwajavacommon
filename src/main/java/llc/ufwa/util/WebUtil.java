@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import llc.ufwa.exception.FourOhFourException;
 import llc.ufwa.exception.FourOhOneException;
 
 import org.slf4j.Logger;
@@ -425,7 +426,7 @@ public class WebUtil {
         final URL url, 
         final Map<String, String> headers,
         final String body
-    ) throws IOException, FourOhOneException {
+    ) throws IOException, FourOhOneException, FourOhFourException {
         
         try {
             
@@ -469,8 +470,14 @@ public class WebUtil {
             
             final int responseCode = connection.getResponseCode();
             
+            logger.debug("response code " + responseCode);
+            
             if(responseCode == 401) {
                 throw new FourOhOneException();
+            }
+            
+            if(responseCode == 404) {
+                throw new FourOhFourException();
             }
             
             if(responseCode != 200 && responseCode != 201) {
@@ -573,7 +580,7 @@ public class WebUtil {
                 throw new FourOhOneException();
             }
             
-            if(connection.getResponseCode() != 200) {
+            if(connection.getResponseCode() / 200 != 1) {
                 throw new IOException("<WebUtil><31>" + "server returned code " + connection.getResponseCode());
             }
             
