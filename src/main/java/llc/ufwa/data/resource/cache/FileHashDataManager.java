@@ -1030,6 +1030,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         
                         final long length = random.length();
                       
+                        System.out.println((blobIndex + 4) + "    " + length);
+                        
                         if((blobIndex + 4) >= length) {
                             
                             //end of file reached found nothing;
@@ -1037,17 +1039,20 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                             break;
                             
                         }
-                      
+                        
                         final byte [] currentKeyIn = new byte[4];
-                        random.seek(blobIndex);
+                        
+                        System.out.println(blobIndex);
+                        
+                    	random.seek(blobIndex);
                         
                         final int segLength;
                         final int fill;
                         
                         {
                           
-                            random.read(currentKeyIn);
-                        
+                        	random.read(currentKeyIn);
+                            
                             segLength = converter.convert(currentKeyIn);
                           
                         }
@@ -1062,7 +1067,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         
                         if(fill == -1) { //encountered free segment, add it to known free.
                             
-                            if(segLength >= totalSize) {
+                        	if(segLength >= totalSize) {
                                 
                                 returnVal = blobIndex;
                                 break;
@@ -1085,7 +1090,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                             
                         }
                         
-                        blobIndex += 8 + segLength; //skip to next segment
+                        blobIndex += 8 + Math.abs(segLength); //skip to next segment
                         
                     } 
                     finally {
