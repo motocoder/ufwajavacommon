@@ -323,7 +323,7 @@ public class FileHash<Key, Value> {
       final Value blob
     ) {
         
-        final int limitedHash = key.hashCode() % hashSize; //limit the hash size to our hash
+        final int limitedHash = Math.abs(key.hashCode()) % hashSize; //limit the hash size to our hash
       
         int hashedIndex = limitedHash * (BUCKET_SIZE); //multiply by bucket size so we know index.
      
@@ -424,7 +424,7 @@ public class FileHash<Key, Value> {
       final Key key
     ) {
       
-        final int limitedHash = key.hashCode() % hashSize; //limit the hash to our hash size
+        final int limitedHash = Math.abs(key.hashCode()) % hashSize; //limit the hash to our hash size
     
         int hashedIndex = limitedHash * (BUCKET_SIZE); //determine byte index
         
