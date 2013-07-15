@@ -66,11 +66,11 @@ public class FileHashCacheTest {
 	        
 	        final FileHashCache cache = new FileHashCache(dataFolderItem, tempFolder);
 	        
-	        final String key = "dtsffffdfasdf";
-	        final String value = "ddwerfsadfsadfsad4";
-	        final String key2 = "werffadfasdff";
-	        final String value2 = "salajflfasdwefdfg";
-	        final String key3 = "adatiddfsds";
+	        final String key = "dtsffffdfsdfsadfsdfewfeasdf";
+	        final String value = "ddwerfsadfwefwaefwfawfewsadfsad4";
+	        final String key2 = "werffdsfasfsdfsfsdfasadfasdff";
+	        final String value2 = "saasdfasdfdfasdfaewasfsadfasfdadscasdfasdfasdfsdfg";
+	        final String key3 = "adatiwefwwawfwfdfdsgdfgsdgasddfsds";
 	        String returnValue;
 	        
 	        // TEST PUT, GET, REMOVE, and EXISTS
