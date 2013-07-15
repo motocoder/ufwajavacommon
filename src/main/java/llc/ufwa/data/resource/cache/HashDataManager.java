@@ -11,4 +11,6 @@ public interface HashDataManager<Key, Value> {
 
     int setBlobs(final int blobIndex, final Set<Entry<Key, Value>> blobs) throws HashBlobException;
    
+    void eraseBlobs(final int blobIndex) throws HashBlobException;
+    
 }

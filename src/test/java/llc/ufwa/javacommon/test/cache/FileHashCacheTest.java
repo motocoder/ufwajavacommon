@@ -14,6 +14,7 @@ import junit.framework.TestCase;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.cache.FileHashCache;
 
+import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,10 @@ import org.slf4j.LoggerFactory;
 public class FileHashCacheTest {
 
     private static final Logger logger = LoggerFactory.getLogger(FileHashCacheTest.class);
+    
+    static {
+    	BasicConfigurator.configure();
+    }
 	
 	@Test 
     public void testFileHashCache() {
@@ -60,15 +65,16 @@ public class FileHashCacheTest {
 	        
 	        deleteRoot(tempFolder);
 	        deleteRoot(dataFolder);
+	        dataFolderItem.delete();
 	        
 	        tempFolder.mkdirs();
 	        dataFolder.mkdirs();
 	        
 	        final FileHashCache cache = new FileHashCache(dataFolderItem, tempFolder);
 	        
-	        final String key = "dtsffffdfsdfsadfsdfewfeasdf";
+	        final String key = "dtsffffdfsdfsdfsdfewfeasdf";
 	        final String value = "ddwerfsadfwefwaefwfawfewsadfsad4";
-	        final String key2 = "werffdsfasfsdfsfsdfasadfasdff";
+	        final String key2 = "dtsffffdfsdfsadfsdfewfeasdf";
 	        final String value2 = "saasdfasdfdfasdfaewasfsadfasfdadscasdfasdfasdfsdfg";
 	        final String key3 = "adatiwefwwawfwfdfdsgdfgsdgasddfsds";
 	        String returnValue;

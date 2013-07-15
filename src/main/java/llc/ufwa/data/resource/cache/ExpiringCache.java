@@ -206,14 +206,14 @@ public class ExpiringCache<Key, Value> implements Cache<Key, Value>{
     }
 
     @Override
-    public void clear() {
+    public void clear() throws ResourceException {
         
         this.internal.clear();
         
     }
 
     @Override
-    public void remove(Key key) {
+    public void remove(Key key) throws ResourceException {
         
         if(key == null) {
             throw new NullPointerException("<ExpiringCache><8>, Key cannot be null");
@@ -224,7 +224,7 @@ public class ExpiringCache<Key, Value> implements Cache<Key, Value>{
     }
 
     @Override
-    public void put(Key key, Value value) {
+    public void put(Key key, Value value) throws ResourceException {
         
         if(key == null) {
             throw new NullPointerException("<ExpiringCache><9>, Key cannot be null");
@@ -243,7 +243,7 @@ public class ExpiringCache<Key, Value> implements Cache<Key, Value>{
         
     }
     
-    private boolean cleanup(long currentTime) {
+    private boolean cleanup(long currentTime) throws ResourceException  {
             
         
         

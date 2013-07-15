@@ -117,7 +117,12 @@ public class BatchingParallelResourceLoaderTest {
                                     final ResourceEvent<String> value
                                 ) {
                                     
-                                    cache.put(key, "lkjdslkjeiodckdslkdjsflkcmwe;eoiweorcomeiooaijoeckmo" + i);
+                                    try {
+                                        cache.put(key, "lkjdslkjeiodckdslkdjsflkcmwe;eoiweorcomeiooaijoeckmo" + i);
+                                    } catch (ResourceException e) {
+                                        // TODO Auto-generated catch block
+                                        e.printStackTrace();
+                                    }
                                     return false;
                                     
                                 }
@@ -164,7 +169,12 @@ public class BatchingParallelResourceLoaderTest {
                         final int rando2 = rand.nextInt();
                         final String key = String.valueOf(rand.nextInt());
 
-                        cache.put(key, String.valueOf(rando2) + "dchvjhgvggvjgvghvjhjgvhgfcgfjgsdfghjkdfgvhjsdfghsdfghsdfg");
+                        try {
+                            cache.put(key, String.valueOf(rando2) + "dchvjhgvggvjgvghvjhjgvhgfcgfjgsdfghjkdfgvhjsdfghsdfghsdfg");
+                        } catch (ResourceException e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        }
                         
                         try {
                             TestCase.assertEquals(cache.get(key), String.valueOf(rando2) + "dchvjhgvggvjgvghvjhjgvhgfcgfjgsdfghjkdfgvhjsdfghsdfghsdfg");
@@ -173,7 +183,12 @@ public class BatchingParallelResourceLoaderTest {
                             e.printStackTrace();
                         }
                         
-                        cache.remove(key);
+                        try {
+                            cache.remove(key);
+                        } catch (ResourceException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
                         
                     }
                      
@@ -182,7 +197,12 @@ public class BatchingParallelResourceLoaderTest {
                     for (int y=0; y < size; y++) {  
                         
                         keys2.add(String.valueOf(y));
-                        cache.put(String.valueOf(y), y + "asdfghjsdfghjksdfghjkdfghjdfghjdfgbhjsdfghjsdfghjsdfghjdfghjdfghjksdfghjdfghjdfgh");
+                        try {
+                            cache.put(String.valueOf(y), y + "asdfghjsdfghjksdfghjkdfghjdfghjdfgbhjsdfghjsdfghjsdfghjdfghjdfghjksdfghjdfghjdfgh");
+                        } catch (ResourceException e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        }
                         
                         try {
                             cache.get(String.valueOf(y));

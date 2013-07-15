@@ -25,7 +25,6 @@ public class HitFlagger {
         
         hits.add(new Hit(System.currentTimeMillis()));
         
-        System.out.println("hitsSize " + hits.size());
         
         if(hits.size() >= count) {
             
@@ -35,11 +34,9 @@ public class HitFlagger {
             
             for(final Hit hit : hits) {
                 
-                System.out.println("time " + (System.currentTimeMillis() - hit.getTime()));
                 //if hit is within the duration keep it. Otherwise remove it
                 if(System.currentTimeMillis() - hit.getTime() > duration) {
                     
-                    System.out.println("removing " + hit);
                     allInDuration = false;
                     toRemove.add(hit);
                     

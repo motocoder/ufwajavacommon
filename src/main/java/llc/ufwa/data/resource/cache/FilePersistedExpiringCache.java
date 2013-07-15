@@ -314,14 +314,14 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
     }
 
     @Override
-    public void clear() {
+    public void clear() throws ResourceException {
         
         this.internal.clear();
         
     }
 
     @Override
-    public void remove(String key) {
+    public void remove(String key) throws ResourceException  {
         
         if(key == null) {
             throw new NullPointerException("<ExpiringCache><8>, Key cannot be null");
@@ -332,7 +332,7 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
     }
 
     @Override
-    public void put(String key, InputStream value) {
+    public void put(String key, InputStream value) throws ResourceException  {
         
         if(key == null) {
             throw new NullPointerException("<ExpiringCache><9>, Key cannot be null");

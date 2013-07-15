@@ -424,6 +424,13 @@ public class FileHashTest {
             return returnVal;
             
         }
+
+        @Override
+        public void eraseBlobs(int blobIndex) throws HashBlobException {
+            
+            internal.eraseBlobs(blobIndex);
+            
+        }
     }
     
     private void checkFileEmpty(final File root) {

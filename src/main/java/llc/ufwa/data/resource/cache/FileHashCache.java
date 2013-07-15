@@ -22,9 +22,14 @@ public class FileHashCache implements Cache<String, InputStream> {
         this.dataFolder = dataFolder;
         this.tempFolder = tempFolder;
         
-        final FileHashDataManager<String> manager = new FileHashDataManager<String>(dataFolder, tempFolder, new SerializingConverter<String>());
-        hash = new FileHash<String, InputStream>(dataFolder, manager, 1000);
+        dataFolder.mkdirs();
         
+        final File managerDataFile = new File(dataFolder, "data");
+        final File hashFile = new File(dataFolder, "hash");
+        
+        final FileHashDataManager<String> manager = new FileHashDataManager<String>(managerDataFile, tempFolder, new SerializingConverter<String>());
+        hash = new FileHash<String, InputStream>(hashFile, manager, 1000);
+
     }
     @Override
     public boolean exists(String key) throws ResourceException {
@@ -50,16 +55,8 @@ public class FileHashCache implements Cache<String, InputStream> {
     }
 
     @Override
-    public void clear() {
-    	
-        dataFolder.delete();
-        dataFolder.getParentFile().mkdirs();
-        tempFolder.delete();
-        tempFolder.mkdirs();
-        
-        final FileHashDataManager<String> manager = new FileHashDataManager<String>(dataFolder, tempFolder, new SerializingConverter<String>());
-        hash = new FileHash<String, InputStream>(dataFolder, manager, 1000);
-        
+    public void clear() throws ResourceException {
+        hash.clear();        
     }
 
     @Override

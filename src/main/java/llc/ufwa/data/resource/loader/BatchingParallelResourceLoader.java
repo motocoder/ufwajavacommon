@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import llc.ufwa.concurrency.Callback;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.cache.Cache;
@@ -24,6 +27,8 @@ import llc.ufwa.util.CollectionUtil;
  */
 
 public class BatchingParallelResourceLoader<Key, Value> implements ParallelResourceLoader<Key, Value> {
+    
+    private static final Logger logger = LoggerFactory.getLogger(BatchingParallelResourceLoader.class);
     
     private final ParallelResourceLoader<Key, Value> internal;
     private final int batchSize;
@@ -231,17 +236,23 @@ public class BatchingParallelResourceLoader<Key, Value> implements ParallelResou
                                 if(key == chunkKey || key.equals(chunkKey)) {
                                     onComplete.call( value);
                                 }
-                                
-                                if(value.getVal() != null && value.getValueType() == ResourceEvent.NEW_LOADED) {
-                                    
-                                    cache.put(chunkKey, value.getVal());
-                                    searchCache.put(chunkKey, true);
-                                    
-                                }
-                                else {
-                                    if(value.getThrowable() == null && value.getValueType() == ResourceEvent.NEW_LOADED) {
-                                        searchCache.put(chunkKey, false);
+                                try {
+                                    if(value.getVal() != null && value.getValueType() == ResourceEvent.NEW_LOADED) {
+                                        
+                                        cache.put(chunkKey, value.getVal());
+                                        
+                                        searchCache.put(chunkKey, true);
+                                        
                                     }
+                                    else {
+                                        if(value.getThrowable() == null && value.getValueType() == ResourceEvent.NEW_LOADED) {
+                                            searchCache.put(chunkKey, false);
+                                        }
+                                    }
+                                
+                                } 
+                                catch (ResourceException e) {
+                                    logger.error("ERROR with cache stuff", e);
                                 }
                                 
                                 return false;
