@@ -414,12 +414,13 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
             }
             
             /**
+             * @throws ResourceException 
              * 
              * 
              */
 
             @Override
-            public void clear() {
+            public void clear() throws ResourceException {
                 
                 for(final CacheLoaderPair<Key, Value> pair : pairs2) {
                     pair.getSearchCache().clear();
@@ -434,7 +435,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
              */
 
             @Override
-            public void remove(Key key) {
+            public void remove(Key key) throws ResourceException {
 
                 for(final CacheLoaderPair<Key, Value> pair : pairs2) {
                     pair.getSearchCache().remove(key);
@@ -540,7 +541,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
              */
 
             @Override
-            public void clear() {
+            public void clear() throws ResourceException {
                 
                 for(final CacheLoaderPair<Key, Value> pair : pairs2) {
                     pair.getCache().clear();
@@ -556,7 +557,7 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
              */
 
             @Override
-            public void remove(Key key) {
+            public void remove(Key key) throws ResourceException {
                 
                 for(final CacheLoaderPair<Key, Value> pair : pairs2) {
                     pair.getCache().remove(key);
@@ -886,7 +887,12 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                             ) {
                                 
                             	if(value.getThrowable() == null) {
-                            		searchCache.put(key, value.getVal() != null && value.getVal());
+                            		try {
+                                        searchCache.put(key, value.getVal() != null && value.getVal());
+                                    }
+                            		catch (ResourceException e) {
+                                        logger.error("ERROR:", e);
+                                    }
                             	}
                                 
                                 onComplete.call(value);
@@ -1189,11 +1195,21 @@ public class CachedParallelResourceLoader<Key, Value> implements ParallelResourc
                             ) {
                                 
                             	if(value.getThrowable() == null) {
-                            		searchCache.put(key, value.getVal() != null);
+                            		try {
+                                        searchCache.put(key, value.getVal() != null);
+                                    } 
+                            		catch (ResourceException e) {
+                                        logger.error("ERROR", e);
+                                    }
                             	}
                                 
                                 if(value.getVal() != null) {
-                                    cache.put(key, value.getVal());
+                                    try {
+                                        cache.put(key, value.getVal());
+                                    }
+                                    catch (ResourceException e) {
+                                        logger.error("ERROR", e);
+                                    }
                                 }
                                 
                                 onComplete.call(value);

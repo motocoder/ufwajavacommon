@@ -30,17 +30,17 @@ public class SynchronizedCache<Key, Value> implements Cache<Key, Value> {
     }
 
     @Override
-    public synchronized void clear() {
+    public synchronized void clear() throws ResourceException {
         internal.clear();
     }
 
     @Override
-    public synchronized void remove(Key key) {
+    public synchronized void remove(Key key) throws ResourceException {
         internal.remove(key);
     }
 
     @Override
-    public synchronized void put(Key key, Value value) {
+    public synchronized void put(Key key, Value value) throws ResourceException {
         internal.put(key, value);    
     }
 

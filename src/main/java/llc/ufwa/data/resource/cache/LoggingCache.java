@@ -68,7 +68,7 @@ public class LoggingCache<Key, Value> implements Cache<Key, Value> {
     }
 
     @Override
-    public void clear() {
+    public void clear() throws ResourceException {
         
         final StopWatch watch = new StopWatch();
         watch.start();
@@ -80,7 +80,7 @@ public class LoggingCache<Key, Value> implements Cache<Key, Value> {
     }
 
     @Override
-    public void remove(Key key) {
+    public void remove(Key key) throws ResourceException {
         
         final StopWatch watch = new StopWatch();
         watch.start();
@@ -92,7 +92,7 @@ public class LoggingCache<Key, Value> implements Cache<Key, Value> {
     }
 
     @Override
-    public void put(Key key, Value value) {
+    public void put(Key key, Value value) throws ResourceException {
         
         final StopWatch watch = new StopWatch();
         watch.start();

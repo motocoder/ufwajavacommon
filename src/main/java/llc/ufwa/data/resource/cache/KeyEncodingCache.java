@@ -92,17 +92,17 @@ public class KeyEncodingCache<Value> implements Cache<String, Value> {
     }
 
     @Override
-    public void clear() {
+    public void clear() throws ResourceException {
         this.internal.clear();
     }
 
     @Override
-    public void remove(String key) {
+    public void remove(String key) throws ResourceException {
         this.internal.remove(key);
     }
 
     @Override
-    public void put(String key, Value value) {
+    public void put(String key, Value value) throws ResourceException {
         this.internal.put(key, value);
     }
 

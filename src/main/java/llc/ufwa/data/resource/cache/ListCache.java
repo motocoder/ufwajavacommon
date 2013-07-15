@@ -189,7 +189,7 @@ public class ListCache<Key, Value> implements Cache<Key, Value> {
     }
 
     @Override
-    public void clear() {
+    public void clear() throws ResourceException {
         
         for(final Cache<Key, Value> cache : caches) {
             cache.clear();
@@ -198,7 +198,7 @@ public class ListCache<Key, Value> implements Cache<Key, Value> {
     }
 
     @Override
-    public void remove(Key key) {
+    public void remove(Key key) throws ResourceException {
         
         if(key == null) {
             throw new NullPointerException("<ListCache><8>, key cannot be null");
@@ -211,7 +211,7 @@ public class ListCache<Key, Value> implements Cache<Key, Value> {
     }
 
     @Override
-    public void put(Key key, Value value) {
+    public void put(Key key, Value value) throws ResourceException {
         
         if(key == null) {
             throw new NullPointerException("<ListCache><9>, key cannot be null");

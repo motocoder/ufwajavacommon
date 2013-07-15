@@ -78,7 +78,7 @@ public class KeyConvertingCache<Key, OldKey, Value> implements Cache<Key, Value>
 	}
 
 	@Override
-	public void clear() {
+	public void clear() throws ResourceException {
 		internal.clear();
 	}
 

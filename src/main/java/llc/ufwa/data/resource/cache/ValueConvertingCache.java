@@ -92,12 +92,12 @@ public class ValueConvertingCache<Key, Value, OldValue> implements Cache<Key, Va
     }
 
     @Override
-    public void clear() {
+    public void clear() throws ResourceException {
         internal.clear();
     }
 
     @Override
-    public void remove(Key key) {
+    public void remove(Key key) throws ResourceException {
         internal.remove(key);
     }
 

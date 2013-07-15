@@ -167,7 +167,12 @@ public class KeyConvertingCacheTest {
 		TestCase.assertFalse(expectedFile.exists());
 		
 		// and clear()
-		testCacheWithFileCache.clear();
+		try {
+            testCacheWithFileCache.clear();
+        } catch (ResourceException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 		TestCase.assertFalse(expectedFile2.exists());
 		
 	}

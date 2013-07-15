@@ -260,8 +260,10 @@ public class FileCacheTest {
 
 		}
 		catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
+			TestCase.fail();
+		} catch (ResourceException e) {
+		    TestCase.fail();
+        }
 
 		try {
 
@@ -321,7 +323,10 @@ public class FileCacheTest {
 		}
 		catch (InterruptedException e1) {
 			TestCase.fail();
-		}
+		} catch (ResourceException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
 		try {
 
@@ -373,10 +378,13 @@ public class FileCacheTest {
 		}
 		catch (RuntimeException e1) {
 			// This exception was expected.
-		}
+		} catch (ResourceException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
 		root.delete();
-
+		try {
 		// Now put a file and delete it externally.
 		cache.put("deleteme", TEN_BYTES);
 		try {Thread.sleep(5);} catch (Exception e){System.out.println(e);}
@@ -385,7 +393,7 @@ public class FileCacheTest {
 		File fileToDelete = new File(root, "deleteme");
 		fileToDelete.delete();
 
-		try {
+		
 			TestCase.assertNull(cache.get("deleteme"));
 		} catch (Exception e){
 			TestCase.fail();
@@ -545,13 +553,14 @@ public class FileCacheTest {
 			int randomIndex;
 			while(runTask)
 			{
+			    try {
 				//Do a random put and get with the cache.
 				randomIndex = (int)(Math.random()*5);
 				cache.put(keys[randomIndex], TEN_BYTES);
 				
 				try {Thread.sleep(10);} catch (Exception e){}
 				
-				try {
+				
 					randomIndex = (int)(Math.random()*5);
 					cache.get(keys[randomIndex]);
 				} catch (Exception e) {

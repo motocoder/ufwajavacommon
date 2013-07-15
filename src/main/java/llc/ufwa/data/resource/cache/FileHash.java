@@ -327,7 +327,8 @@ public class FileHash<Key, Value> {
       
         int hashedIndex = limitedHash * (BUCKET_SIZE); //multiply by bucket size so we know index.
         
-        System.out.println(limitedHash + "     " + hashedIndex + "     " + key.hashCode());
+        logger.debug("put key " + key);
+        logger.debug(limitedHash + "     " + hashedIndex + "     " + key.hashCode());
      
         try {
           
@@ -358,6 +359,9 @@ public class FileHash<Key, Value> {
                        toWrite.addAll(blobs);
                    }
                    
+               }
+               else {
+                   logger.debug("blobIndex was " + blobIndex);
                }
                
                //if this key was already in the bucket remove it.
@@ -430,6 +434,9 @@ public class FileHash<Key, Value> {
     
         int hashedIndex = limitedHash * (BUCKET_SIZE); //determine byte index
         
+        logger.debug("get key " + key);
+        logger.debug(limitedHash + "     " + hashedIndex + "     " + key.hashCode());
+        
         try {
         
             final RandomAccessFile random = new RandomAccessFile(file, "rws");
@@ -442,6 +449,8 @@ public class FileHash<Key, Value> {
              
                 //read in key at this hash location.
                 final int read = random.read(currentKeyIn);
+                
+                logger.debug("read " + read);
              
                 if(read <= 0) { //file should have been initialized to hash size
                     throw new RuntimeException("hash was not initialized properly");
@@ -450,6 +459,8 @@ public class FileHash<Key, Value> {
                 //convert the values read into an index
                 int blobIndex = converter.convert(currentKeyIn);
              
+                logger.debug("blob Index " + blobIndex);
+                
                 Value returnVal = null;
                
                 if(blobIndex >= 0) {
@@ -457,7 +468,11 @@ public class FileHash<Key, Value> {
                     //if there is values on this hash
                     final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
                     
+                    logger.debug("blobs " + blobs);
+                    
                     if(blobs == null) { //data corrupt lets remove our reference.
+                    	
+                    	logger.warn("data corrupt at " + blobIndex);
                         
                         final byte[] bytesIndex = converter.restore(-1);
                         
@@ -466,6 +481,8 @@ public class FileHash<Key, Value> {
                         
                     }
                     else {
+                    	
+                    	logger.debug("data not corrupt");
                  
                         for(Entry<Key, Value> blob : blobs) {
                            
@@ -584,9 +601,10 @@ public class FileHash<Key, Value> {
                        logger.debug("removing not null");
                        
                        blobs.remove(removing);
-                       blobManager.setBlobs(blobIndex, blobs);
                        
                        if(blobs.size() == 0) {
+                           
+                           blobManager.eraseBlobs(blobIndex);
                            
                            //if blobs is empty, remove the hash as well.
                            
@@ -597,6 +615,10 @@ public class FileHash<Key, Value> {
                            random.seek(hashedIndex);
                            random.write(bytesIndex); 
                            
+                       }
+                       else {
+                           
+                           blobManager.setBlobs(blobIndex, blobs);
                        }
                        
                    }
@@ -631,6 +653,84 @@ public class FileHash<Key, Value> {
             logger.error("failed hash blob", e);
             throw new RuntimeException("failed hash blob", e);
         
+        }
+        
+    }
+    
+    private void delete(int hashedIndex) {
+        
+        try {
+        
+            final RandomAccessFile random = new RandomAccessFile(file, "rws");
+          
+            try {
+            
+               final byte [] currentKeyIn = new byte[4];
+               random.seek(hashedIndex);
+             
+               //read in key at this hash location.
+               final int read = random.read(currentKeyIn);
+             
+               if(read <= 0) {
+                   throw new RuntimeException("hash was not initialized properly");
+               }
+             
+               //convert to an index
+               int blobIndex = converter.convert(currentKeyIn);
+               
+               //if there is a value on this hash, retrieve its value
+               if(blobIndex >= 0) {
+                           
+                   blobManager.eraseBlobs(blobIndex);
+                   
+                   //if blobs is empty, remove the hash as well.
+                   
+                   logger.debug("blobs size 0");
+                   
+                   final byte[] bytesIndex = converter.restore(-1);
+                 
+                   random.seek(hashedIndex);
+                   random.write(bytesIndex); 
+
+               }
+             
+            }
+            finally {
+                random.close();
+            }
+          
+        }
+        catch (FileNotFoundException e) {
+        
+            logger.error("file not found in fileHash putHash", e);
+            throw new RuntimeException("failed hash blob", e);
+        } 
+        catch (IOException e) {
+        
+            logger.error("io exception in fileHash putHash", e);
+            throw new RuntimeException("failed hash blob", e);
+        
+        } 
+        catch (ResourceException e) {
+         
+            logger.error("failed to convert in putHash", e);
+            throw new RuntimeException("failed hash blob", e);
+        
+        } 
+        catch (HashBlobException e) {
+        
+            logger.error("failed hash blob", e);
+            throw new RuntimeException("failed hash blob", e);
+        
+        }
+    }
+
+    public void clear() {
+        
+        for(int i = 0; i < hashSize; i++) {
+            
+            logger.debug("deleting " + (i * (BUCKET_SIZE)));
+            delete(i * (BUCKET_SIZE));            
         }
         
     }
