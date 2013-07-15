@@ -28,7 +28,7 @@ public class FileCacheTest {
 		File root = new File("./target/test-files/temp1/");
 		deleteRoot(root);
 
-		// TODO: add test case for putting a value that's too big for the cache.  
+		// TODO: add test case for putting a value that's too big for the cache.
 
 		try {
 

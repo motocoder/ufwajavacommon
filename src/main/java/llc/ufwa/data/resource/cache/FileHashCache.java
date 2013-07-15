@@ -25,7 +25,7 @@ public class FileHashCache implements Cache<String, InputStream> {
     }
     @Override
     public boolean exists(String key) throws ResourceException {
-        return hash.get(key) != null;
+    	return hash.get(key) != null;
     }
 
     @Override

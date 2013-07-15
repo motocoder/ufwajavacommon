@@ -326,6 +326,8 @@ public class FileHash<Key, Value> {
         final int limitedHash = Math.abs(key.hashCode()) % hashSize; //limit the hash size to our hash
       
         int hashedIndex = limitedHash * (BUCKET_SIZE); //multiply by bucket size so we know index.
+        
+        System.out.println(limitedHash + "     " + hashedIndex + "     " + key.hashCode());
      
         try {
           
@@ -491,9 +493,7 @@ public class FileHash<Key, Value> {
           
         }
         catch (FileNotFoundException e) {
-        
-            logger.error("file not found in fileHash putHash", e);
-            throw new RuntimeException("failed hash blob", e);
+            return null;
         } 
         catch (IOException e) {
         
