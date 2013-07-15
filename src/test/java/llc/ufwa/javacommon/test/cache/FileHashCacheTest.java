@@ -32,23 +32,23 @@ public class FileHashCacheTest {
 	
 	}
 	
-	@Test 
-    public void testFileHashCacheMultiThreaded() {
-		
-		for (int x = 0; x < 15; x++) {
-			 new Thread() {
-	                
-	                @Override
-	                public void run() {
-	                	
-            			universalTest();
-	                	
-	                }
-	                
-			 }.start();
-		}
-	
-	}
+//	@Test 
+//    public void testFileHashCacheMultiThreaded() {
+//		
+//		for (int x = 0; x < 15; x++) {
+//			 new Thread() {
+//	                
+//	                @Override
+//	                public void run() {
+//	                	
+//            			universalTest();
+//	                	
+//	                }
+//	                
+//			 }.start();
+//		}
+//	
+//	}
 	
 	public void universalTest() {
 		
@@ -62,11 +62,11 @@ public class FileHashCacheTest {
 	        
 	        final FileHashCache cache = new FileHashCache(dataFolder, tempFolder);
 	        
-	        final String key = "dtsffffdfasdf";
-	        final String value = "ddwerfsadfsadfsad4";
-	        final String key2 = "werffadfasdff";
-	        final String value2 = "salajflfasdwefdfg";
-	        final String key3 = "adatiddfsds";
+	        final String key = "dtsffffdfsdfsadfsdfewfeasdf";
+	        final String value = "ddwerfsadfwefwaefwfawfewsadfsad4";
+	        final String key2 = "werffdsfasfsdfsfsdfasadfasdff";
+	        final String value2 = "saasdfasdfdfasdfaewasfsadfasfdadscasdfasdfasdfsdfg";
+	        final String key3 = "adatiwefwwawfwfdfdsgdfgsdgasddfsds";
 	        String returnValue;
 	        
 	        // TEST PUT, GET, REMOVE, and EXISTS
