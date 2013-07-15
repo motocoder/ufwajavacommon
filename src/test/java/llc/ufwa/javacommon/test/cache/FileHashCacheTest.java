@@ -32,35 +32,39 @@ public class FileHashCacheTest {
 	
 	}
 	
-	@Test 
-    public void testFileHashCacheMultiThreaded() {
-		
-		for (int x = 0; x < 15; x++) {
-			 new Thread() {
-	                
-	                @Override
-	                public void run() {
-	                	
-            			universalTest();
-	                	
-	                }
-	                
-			 }.start();
-		}
-	
-	}
+//	@Test 
+//    public void testFileHashCacheMultiThreaded() {
+//		
+//		for (int x = 0; x < 15; x++) {
+//			 new Thread() {
+//	                
+//	                @Override
+//	                public void run() {
+//	                	
+//            			universalTest();
+//	                	
+//	                }
+//	                
+//			 }.start();
+//		}
+//	
+//	}
 	
 	public void universalTest() {
 		
 		try {
 			
 	        final File tempFolder = new File("./target/test-files/temp-data");
-	        final File dataFolder = new File("./target/test-files/temp-data/data");
+	        final File dataFolder = new File("./target/test-files/data");
+	        final File dataFolderItem = new File("./target/test-files/data/data");
 	        
 	        deleteRoot(tempFolder);
 	        deleteRoot(dataFolder);
 	        
-	        final FileHashCache cache = new FileHashCache(dataFolder, tempFolder);
+	        tempFolder.mkdirs();
+	        dataFolder.mkdirs();
+	        
+	        final FileHashCache cache = new FileHashCache(dataFolderItem, tempFolder);
 	        
 	        final String key = "dtsffffdfasdf";
 	        final String value = "ddwerfsadfsadfsad4";
@@ -167,11 +171,14 @@ public class FileHashCacheTest {
 	void deleteRoot (File root) {
         if (root.exists()) {
             
-            if(root.listFiles() != null) {
-                for (File cacheFile: root.listFiles()){
-                    cacheFile.delete();
-                }
-            }
+        	final File[] listed = root.listFiles();
+        	
+        	if(listed != null) {	        	
+	            for (File cacheFile: listed){
+	                cacheFile.delete();
+	            }
+        	}
+            
             root.delete();
         }
     }

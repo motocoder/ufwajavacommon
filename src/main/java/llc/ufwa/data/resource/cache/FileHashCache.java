@@ -10,8 +10,9 @@ import llc.ufwa.data.resource.SerializingConverter;
 
 public class FileHashCache implements Cache<String, InputStream> {
 
-    private final FileHash<String, InputStream> hash;
+    private FileHash<String, InputStream> hash;
     private final File dataFolder;
+	private final File tempFolder;
 
     public FileHashCache(
         final File dataFolder,
@@ -19,6 +20,8 @@ public class FileHashCache implements Cache<String, InputStream> {
     ) {
         
         this.dataFolder = dataFolder;
+        this.tempFolder = tempFolder;
+        
         final FileHashDataManager<String> manager = new FileHashDataManager<String>(dataFolder, tempFolder, new SerializingConverter<String>());
         hash = new FileHash<String, InputStream>(dataFolder, manager, 1000);
         
@@ -48,9 +51,14 @@ public class FileHashCache implements Cache<String, InputStream> {
 
     @Override
     public void clear() {
-        
+    	
         dataFolder.delete();
-        dataFolder.mkdirs();
+        dataFolder.getParentFile().mkdirs();
+        tempFolder.delete();
+        tempFolder.mkdirs();
+        
+        final FileHashDataManager<String> manager = new FileHashDataManager<String>(dataFolder, tempFolder, new SerializingConverter<String>());
+        hash = new FileHash<String, InputStream>(dataFolder, manager, 1000);
         
     }
 

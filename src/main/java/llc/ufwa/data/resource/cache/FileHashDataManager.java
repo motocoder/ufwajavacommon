@@ -527,7 +527,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             
             for(final Entry<Key, File> temp : tempFiles) {
                 
-                temp.getValue().deleteOnExit();
+//                temp.getValue().deleteOnExit();
                 
                 returnVals.add(
                     new DefaultEntry<Key, InputStream>(
@@ -722,12 +722,15 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             final File tempFile;
             
             try {
+            	
                 tempFile = new File(this.tempFileDirectory, idProvider.provide());
+                tempFile.deleteOnExit();
+                
             } 
             catch (ResourceException e1) {
                 throw new HashBlobException("failed to get temp file name");
             }
-            
+
             tempFiles.add(new DefaultEntry<Key, File>(entry.getKey(), tempFile));
             
             try {
@@ -738,11 +741,11 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     StreamUtil.copyTo(entry.getValue(), output);
                 }
                 finally {
-                    
                     output.close();
-                    
-                    tempFile.deleteOnExit();
-                    
+                }
+                
+                if(!tempFile.exists()) { //dont remove this, doesn't allocate file if you don't.
+                	throw new RuntimeException("Failed to allocate temp file");
                 }
                 
                 final byte [] keyData = keySerializer.convert(entry.getKey()); 
@@ -752,6 +755,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 totalSize += 8; //fill int and key length
                 
                 keyDatas.put(entry.getKey(), keyData);
+                
+                
                 
             }
             catch (IOException e) {
@@ -911,6 +916,10 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     random.write(sizeBytes);
                     
                     //TODO check value just written.
+                    
+                    if(!tempFile.getValue().exists()) {
+                    	throw new RuntimeException("file doesn't exist " + tempFile.getValue().getAbsolutePath());
+                    }
                     
                     final FileInputStream input = new FileInputStream(tempFile.getValue());
                     
