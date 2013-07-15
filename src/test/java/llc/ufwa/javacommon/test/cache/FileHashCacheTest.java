@@ -72,9 +72,9 @@ public class FileHashCacheTest {
 	        
 	        final FileHashCache cache = new FileHashCache(dataFolderItem, tempFolder);
 	        
-	        final String key = "dtsffffdfsdfsdfsdfewfeasdf";
+	        final String key = "dtsffffdfsjhgjnvdfsddfssdffsdfewfeasdf";
 	        final String value = "ddwerfsadfwefwaefwfawfewsadfsad4";
-	        final String key2 = "dtsffffdfsdfsadfsdfewfeasdf";
+	        final String key2 = "dtsffffdfsjhgjnvdfsddfsasdeasdf";
 	        final String value2 = "saasdfasdfdfasdfaewasfsadfasfdadscasdfasdfasdfsdfg";
 	        final String key3 = "adatiwefwwawfwfdfdsgdfgsdgasddfsds";
 	        String returnValue;
@@ -146,6 +146,10 @@ public class FileHashCacheTest {
 	
 	// convert InputStream to String
 	private static String getStringFromInputStream(InputStream is) {
+	    
+	    if(is == null) {
+	        throw new NullPointerException("InputStream is null");
+	    }
  
 		BufferedReader br = null;
 		StringBuilder sb = new StringBuilder();

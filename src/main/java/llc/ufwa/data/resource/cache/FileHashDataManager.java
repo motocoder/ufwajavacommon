@@ -363,6 +363,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 
                 if(segLength < -1 || segLength == 0 || segLength > random.length()) { 
                     
+                    logger.debug("bad data " + random.length());
                     //This segment was not initialized properly, it is bad we need to never attempt to use it, delete
                     throw new BadDataException();
                     
@@ -372,22 +373,30 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 
                 //while we approach the end
                 while(dataRead + 4 < segLength) {
+                    
+                    logger.debug("dataRead " + (dataRead + 4));
 
                     final File tempFile = new File(tempFileDirectory, this.idProvider.provide());
                      
                     final int fill;
                     
-                    random.read(intIn); //read the key length
+                    final int readCount = random.read(intIn); //read the key length
+                    
+                    logger.debug("readCount " + readCount);
                     
                     dataRead += 4;
                     
                     fill = converter.convert(intIn);
                     
+                    logger.debug("key lenght " + fill);
+                    
                     if(dataRead == 4 && fill < 0) { //return null if there is nothing here, we do this for empty segments
+                        logger.debug("nothing here to read");
                         return null;
                     }
                     
                     if(dataRead > 4 && fill < 0) { //segment was short recycled one. we are done
+                        logger.debug("breaking recycle");
                         break;
                         
                     }
@@ -904,7 +913,24 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     throw new HashBlobException("invalid index");
                 }
               
-                random.seek(writtingIndex + 4 + 4); //skip the length
+                final byte [] currentKeyIn = new byte[4];
+                random.seek(writtingIndex);
+                
+                final int segLength;
+                
+                {
+                    
+                    random.read(currentKeyIn);
+                    
+                    segLength = converter.convert(currentKeyIn);
+                    
+                    logger.debug("seg length of writting " + segLength);
+                  
+                }
+                
+                random.seek(writtingIndex + 4 + 4);
+                
+                 //skip the length
                 
                 int totalWritten = 0;
                 
@@ -990,8 +1016,11 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     
                 }
                 
+                logger.debug("totalSize " + totalSize);
+                logger.debug("totalWritten " + totalWritten);
+                
                 //if our segment is bigger than our data by 4 or more bytes, write a terminating -1                
-                if(totalSize >= totalWritten + 4) {
+                if(segLength >= totalWritten + 4) {
                     
                     logger.debug("terminating");
                     
