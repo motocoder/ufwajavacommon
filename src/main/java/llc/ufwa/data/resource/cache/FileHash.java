@@ -394,18 +394,6 @@ public class FileHash<Key, Value> {
                    random.seek(hashedIndex);
                    random.write(bytesIndex);
                    
-                   final byte [] readIndex = new byte [4];
-                   
-                   random.seek(hashedIndex);                   
-                   random.read(readIndex);
-                   
-                   final int readIndexInt = converter.convert(readIndex);
-                   
-                   if(blobIndexAfterSet != readIndexInt) {
-                       throw new CorruptedDataException("read value != written value");
-                   }
-                   
-                   
                }
                
             }
@@ -571,17 +559,6 @@ public class FileHash<Key, Value> {
                        random.seek(hashedIndex);
                        random.write(bytesIndex); 
                        
-                       final byte [] readIndex = new byte [4];
-                       
-                       random.seek(hashedIndex);                   
-                       random.read(readIndex);
-                       
-                       final int readIndexInt = converter.convert(readIndex);
-                       
-                       if(-1 != readIndexInt) {
-                           throw new CorruptedDataException("read value != written value");
-                       }
-                       
                    }
                    else {
                  
@@ -620,18 +597,7 @@ public class FileHash<Key, Value> {
                          
                            random.seek(hashedIndex);
                            random.write(bytesIndex); 
-                           
-                           final byte [] readIndex = new byte [4];
-                           
-                           random.seek(hashedIndex);                   
-                           random.read(readIndex);
-                           
-                           final int readIndexInt = converter.convert(readIndex);
-                           
-                           if(-1 != readIndexInt) {
-                               throw new CorruptedDataException("read value != written value");
-                           }
-                           
+                                                      
                        }
                        else {
                            
@@ -703,17 +669,6 @@ public class FileHash<Key, Value> {
                    random.seek(hashedIndex);
                    random.write(bytesIndex); 
                    
-                   final byte [] readIndex = new byte [4];
-                   
-                   random.seek(hashedIndex);                   
-                   random.read(readIndex);
-                   
-                   final int readIndexInt = converter.convert(readIndex);
-                   
-                   if(-1 != readIndexInt) {
-                       throw new CorruptedDataException("read value != written value");
-                   }
-
                }
              
             }
