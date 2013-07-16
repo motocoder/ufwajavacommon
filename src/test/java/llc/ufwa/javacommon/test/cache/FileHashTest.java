@@ -292,110 +292,122 @@ public class FileHashTest {
     @Test
     public void testHashing() {
         
-        final File root = new File("./target/test-files/temp-hash/");
-        deleteRoot(root);
-        
-        final FileHash<String, String> hash = new FileHash<String, String>(root, new FakeHashManagerImpl<String, String>(), 1000);
-        
-        checkFileEmpty(root);
-        
-        final int TEST_COUNT = 10;
-        
-        for(int i = 0; i < TEST_COUNT; i++) {
-        
-            hash.put(String.valueOf(i), String.valueOf(i));
+        try {
             
-            final String seg = hash.get(String.valueOf(i));
+            final File root = new File("./target/test-files/temp-hash/");
+            deleteRoot(root);
             
-            TestCase.assertNotNull("i not null " + i, seg);
+            final FileHash<String, String> hash = new FileHash<String, String>(root, new FakeHashManagerImpl<String, String>(), 1000);
             
-            TestCase.assertEquals(String.valueOf(i), seg);
+            checkFileEmpty(root);
             
+            final int TEST_COUNT = 10;
+            
+            for(int i = 0; i < TEST_COUNT; i++) {
+            
+                hash.put(String.valueOf(i), String.valueOf(i));
+                
+                final String seg = hash.get(String.valueOf(i));
+                
+                TestCase.assertNotNull("i not null " + i, seg);
+                
+                TestCase.assertEquals(String.valueOf(i), seg);
+                
+            }
+            
+            TestCase.assertNull(hash.get(String.valueOf(TEST_COUNT + 1)));
+            
+            for(int i = 0; i < TEST_COUNT; i++) {
+                hash.remove(String.valueOf(i));            
+            }
+            
+            for(int i = 0; i < TEST_COUNT; i++) {
+                
+                final String val = hash.get(String.valueOf(i));
+                
+                TestCase.assertNull(val);
+                
+            }
+            
+            checkFileEmpty(root);
+            
+            deleteRoot(root);
+            
+        } 
+        catch (HashBlobException e) {
+            TestCase.fail();
         }
-        
-        TestCase.assertNull(hash.get(String.valueOf(TEST_COUNT + 1)));
-        
-        for(int i = 0; i < TEST_COUNT; i++) {
-            hash.remove(String.valueOf(i));            
-        }
-        
-        for(int i = 0; i < TEST_COUNT; i++) {
-            
-            final String val = hash.get(String.valueOf(i));
-            
-            TestCase.assertNull(val);
-            
-        }
-        
-        checkFileEmpty(root);
-        
-        deleteRoot(root);
         
     }
     
     @Test
     public void testRealHashing() {
         
-        final File root = new File("./target/test-files/temp-hash/");
-        final File tempFolder = new File("./target/test-files/temp-data");
-        final File dataFolder = new File("./target/test-files/temp-data/data");
-        
-        deleteRoot(root);
-        deleteRoot(tempFolder);
-        deleteRoot(dataFolder);
-        
-        final HashDataManager<String, InputStream> manager = new LoggingManager(new FileHashDataManager<String>(dataFolder, tempFolder, new SerializingConverter<String>()));
-        
-        final FileHash<String, InputStream> hash = new FileHash<String, InputStream>(root, manager, 1000);
-        
-        checkFileEmpty(root);
-        
-        final int TEST_COUNT = 100;
-        
-        for(int i = 0; i < TEST_COUNT; i++) {
-        
-            final ByteArrayInputStream input = new ByteArrayInputStream(String.valueOf(i).getBytes());
+        try {
+            final File root = new File("./target/test-files/temp-hash/");
+            final File tempFolder = new File("./target/test-files/temp-data");
+            final File dataFolder = new File("./target/test-files/temp-data/data");
             
-            hash.put(String.valueOf(i), input);
+            deleteRoot(root);
+            deleteRoot(tempFolder);
+            deleteRoot(dataFolder);
             
-            final InputStream segInput = hash.get(String.valueOf(i));
+            final HashDataManager<String, InputStream> manager = new LoggingManager(new FileHashDataManager<String>(dataFolder, tempFolder, new SerializingConverter<String>()));
             
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            final FileHash<String, InputStream> hash = new FileHash<String, InputStream>(root, manager, 1000);
             
-            try {
-                StreamUtils.copy(segInput, out);
+            checkFileEmpty(root);
+            
+            final int TEST_COUNT = 100;
+            
+            for(int i = 0; i < TEST_COUNT; i++) {
+            
+                final ByteArrayInputStream input = new ByteArrayInputStream(String.valueOf(i).getBytes());
+                
+                hash.put(String.valueOf(i), input);
+                
+                final InputStream segInput = hash.get(String.valueOf(i));
+                
+                final ByteArrayOutputStream out = new ByteArrayOutputStream();
+                
+                try {
+                    StreamUtils.copy(segInput, out);
+                }
+                catch(IOException e) {
+                    TestCase.fail();
+                }
+                
+                final String seg = new String(out.toByteArray());
+                
+                TestCase.assertNotNull("i not null " + i, seg);
+                
+                TestCase.assertEquals(String.valueOf(i), seg);
+                
             }
-            catch(IOException e) {
-                TestCase.fail();
+            
+            TestCase.assertNull(hash.get(String.valueOf(TEST_COUNT + 1)));
+            
+            for(int i = 0; i < TEST_COUNT; i++) {
+                hash.remove(String.valueOf(i));            
             }
             
-            final String seg = new String(out.toByteArray());
+            for(int i = 0; i < TEST_COUNT; i++) {
+                
+                final InputStream segInput = hash.get(String.valueOf(i));
+                
+                TestCase.assertNull(segInput);
+                
+            }
             
-            TestCase.assertNotNull("i not null " + i, seg);
+            checkFileEmpty(root);
             
-            TestCase.assertEquals(String.valueOf(i), seg);
-            
+            deleteRoot(root);
+            deleteRoot(tempFolder);
+            deleteRoot(dataFolder);
+        } 
+        catch (HashBlobException e) {
+            TestCase.fail();
         }
-        
-        TestCase.assertNull(hash.get(String.valueOf(TEST_COUNT + 1)));
-        
-        for(int i = 0; i < TEST_COUNT; i++) {
-            hash.remove(String.valueOf(i));            
-        }
-        
-        for(int i = 0; i < TEST_COUNT; i++) {
-            
-            final InputStream segInput = hash.get(String.valueOf(i));
-            
-            TestCase.assertNull(segInput);
-            
-        }
-        
-        checkFileEmpty(root);
-        
-        deleteRoot(root);
-        deleteRoot(tempFolder);
-        deleteRoot(dataFolder);
         
     }
     
