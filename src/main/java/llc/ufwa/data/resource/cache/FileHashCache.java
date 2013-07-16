@@ -5,11 +5,18 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import llc.ufwa.data.exception.CorruptedDataException;
+import llc.ufwa.data.exception.HashBlobException;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.SerializingConverter;
 
 public class FileHashCache implements Cache<String, InputStream> {
 
+    private static final Logger logger = LoggerFactory.getLogger(FileHashCache.class);
+    
     private FileHash<String, InputStream> hash;
     private final File dataFolder;
 	private final File tempFolder;
@@ -33,12 +40,42 @@ public class FileHashCache implements Cache<String, InputStream> {
     }
     @Override
     public boolean exists(String key) throws ResourceException {
-    	return hash.get(key) != null;
+    	
+        try {
+            return hash.get(key) != null;
+        }
+    	catch(CorruptedDataException e) {
+    	    
+    	    logger.error("CORRUPTED DATA, CLEARING", e);
+    	    clear();
+    	    
+    	    return false;
+    	    
+    	}
+    	catch (HashBlobException e) {
+            throw new ResourceException("ERROR", e);
+        }
+        
     }
 
     @Override
     public InputStream get(String key) throws ResourceException {
-        return hash.get(key);
+        
+        try {
+            return hash.get(key);
+        } 
+        catch(CorruptedDataException e) {
+            
+            logger.error("CORRUPTED DATA, CLEARING", e);
+            clear();
+            
+            return null;
+            
+        }
+        catch (HashBlobException e) {
+            throw new ResourceException("ERROR", e);
+        }
+        
     }
 
     @Override
@@ -47,7 +84,20 @@ public class FileHashCache implements Cache<String, InputStream> {
         final List<InputStream> returnVals = new ArrayList<InputStream>();
         
         for(final String key : keys) {
-            returnVals.add(hash.get(key));            
+            try {
+                returnVals.add(hash.get(key));
+            }
+            catch(CorruptedDataException e) {
+                
+                logger.error("CORRUPTED DATA, CLEARING", e);
+                clear();
+                
+                return null;
+                
+            }
+            catch (HashBlobException e) {
+                throw new ResourceException("ERROR", e);
+            }         
         }
         
         return returnVals;
@@ -56,17 +106,54 @@ public class FileHashCache implements Cache<String, InputStream> {
 
     @Override
     public void clear() throws ResourceException {
-        hash.clear();        
+        
+        try {
+            hash.clear();
+        } 
+        catch (HashBlobException e) {
+            throw new ResourceException("ERROR", e);
+        } 
+        
     }
 
     @Override
-    public void remove(String key) {
-        hash.remove(key);        
+    public void remove(String key) throws ResourceException {
+        
+        try {
+            hash.remove(key);
+        }
+        catch(CorruptedDataException e) {
+            
+            logger.error("CORRUPTED DATA, CLEARING", e);
+            clear();
+            
+            return;
+            
+        }
+        catch (HashBlobException e) {
+            throw new ResourceException("ERROR", e);
+        }
+        
     }
 
     @Override
-    public void put(String key, InputStream value) {
-        hash.put(key, value);        
+    public void put(String key, InputStream value) throws ResourceException {
+        
+        try {
+            hash.put(key, value);
+        }
+        catch(CorruptedDataException e) {
+            
+            logger.error("CORRUPTED DATA, CLEARING", e);
+            clear();
+            
+            return;
+            
+        }
+        catch (HashBlobException e) {
+            throw new ResourceException("ERROR", e);
+        }
+        
     }
 
 }

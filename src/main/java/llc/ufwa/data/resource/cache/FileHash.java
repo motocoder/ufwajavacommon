@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import llc.ufwa.data.DefaultEntry;
+import llc.ufwa.data.exception.CorruptedDataException;
 import llc.ufwa.data.exception.HashBlobException;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.ByteArrayIntegerConverter;
@@ -317,11 +318,12 @@ public class FileHash<Key, Value> {
      * 
      * @param key
      * @param blob
+     * @throws HashBlobException 
      */
     public void put(
       final Key key,
       final Value blob
-    ) {
+    ) throws HashBlobException {
         
         final int limitedHash = Math.abs(key.hashCode()) % hashSize; //limit the hash size to our hash
       
@@ -392,6 +394,18 @@ public class FileHash<Key, Value> {
                    random.seek(hashedIndex);
                    random.write(bytesIndex);
                    
+                   final byte [] readIndex = new byte [4];
+                   
+                   random.seek(hashedIndex);                   
+                   random.read(readIndex);
+                   
+                   final int readIndexInt = converter.convert(readIndex);
+                   
+                   if(blobIndexAfterSet != readIndexInt) {
+                       throw new CorruptedDataException("read value != written value");
+                   }
+                   
+                   
                }
                
             }
@@ -417,18 +431,12 @@ public class FileHash<Key, Value> {
             throw new RuntimeException("failed hash blob", e);
           
         } 
-        catch (HashBlobException e) {
-          
-            logger.error("failed hash blob", e);
-            throw new RuntimeException("failed hash blob", e);
-          
-        }
             
     }
     
     public Value get(
       final Key key
-    ) {
+    ) throws HashBlobException {
       
         final int limitedHash = Math.abs(key.hashCode()) % hashSize; //limit the hash to our hash size
     
@@ -471,14 +479,7 @@ public class FileHash<Key, Value> {
                     logger.debug("blobs " + blobs);
                     
                     if(blobs == null) { //data corrupt lets remove our reference.
-                    	
-                    	logger.warn("data corrupt at " + blobIndex);
-                        
-                        final byte[] bytesIndex = converter.restore(-1);
-                        
-                        random.seek(hashedIndex);
-                        random.write(bytesIndex); 
-                        
+                        throw new CorruptedDataException("there should have been blobs at blobIndex");
                     }
                     else {
                     	
@@ -510,7 +511,7 @@ public class FileHash<Key, Value> {
           
         }
         catch (FileNotFoundException e) {
-            return null;
+            throw new CorruptedDataException("read value != written value");
         } 
         catch (IOException e) {
         
@@ -524,16 +525,10 @@ public class FileHash<Key, Value> {
             throw new RuntimeException("failed hash blob", e);
         
         } 
-        catch (HashBlobException e) {
         
-            logger.error("failed hash blob", e);
-            throw new RuntimeException("failed hash blob", e);
-        
-        }
-          
     }
 
-    public void remove(Key key) {
+    public void remove(Key key) throws HashBlobException {
         
         logger.debug("removing key " + key);
         
@@ -576,6 +571,17 @@ public class FileHash<Key, Value> {
                        random.seek(hashedIndex);
                        random.write(bytesIndex); 
                        
+                       final byte [] readIndex = new byte [4];
+                       
+                       random.seek(hashedIndex);                   
+                       random.read(readIndex);
+                       
+                       final int readIndexInt = converter.convert(readIndex);
+                       
+                       if(-1 != readIndexInt) {
+                           throw new CorruptedDataException("read value != written value");
+                       }
+                       
                    }
                    else {
                  
@@ -615,6 +621,17 @@ public class FileHash<Key, Value> {
                            random.seek(hashedIndex);
                            random.write(bytesIndex); 
                            
+                           final byte [] readIndex = new byte [4];
+                           
+                           random.seek(hashedIndex);                   
+                           random.read(readIndex);
+                           
+                           final int readIndexInt = converter.convert(readIndex);
+                           
+                           if(-1 != readIndexInt) {
+                               throw new CorruptedDataException("read value != written value");
+                           }
+                           
                        }
                        else {
                            
@@ -648,16 +665,10 @@ public class FileHash<Key, Value> {
             throw new RuntimeException("failed hash blob", e);
         
         } 
-        catch (HashBlobException e) {
-        
-            logger.error("failed hash blob", e);
-            throw new RuntimeException("failed hash blob", e);
-        
-        }
-        
+                
     }
     
-    private void delete(int hashedIndex) {
+    private void delete(int hashedIndex) throws HashBlobException {
         
         try {
         
@@ -691,6 +702,17 @@ public class FileHash<Key, Value> {
                  
                    random.seek(hashedIndex);
                    random.write(bytesIndex); 
+                   
+                   final byte [] readIndex = new byte [4];
+                   
+                   random.seek(hashedIndex);                   
+                   random.read(readIndex);
+                   
+                   final int readIndexInt = converter.convert(readIndex);
+                   
+                   if(-1 != readIndexInt) {
+                       throw new CorruptedDataException("read value != written value");
+                   }
 
                }
              
@@ -717,15 +739,10 @@ public class FileHash<Key, Value> {
             throw new RuntimeException("failed hash blob", e);
         
         } 
-        catch (HashBlobException e) {
-        
-            logger.error("failed hash blob", e);
-            throw new RuntimeException("failed hash blob", e);
-        
-        }
+
     }
 
-    public void clear() {
+    public void clear() throws HashBlobException {
         
         for(int i = 0; i < hashSize; i++) {
             
