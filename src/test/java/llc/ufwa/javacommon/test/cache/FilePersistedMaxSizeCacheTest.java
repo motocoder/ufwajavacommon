@@ -233,11 +233,21 @@ public class FilePersistedMaxSizeCacheTest {
 	}
 	
 	void deleteRoot (File root) {
+	    
 		if (root.exists()) {
-			for (File cacheFile: root.listFiles()){
-				cacheFile.delete();
-			}
+		    
+		    final File[] fileList = root.listFiles();
+		    
+		    if(fileList != null) {
+		        
+    			for (File cacheFile : fileList){
+    				cacheFile.delete();
+    			}
+    			
+		    }
+		    
 			root.delete();
+			
 		}
 	}
 	
