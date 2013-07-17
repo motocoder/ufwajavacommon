@@ -51,9 +51,7 @@ public class FilePersistedMaxSizeCacheTest {
         final Cache<String, String> fileCache = 
             new ValueConvertingCache<String, String, byte []>(
                 new ValueConvertingCache<String, byte [], InputStream>(
-                    new KeyEncodingCache<InputStream>(
-                        diskCache
-                        ),
+                        diskCache,
                         new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
                     ),
                     new SerializingConverter<String>()
@@ -159,9 +157,7 @@ public class FilePersistedMaxSizeCacheTest {
 			final Cache<String, String> fileCache = 
 				new ValueConvertingCache<String, String, byte []>(
 					new ValueConvertingCache<String, byte [], InputStream>(
-						new KeyEncodingCache<InputStream>(
-							diskCache
-							),
+							diskCache,
 							new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
 						),
 						new SerializingConverter<String>()
