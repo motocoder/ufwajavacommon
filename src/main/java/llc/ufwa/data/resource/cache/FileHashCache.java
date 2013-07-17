@@ -17,19 +17,18 @@ public class FileHashCache implements Cache<String, InputStream> {
 
     private static final Logger logger = LoggerFactory.getLogger(FileHashCache.class);
     
-    private FileHash<String, InputStream> hash;
-    private final File dataFolder;
-	private final File tempFolder;
+    private final FileHash<String, InputStream> hash;
 
     public FileHashCache(
         final File dataFolder,
         final File tempFolder
     ) {
         
-        this.dataFolder = dataFolder;
-        this.tempFolder = tempFolder;
-        
         dataFolder.mkdirs();
+        
+        if(!dataFolder.isDirectory()) {
+            throw new IllegalArgumentException("Invalid data folder");
+        }
         
         final File managerDataFile = new File(dataFolder, "data");
         final File hashFile = new File(dataFolder, "hash");
