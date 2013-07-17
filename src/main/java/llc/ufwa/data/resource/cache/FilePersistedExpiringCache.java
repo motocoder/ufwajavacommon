@@ -80,7 +80,7 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
             
         	LinkedList<Entry<String, Long>> lastUpdated;
             
-            if(persisting.get(LAST_UPDATED_KEY) == null) { //TODO
+            if(persisting.get(LAST_UPDATED_KEY) == null) {
                 
                 lastUpdated = new LinkedList<Entry<String, Long>>();
                 persisting.put(LAST_UPDATED_KEY, DataUtils.serialize(lastUpdated));
@@ -110,7 +110,7 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
         }
         
         final long time = System.currentTimeMillis();
-        final long lastUpdatedTime;            
+        final long lastUpdatedTime;
         final boolean wasPerformed = this.cleanup(time);
         
         final byte [] temp = this.persisting.get(LAST_UPDATED_PRE_KEY + key);
