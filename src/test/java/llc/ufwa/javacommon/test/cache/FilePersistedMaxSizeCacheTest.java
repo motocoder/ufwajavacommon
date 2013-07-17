@@ -43,7 +43,7 @@ public class FilePersistedMaxSizeCacheTest {
 	                    	
 			                    converter,
 			    				
-			    				36
+			    				36 //the size of two "TEN_BYTES_STRING"'s
 		    				);
 		
 		/*final FileCache diskCache = new FileCache(root, 36, 50000);
@@ -91,6 +91,8 @@ public class FilePersistedMaxSizeCacheTest {
 		}
 
 		try {
+			
+			//there's only space for two strings, others shouldn't exist
 			
 			TestCase.assertNull(cache.get("1"));
 			TestCase.assertNull(cache.get("2"));
@@ -218,7 +220,6 @@ public class FilePersistedMaxSizeCacheTest {
         
 		}
 		catch (ResourceException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

@@ -70,11 +70,9 @@ public class FilePersistedExpiringCacheTest {
 			
 		}
 		catch (ResourceException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	
@@ -115,7 +113,7 @@ public class FilePersistedExpiringCacheTest {
 			int suffix = random.nextInt(4000);
 			
 	        final File dataFolder = new File("./target/test-files/temp");
-	        final File tempFolder = new File("./target/test-files/temp/data" + String.valueOf(suffix));
+	        final File tempFolder = new File("./target/test-files/temp/data" + String.valueOf(suffix)); //append random number onto the end of the folder so multithreading works
 	        
 	        deleteRoot(tempFolder);
 	
@@ -183,7 +181,6 @@ public class FilePersistedExpiringCacheTest {
         
 		}
 		catch (ResourceException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
