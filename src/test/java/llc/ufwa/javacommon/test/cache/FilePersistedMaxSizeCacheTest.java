@@ -1,18 +1,27 @@
 package llc.ufwa.javacommon.test.cache;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.Converter;
+import llc.ufwa.data.resource.InputStreamConverter;
 import llc.ufwa.data.resource.IntegerStringConverter;
+import llc.ufwa.data.resource.ReverseConverter;
+import llc.ufwa.data.resource.SerializingConverter;
+import llc.ufwa.data.resource.StringSizeConverter;
 import llc.ufwa.data.resource.cache.Cache;
 import llc.ufwa.data.resource.cache.ExpiringCache;
+import llc.ufwa.data.resource.cache.FileCache;
+import llc.ufwa.data.resource.cache.FileHashCache;
 import llc.ufwa.data.resource.cache.FilePersistedMaxSizeCache;
+import llc.ufwa.data.resource.cache.KeyEncodingCache;
 import llc.ufwa.data.resource.cache.MemoryCache;
 import llc.ufwa.data.resource.cache.SynchronizedCache;
+import llc.ufwa.data.resource.cache.ValueConvertingCache;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -29,35 +38,34 @@ public class FilePersistedMaxSizeCacheTest {
 	@Test
 	public void testMaxSizePart() {
 
-		final Converter<Integer, String> converter = new IntegerStringConverter();
+		final Converter<Integer, String> converter = new ReverseConverter<Integer, String>(new StringSizeConverter());
 		
 		deleteRoot(root);
 		
-		final Cache<String, String> cache = new FilePersistedMaxSizeCache<String>(
-							new SynchronizedCache<String, String>(
-			                    new ExpiringCache<String, String>(
-			                        new MemoryCache<String, String>()
-			                    ,
-			                    100,
-			                    100)),
-	                    	
-			                    converter,
-			    				
-			    				36 //the size of two "TEN_BYTES_STRING"'s
-		    				);
-		
-		/*final FileCache diskCache = new FileCache(root, 36, 50000);
-		final Cache<String, String> cache = 
-			new ValueConvertingCache<String, String, byte []>(
-				new ValueConvertingCache<String, byte [], InputStream>( 
-					new KeyEncodingCache<InputStream>(
-						diskCache
-						),
-						new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
-					),
-					new SerializingConverter<String>()
-				);*/
-		
+		final File dataFolder = new File(root, "data");
+        final File tempFolder = new File(root, "temp");
+        final File persistingFolder = new File(root, "persisting");
+        
+        final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+        
+        final Cache<String, String> fileCache = 
+            new ValueConvertingCache<String, String, byte []>(
+                new ValueConvertingCache<String, byte [], InputStream>(
+                    new KeyEncodingCache<InputStream>(
+                        diskCache
+                        ),
+                        new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+                    ),
+                    new SerializingConverter<String>()
+                );
+            
+        final Cache<String, String> cache =
+            new FilePersistedMaxSizeCache<String>(
+                persistingFolder,
+                fileCache,
+                converter,
+                1000
+            );
 
 		try {
 			
@@ -91,8 +99,6 @@ public class FilePersistedMaxSizeCacheTest {
 		}
 
 		try {
-			
-			//there's only space for two strings, others shouldn't exist
 			
 			TestCase.assertNull(cache.get("1"));
 			TestCase.assertNull(cache.get("2"));
@@ -142,33 +148,33 @@ public class FilePersistedMaxSizeCacheTest {
 
 			deleteRoot(root);
 			
-			final Converter<Integer, String> converter = new IntegerStringConverter();
+			final Converter<Integer, String> converter = new ReverseConverter<Integer, String>(new StringSizeConverter());
 			
-			final Cache<String, String> cache = new FilePersistedMaxSizeCache<String>(
-								new SynchronizedCache<String, String>(
-				                    new ExpiringCache<String, String>(
-				                        new MemoryCache<String, String>()
-				                    ,
-				                    100,
-				                    100)),
-		                    	
-				                    converter,
-				    				
-				    				1000
-			    				);
+			final File dataFolder = new File(root, "data");
+	        final File tempFolder = new File(root, "temp");
+	        final File persistingFolder = new File(root, "persisting");
+	        
+			final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
 			
-			/*final FileCache diskCache = new FileCache(root, 1000, 50000);
-			
-			final Cache<String, String> cache = 
+			final Cache<String, String> fileCache = 
 				new ValueConvertingCache<String, String, byte []>(
-					new ValueConvertingCache<String, byte [], InputStream>( 
+					new ValueConvertingCache<String, byte [], InputStream>(
 						new KeyEncodingCache<InputStream>(
 							diskCache
 							),
 							new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
 						),
 						new SerializingConverter<String>()
-					);*/
+					);
+				
+			final Cache<String, String> cache =
+                new FilePersistedMaxSizeCache<String>(
+                    persistingFolder,
+                    fileCache,
+                    converter,
+                    1000
+                );
+			
 			
 			final String key = "dfsa";
 	        final String value = "dfsadsf";
@@ -220,6 +226,7 @@ public class FilePersistedMaxSizeCacheTest {
         
 		}
 		catch (ResourceException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
