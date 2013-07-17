@@ -80,7 +80,7 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
             
         	LinkedList<Entry<String, Long>> lastUpdated;
             
-            if(DataUtils.deserialize(persisting.get(LAST_UPDATED_KEY)) == null) {
+            if(persisting.get(LAST_UPDATED_KEY) == null) { //TODO
                 
                 lastUpdated = new LinkedList<Entry<String, Long>>();
                 persisting.put(LAST_UPDATED_KEY, DataUtils.serialize(lastUpdated));
@@ -157,7 +157,7 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
             
         }
         else { //cleanup was performed in this cycle we don't need to check again.
-            returnVal = internal.exists(key);
+            returnVal = internal.get(key) != null;
         }
         
         return returnVal;
@@ -390,6 +390,10 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
             
         final LinkedList<Entry<String, Long>> lastUpdated;
         
+        if (persisting.get(LAST_UPDATED_KEY) == null) {
+        	return true;
+        }
+        
         try {
             lastUpdated = DataUtils.deserialize(persisting.get(LAST_UPDATED_KEY));
         } 
@@ -405,9 +409,15 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
             throw new ResourceException("error putting last 1");
             
         }
+        catch (NullPointerException e) {
+        	
+        	logger.error("ERROR PUTTING LAST UPDATED 3", e);
+            throw new ResourceException("error putting last 1");
+            
+        }
         catch (ResourceException e) {
             
-            logger.error("ERROR PUTTING LAST UPDATED 3", e);
+            logger.error("ERROR PUTTING LAST UPDATED 4", e);
             throw new ResourceException("error putting last 1");
             
         }
