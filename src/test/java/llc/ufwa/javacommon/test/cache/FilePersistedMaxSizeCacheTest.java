@@ -104,12 +104,6 @@ public class FilePersistedMaxSizeCacheTest {
 
 		try {
 			
-			System.out.println(cache.exists("1"));
-			System.out.println(cache.exists("2"));
-			System.out.println(cache.exists("3"));
-			System.out.println(cache.exists("4"));
-			System.out.println(cache.exists("5"));
-			
 			TestCase.assertFalse(cache.exists("1"));
 			TestCase.assertNull(cache.get("2"));
 			TestCase.assertNull(cache.get("3"));
@@ -132,30 +126,6 @@ public class FilePersistedMaxSizeCacheTest {
 	@Test 
     public void testFilePersistedExpiringCacheTest() {
 		
-		for (int x = 0; x < 10; x++) {
-			universalTest();
-		}
-	
-	}
-	
-	@Test 
-    public void testFilePersistedExpiringCacheTestMultiThreaded() {
-		
-		for (int x = 0; x < 15; x++) {
-			 new Thread() {
-	                
-	                @Override
-	                public void run() {
-	                	universalTest();
-	                }
-	                
-			 }.start();
-		}
-	
-	}
-	
-	public void universalTest() {
-
 		try {
 
 			Random random = new Random();
