@@ -36,6 +36,124 @@ public class FilePersistedMaxSizeCacheTest {
 	private static final byte [] TEN_BYTES = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 	
 	@Test
+	public void testPersistedPart() {
+		
+		Random random = new Random();
+		String appendix = String.valueOf(Math.abs(random.nextInt()));
+		
+		File root2 = new File("./target/test-files/temp" + appendix + "/");
+		
+		deleteRoot(root2);
+		
+		final Converter<Integer, String> converter = new ReverseConverter<Integer, String>(new StringSizeConverter());
+		
+		final File dataFolder = new File(root2, "data");
+        final File tempFolder = new File(root2, "temp");
+        final File persistingFolder = new File(root2, "persisting");
+        
+		FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+		
+		Cache<String, String> fileCache = 
+			new ValueConvertingCache<String, String, byte []>(
+				new ValueConvertingCache<String, byte [], InputStream>(
+						diskCache,
+						new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+					),
+					new SerializingConverter<String>()
+				);
+			
+		Cache<String, String> cache =
+            new FilePersistedMaxSizeCache<String>(
+                persistingFolder,
+                fileCache,
+                converter,
+                150
+            );
+
+		try {
+			
+			cache.clear();
+			
+			final String TEN_BYTES_STRING = new String(TEN_BYTES);
+			
+			cache.put("1", TEN_BYTES_STRING);
+
+			Thread.sleep(100);
+
+			cache.put("2", TEN_BYTES_STRING);
+
+			TestCase.assertNotNull(cache.get("1"));
+			TestCase.assertNotNull(cache.get("2"));
+			
+			cache = null;
+			fileCache = null;
+			diskCache = null;
+			
+			Thread.sleep(500);
+			
+			TestCase.assertNull(cache);
+
+			diskCache = new FileHashCache(dataFolder, tempFolder);
+			
+			fileCache = 
+				new ValueConvertingCache<String, String, byte []>(
+					new ValueConvertingCache<String, byte [], InputStream>(
+							diskCache,
+							new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+						),
+						new SerializingConverter<String>()
+					);
+				
+			cache =
+	            new FilePersistedMaxSizeCache<String>(
+	                persistingFolder,
+	                fileCache,
+	                converter,
+	                125
+	            );
+			
+			TestCase.assertTrue(cache.exists("1"));
+			TestCase.assertNotNull(cache.get("2"));
+			
+			cache.put("3", TEN_BYTES_STRING);
+
+			Thread.sleep(50);
+
+			cache.put("4", TEN_BYTES_STRING);
+
+			Thread.sleep(50);
+
+			cache.put("5", TEN_BYTES_STRING);
+
+		}
+		catch (InterruptedException e1) {
+			e1.printStackTrace();
+		} 
+		catch (ResourceException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			
+			TestCase.assertFalse(cache.exists("1"));
+			TestCase.assertNull(cache.get("2"));
+			TestCase.assertNotNull(cache.get("3"));
+			TestCase.assertNotNull(cache.get("4"));
+			TestCase.assertNotNull(cache.get("5"));
+
+		} 
+		catch (ResourceException e) {
+
+			TestCase.fail("cant get here");
+			e.printStackTrace();
+
+		}
+		
+		deleteRoot(root2);
+		
+	}
+	
+	@Test
 	public void testMaxSizePart() {
 		
 		Random random = new Random();
