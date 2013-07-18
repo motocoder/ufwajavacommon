@@ -77,32 +77,7 @@ public class FilePersistedExpiringCacheTest {
 		}
     	
     }
-    
-	@Test 
-    public void testFilePersistedExpiringCacheTest() {
-		
-		for (int x = 0; x < 10; x++) {
-			universalTest();
-		}
-	
-	}
-	
-	@Test 
-    public void testFilePersistedExpiringCacheTestMultiThreaded() {
-		
-		for (int x = 0; x < 15; x++) {
-			 new Thread() {
-	                
-	                @Override
-	                public void run() {
-	                	universalTest();
-	                }
-	                
-			 }.start();
-		}
-	
-	}
-	
+    	
 	public void universalTest() {
 
 		try {
