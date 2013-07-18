@@ -40,7 +40,7 @@ public class FileHashTest {
         
         final File root = new File("./target/test-files/temp-hash/");
         final File tempFolder = new File("./target/test-files/temp-data");
-        final File dataFolder = new File("./target/test-files/temp-data/data");
+        final File dataFolder = new File("./target/test-files/data/data");
         
         deleteRoot(root);
         deleteRoot(tempFolder);
@@ -344,9 +344,10 @@ public class FileHashTest {
     public void testRealHashing() {
         
         try {
+            
             final File root = new File("./target/test-files/temp-hash/");
             final File tempFolder = new File("./target/test-files/temp-data");
-            final File dataFolder = new File("./target/test-files/temp-data/data");
+            final File dataFolder = new File("./target/test-files/data/data");
             
             deleteRoot(root);
             deleteRoot(tempFolder);

@@ -310,14 +310,21 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
         final File tempFileDirectory,
         final Converter<Key, byte []> keySerializer
     ) { 
+        if(!new File(root.getParent()).exists()) {
+            new File(root.getParent()).mkdirs();            
+        }
         
         if(root.isDirectory()) {
             throw new RuntimeException("file location must not be a directory " + root);
         }
         
+        tempFileDirectory.delete();
+        
         if(!tempFileDirectory.exists()) {
             tempFileDirectory.mkdirs();
         }
+        
+        tempFileDirectory.deleteOnExit();
         
         if(!tempFileDirectory.isDirectory()) {
             throw new RuntimeException("file location must be a directory " + tempFileDirectory);
@@ -508,7 +515,10 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                             
                         }
                         finally {
+                            
                             out.close();
+                            tempFile.deleteOnExit();
+                            
                         }
                     }
                     
@@ -535,8 +545,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             final Set<Entry<Key, InputStream>> returnVals = new HashSet<Entry<Key, InputStream>>();
             
             for(final Entry<Key, File> temp : tempFiles) {
-                
-                temp.getValue().deleteOnExit();
                 
                 returnVals.add(
                     new DefaultEntry<Key, InputStream>(

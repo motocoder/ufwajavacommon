@@ -182,12 +182,11 @@ public class FilePersistedExpiringCacheTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			try {
+				is.close();
+			} 
+			catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
  
