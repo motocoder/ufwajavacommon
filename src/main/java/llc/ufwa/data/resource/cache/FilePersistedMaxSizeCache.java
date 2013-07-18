@@ -137,12 +137,8 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
         internal.put(key, value);
         
         final LinkedData topKey = (LinkedData) persistCache.get("topKey");
-
-    	System.out.println("Current Size: " + currentSize + ", Max Size: " + maxSize + ", Putting " + key);
         
         if(topKey == null) {
-
-        	System.out.println("topkey");
 
             final LinkedData myLinkedData = new LinkedData(key, null, null);
                     
@@ -151,8 +147,6 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
             
         }
         else {
-        	
-        	System.out.println("here");
             
             final LinkedData myLinkedData = new LinkedData(key, topKey.getMyKey(), null);
             
@@ -164,8 +158,6 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
             final LinkedData bottom = (LinkedData) this.persistCache.get("bottomKey");
             
             if (bottom.getKeyAfter() == null) {
-            	
-            	System.out.println(bottom.getMyKey());
             
 	            final LinkedData newBottom = new LinkedData(bottom.getMyKey(), null, key);
 	            
@@ -180,9 +172,7 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
             while(this.currentSize > this.maxSize) {
                  
                 final LinkedData bottom = (LinkedData) this.persistCache.get("bottomKey");
-                
-                System.out.println(bottom.getMyKey() + "   " + internal.exists(bottom.getMyKey()));
-                
+               
                 final LinkedData afterBottom = (LinkedData) this.persistCache.get("linked:" + bottom.getKeyAfter()); 
                 
                 final Value valueRemoving = internal.get(bottom.getMyKey());
