@@ -72,7 +72,7 @@ public class FileHashCacheTest {
 	        
 	        final FileHashCache cache = new FileHashCache(dataFolderItem, tempFolder);
 	        
-	        final String key = "dtsffffdfsjhgjnvdfsddfssdffsdfewfeasdf";
+	        final String key = "dtsffffdfsjlkjkhgjnvdfsdlklkjldfssdffsdfewfeasdf";
 	        final String value = "ddwerfsadfwefwaefwfawfewsadfsad4";
 	        final String key2 = "dtsffffdfsjhgjnvdfsddfsasdeasdf";
 	        final String value2 = "saasdfasdfdfasdfaewasfsadfasfdadscasdfasdfasdfsdfg";
