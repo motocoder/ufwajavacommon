@@ -520,7 +520,7 @@ public class FileHash<Key, Value> {
         
         logger.debug("removing key " + key);
         
-        final int limitedHash = key.hashCode() % hashSize; //limit the hash size
+        final int limitedHash = Math.abs(key.hashCode()) % hashSize; //limit the hash size
         
         int hashedIndex = limitedHash * (BUCKET_SIZE); 
         
