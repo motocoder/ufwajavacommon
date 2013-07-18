@@ -30,30 +30,9 @@ public class FileHashCacheTest {
 	
 	@Test 
     public void testFileHashCache() {
-		
-		//for (int x = 0; x < 10; x++) {
-			universalTest();
-		//}
-	
+		universalTest();	
 	}
 	
-//	@Test 
-//    public void testFileHashCacheMultiThreaded() {
-//		
-//		for (int x = 0; x < 15; x++) {
-//			 new Thread() {
-//	                
-//	                @Override
-//	                public void run() {
-//	                	
-//            			universalTest();
-//	                	
-//	                }
-//	                
-//			 }.start();
-//		}
-//	
-//	}
 	
 	public void universalTest() {
 		

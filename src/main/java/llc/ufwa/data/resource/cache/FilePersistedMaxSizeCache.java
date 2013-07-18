@@ -5,6 +5,9 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.Converter;
 import llc.ufwa.data.resource.InputStreamConverter;
@@ -19,12 +22,13 @@ import llc.ufwa.data.resource.SerializingConverter;
  */
 public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
 
+    private static final Logger logger = LoggerFactory.getLogger(FilePersistedMaxSizeCache.class);
+    
     private final long maxSize;
     private final Cache<String, Value> internal;
     private final Cache<String, Serializable> persistCache;
     private final Converter<Integer, Value> sizeConverter;
     
-    private volatile int currentSize;
     
     /**
      * 
@@ -79,6 +83,17 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
         this.persistCache = cache;
         this.sizeConverter = sizeConverter;
         
+        try {
+            
+            if(!this.persistCache.exists("currentSize")) {
+                this.persistCache.put("currentSize", 0);                
+            }
+            
+        } 
+        catch(ResourceException e) {
+            throw new RuntimeException("could not initialize");
+        }
+        
     }
     
     @Override
@@ -99,10 +114,11 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
     @Override
     public void clear() throws ResourceException {
         
-        this.currentSize = 0;
         this.persistCache.clear();
         
         internal.clear();
+        
+        this.persistCache.put("currentSize", 0);
         
     }
 
@@ -115,7 +131,10 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
             
             final int removingSize = this.sizeConverter.restore(removing);
             
-            this.currentSize -= removingSize;
+            int currentSize = (Integer)this.persistCache.get("currentSize");
+            currentSize -= removingSize;
+            
+            this.persistCache.put("currentSize", currentSize);
             
             internal.remove(key);
             
@@ -131,8 +150,15 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
         }
         
         final int sizeOfAdding = this.sizeConverter.restore(value);
-
-        this.currentSize += sizeOfAdding;
+        
+        {
+            
+            int currentSize = (Integer)this.persistCache.get("currentSize");
+            currentSize += sizeOfAdding;
+            
+            this.persistCache.put("currentSize", currentSize);
+            
+        }
                 
         internal.put(key, value);
         
@@ -168,10 +194,18 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
         }
         
         {
-        	
-            while(this.currentSize > this.maxSize) {
+            int currentSize = (Integer)this.persistCache.get("currentSize");
+           
+            while(currentSize > this.maxSize) {
                  
+                logger.debug("currentSize " + currentSize);
+                logger.debug("maxSize " + maxSize);
+               
                 final LinkedData bottom = (LinkedData) this.persistCache.get("bottomKey");
+                
+                if(bottom == null) {
+                    throw new RuntimeException("Size too big but there is nothing in it?");
+                }
                
                 final LinkedData afterBottom = (LinkedData) this.persistCache.get("linked:" + bottom.getKeyAfter()); 
                 
@@ -181,11 +215,13 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
                    
                     final int size = this.sizeConverter.restore(valueRemoving);
                     
-                    this.currentSize -= size;
+                    currentSize -= size;
                     
                     if(currentSize < 0) {
                         currentSize = 0;
                     }
+                    
+                    this.persistCache.put("currentSize", currentSize);
                     
                     internal.remove(bottom.getMyKey());
                     
@@ -198,6 +234,13 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
                     persistCache.remove("linked:" + bottom.getKeyAfter());
                     
                     persistCache.put("bottomKey", newBottom);
+                    
+                }
+                else {
+                    
+                    if(valueRemoving == null) {
+                        throw new RuntimeException("nothing to remove and nothing in the cache now.");
+                    }
                     
                 }
                 
