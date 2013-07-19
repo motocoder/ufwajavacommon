@@ -25,6 +25,7 @@ import llc.ufwa.util.StreamUtil;
  * @author swagner
  *
  */
+@Deprecated
 public final class FileCache implements Cache<String, InputStream> {
 
 	private final TreeSet<File> sortedFiles = new TreeSet<File>(
