@@ -18,7 +18,7 @@ public class CacheFactory {
      * @param cacheRoot - must be unique to this cache. Can not be any other cache's root directory.
      * @return
      */
-    public static final <Value extends Serializable> Cache<String, Value> getSerializingFileCache(
+    public static final <Value> Cache<String, Value> getSerializingFileCache(
         final int maxSize,
         final int expireTimeout,
         final File cacheRoot,
@@ -59,7 +59,7 @@ public class CacheFactory {
                 (long)(expireTimeout * 2)
             );
         
-        return cache;
+        return new SynchronizedCache<String, Value>(cache);
         
     }
 
