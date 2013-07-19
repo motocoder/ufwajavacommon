@@ -29,7 +29,7 @@ import llc.ufwa.util.DataUtils;
  * @param <Key>
  * @param <Value>
  */
-public class FilePersistedExpiringCache implements Cache<String, InputStream>{
+public class FilePersistedExpiringCache<Value> implements Cache<String, Value>{
     
     private static final Logger logger = LoggerFactory.getLogger(FilePersistedExpiringCache.class);
 //    private final LinkedList<Entry<Key, Long>> lastUpdated = new LinkedList<Entry<Key, Long>>();
@@ -38,14 +38,14 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
     private static final String LAST_UPDATED_KEY = "filePersistedExpiringCache.lastUpdated";
     private static final String LAST_UPDATED_PRE_KEY = "filePersistedExpiringCache.lastUpdated.";
     
-    private final Cache<String, InputStream> internal;
+    private final Cache<String, Value> internal;
     private final long timeout;
     private final ExpiringStates states = new ExpiringStates();
     private final long cleanupTimeout;
     private final Cache<String, byte []> persisting;
 
     public FilePersistedExpiringCache(
-        final Cache<String, InputStream> internal,
+        final Cache<String, Value> internal,
         final Cache<String, InputStream> persistingRoot,
         final long timeout,
         final long cleanupTimeout
@@ -165,7 +165,7 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
     }
 
     @Override
-    public InputStream get(String key) throws ResourceException {
+    public Value get(String key) throws ResourceException {
         
         if(key == null) {
             throw new NullPointerException("<ExpiringCache><5>, Key cannot be null");
@@ -204,7 +204,7 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
             
         }         
         
-        final InputStream returnVal;
+        final Value returnVal;
         
         if(!wasPerformed) { //if cleanup wasn't performed check the individual value for expiration.
             
@@ -214,6 +214,11 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
                 returnVal = internal.get(key);
             }
             else {
+                
+                if(internal.exists(key)) {
+                    internal.remove(key);
+                }
+                
                 returnVal = null;
             }
             
@@ -227,7 +232,7 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
     }
 
     @Override
-    public List<InputStream> getAll(List<String> keys) throws ResourceException {
+    public List<Value> getAll(List<String> keys) throws ResourceException {
         
         if(keys == null) {
             throw new NullPointerException("<ExpiringCache><6>, Keys cannot be null");
@@ -285,6 +290,15 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
             
         }
         
+        //remove expired keys
+        if(expired.size() > 0) {
+            
+            for(final String key : keys) {
+                internal.remove(key);
+            }
+            
+        }
+        
         final List<String> toGet = new ArrayList<String>();
         
         for(final String key : keys) {
@@ -295,15 +309,15 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
             
         }
         
-        final List<InputStream> gotten = internal.getAll(toGet);
+        final List<Value> gotten = internal.getAll(toGet);
         
-        final Map<String, InputStream> finalValues = new HashMap<String, InputStream>();
+        final Map<String, Value> finalValues = new HashMap<String, Value>();
         
         for(int i = 0; i < toGet.size(); i++) {
             finalValues.put(toGet.get(i), gotten.get(i));
         }
         
-        final List<InputStream> finalList = new ArrayList<InputStream>();
+        final List<Value> finalList = new ArrayList<Value>();
         
         for(final String key : keys) {
             finalList.add(finalValues.get(key));
@@ -317,6 +331,7 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
     public void clear() throws ResourceException {
         
         this.internal.clear();
+        this.persisting.clear();
         
     }
 
@@ -332,7 +347,7 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
     }
 
     @Override
-    public void put(String key, InputStream value) throws ResourceException  {
+    public void put(String key, Value value) throws ResourceException  {
         
         if(key == null) {
             throw new NullPointerException("<ExpiringCache><9>, Key cannot be null");
@@ -467,7 +482,6 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
                 if(!toRetain.contains(key)) {
                     
                     internal.remove(key);
-//                    lastUpdatedMap.remove(key);
                     this.persisting.remove(LAST_UPDATED_PRE_KEY + key);
                     
                 }
@@ -500,8 +514,6 @@ public class FilePersistedExpiringCache implements Cache<String, InputStream>{
             return lastCleanup;
         }
         
-        
-   
     }
 
 }
