@@ -19,8 +19,8 @@ public class CacheFactory {
      * @return
      */
     public static final <Value> Cache<String, Value> getSerializingFileCache(
-        final int maxSize,
-        final int expireTimeout,
+        final long maxSize,
+        final long expireTimeout,
         final File cacheRoot,
         final Converter<Integer, Value> sizeConverter
     ) {
@@ -55,8 +55,8 @@ public class CacheFactory {
                     maxSize
                 ),
                 expringPersistDiskCache,
-                (long)expireTimeout,
-                (long)(expireTimeout * 2)
+                expireTimeout,
+                expireTimeout
             );
         
         return new SynchronizedCache<String, Value>(cache);
