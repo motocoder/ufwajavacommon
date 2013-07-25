@@ -2,7 +2,6 @@ package llc.ufwa.data.resource.cache;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.Serializable;
 
 import llc.ufwa.data.resource.Converter;
 import llc.ufwa.data.resource.InputStreamConverter;
@@ -179,5 +178,63 @@ public class CacheFactory {
         return new SynchronizedCache<String, Value>(fileCache);
         
     }
+    
+    public static final <Value> Cache<String, Value> getHashCashFileCache(
+			final File cacheRoot,
+	        final Converter<byte[], InputStream> valueConvertBytesToStream2, 
+	        final Converter<Value, byte[]> valueConvertListToBytes
+    ) {
+		
+		final File dataFolder = new File(cacheRoot, "data");
+        final File tempFolder = new File(cacheRoot, "temp");
+        
+        final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+		
+        final Cache<String, Value> listCache = 
+            	new SynchronizedCache<String, Value>(
+            		new ValueConvertingCache<String, Value, byte[]>(
+            			new ValueConvertingCache<String, byte[], InputStream>(
+            				new KeyEncodingCache<InputStream>(
+            					diskCache
+            				),
+            				valueConvertBytesToStream2
+            			),
+            			valueConvertListToBytes
+            		)
+            	);
+        
+        return listCache;
+        
+	}
+
+	public static final <Value> Cache<Long, Value> getHashCashFileCacheLong(
+			final File cacheRoot,
+	        final Converter<Long, String> sizeConverter, 
+	        final Converter<byte[], InputStream> valueConvertBytesToStream, 
+	        final Converter<Long, String> keyConvertLongToString, 
+	        final Converter<Value, byte[]> valueConvertJobToBytes) {
+		
+		final File dataFolder = new File(cacheRoot, "data");
+        final File tempFolder = new File(cacheRoot, "temp");
+        
+        final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+		
+        final Cache<Long, Value> converted = 
+    			new SynchronizedCache<Long, Value> (
+    					new KeyConvertingCache<Long, String, Value> (
+    						new ValueConvertingCache<String, Value, byte[]> (
+    							new ValueConvertingCache<String, byte[], InputStream> (
+    								diskCache,
+    								valueConvertBytesToStream
+    							),
+    							valueConvertJobToBytes
+    						),
+    						keyConvertLongToString
+    					)
+    				);
+        
+        return converted;
+        
+	}
 
 }
