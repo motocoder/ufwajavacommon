@@ -3,7 +3,6 @@ package llc.ufwa.concurrency;
 import java.util.LinkedList;
 import java.util.concurrent.Executor;
 
-import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
