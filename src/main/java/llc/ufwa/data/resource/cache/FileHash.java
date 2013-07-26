@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.slf4j.LoggerFactory;
+
 import llc.ufwa.data.DefaultEntry;
 import llc.ufwa.data.exception.CorruptedDataException;
 import llc.ufwa.data.exception.HashBlobException;
@@ -19,7 +21,7 @@ import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.ByteArrayIntegerConverter;
 import llc.ufwa.data.resource.Converter;
 
-import org.apache.log4j.Logger;
+
 
 /**
  * 
@@ -246,7 +248,7 @@ END OF TERMS AND CONDITIONS
  */
 public class FileHash<Key, Value> {
     
-    private static final Logger logger = Logger.getLogger(FileHash.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileHash.class);
 
     private final static int BUCKET_SIZE = 4;
     
