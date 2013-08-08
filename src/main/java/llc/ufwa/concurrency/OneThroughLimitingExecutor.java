@@ -61,14 +61,10 @@ public class OneThroughLimitingExecutor implements Executor {
     						    
     						    toRun.run();
     							
-    							logger.debug("if runList.size() >0  push and call startIfAvailable just ran");
-    							
     						} 
     						finally {
     						    
-    							logger.debug("finally rerun startIfAvailable after pop run... before");
     							runList.removeFirst();
-    							logger.debug("finally rerun startIfAvailable after pop run... after");
     							
     							startIfAvailable();
     							
@@ -94,14 +90,13 @@ public class OneThroughLimitingExecutor implements Executor {
 
 				runList.add(command);
 				startIfAvailable();
-				logger.debug("if runList.size() == 0 push and call to startIfAvailable just ran");
+				
 
 			}
 			else if (runList.size() == 1) {
 
 				runList.add(command);
 				startIfAvailable();
-				logger.debug("if runList.size() == 1 add to end of list and call to theQueue() just ran");
 
 			}
 			else if (runList.size() == 2) {
@@ -109,8 +104,7 @@ public class OneThroughLimitingExecutor implements Executor {
 				runList.removeLast();
 				runList.add(command);
 				startIfAvailable();
-				logger.debug("if runList.size() == 2 remove last item in list and add to end of list and call to theQueue() just ran");
-
+				
 			}
 		}
 

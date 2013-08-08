@@ -343,7 +343,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
     @Override
     public Set<Entry<Key, InputStream>> getBlobsAt(int blobIndex) throws HashBlobException {
         
-    	logger.debug("getting blob " + blobIndex);
         try {
             
             final Set<Entry<Key, File>> tempFiles = new HashSet<Entry<Key, File>>();
@@ -366,12 +365,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     segLength = converter.convert(intIn);
                   
                 }
-                
-                logger.debug("get segLength " + segLength);
-                
+                                
                 if(segLength < -1 || segLength == 0 || segLength > random.length()) { 
-                    
-                    logger.debug("bad data " + random.length());
                     //This segment was not initialized properly, it is bad we need to never attempt to use it, delete
                     throw new BadDataException();
                     
@@ -382,31 +377,22 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 //while we approach the end
                 while(dataRead + 4 < segLength) {
                     
-                    logger.debug("dataRead " + (dataRead + 4));
-
                     final File tempFile = new File(tempFileDirectory, this.idProvider.provide());
                      
                     final int fill;
                     
                     final int readCount = random.read(intIn); //read the key length
-                    
-                    logger.debug("readCount " + readCount);
-                    
+                                        
                     dataRead += 4;
                     
                     fill = converter.convert(intIn);
-                    
-                    logger.debug("key lenght " + fill);
-                    
+                                        
                     if(dataRead == 4 && fill < 0) { //return null if there is nothing here, we do this for empty segments
-                        logger.debug("nothing here to read");
                         return null;
                     }
                     
                     if(dataRead > 4 && fill < 0) { //segment was short recycled one. we are done
-                        logger.debug("breaking recycle");
-                        break;
-                        
+                       break;                        
                     }
                     
                     if(fill > segLength) { //corrupt data

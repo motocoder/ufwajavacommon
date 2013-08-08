@@ -67,13 +67,11 @@ public class MultiRunAndQueueExecutor implements Executor {
                                     try {
 
                                         toRun.run();
-                                        logger.debug("if runList.size() >0  push and call startIfAvailable just ran");
 
                                     } finally {
 
-                                        logger.debug("finally rerun startIfAvailable after pop run... before");
+                                        
                                         runList.removeFirst();
-                                        logger.debug("finally rerun startIfAvailable after pop run... after");
 
                                         if (runList.size() < runners && queueList.size() > 0) {
                                             runList.add(queueList.pop());
@@ -105,7 +103,6 @@ public class MultiRunAndQueueExecutor implements Executor {
 
                     runList.add(command);
                     startIfAvailable();
-                    logger.debug("");
 
                 }
                 else if(runList.size() >= runners) {
@@ -113,7 +110,6 @@ public class MultiRunAndQueueExecutor implements Executor {
                     if(queueList.size() < queuers) {
 
                         queueList.add(command);
-                        logger.debug("");
                         
                     }
                     else if(queueList.size() == queuers) {

@@ -103,9 +103,7 @@ public class ClassDataGenerator {
                         if(chunkOut != null && i < chunk * 63000) {
                             
                             final int read = in.read(buffer);
-                            
-                            logger.debug("read " + read);
-                            
+                                                        
                             if(read > 0) {
 
                                 currentChunkSize += read;
@@ -119,9 +117,7 @@ public class ClassDataGenerator {
                                 
                             }
                             else {
-                                
-                                logger.debug("read 0 done");
-                                
+                                                                
                                 chunkOut.write("\";}".getBytes(Charset.forName("UTF-8")));
                                 chunkOut.write(("public int length(){return " + currentChunkSize + ";}}").getBytes(Charset.forName("UTF-8")));
                                 chunkOut.flush();

@@ -469,9 +469,7 @@ public class WebUtil {
             }
             
             final int responseCode = connection.getResponseCode();
-            
-            logger.debug("response code " + responseCode);
-            
+                        
             if(responseCode == 401) {
                 throw new FourOhOneException();
             }
