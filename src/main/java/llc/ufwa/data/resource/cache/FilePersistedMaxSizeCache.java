@@ -198,9 +198,6 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
            
             while(currentSize > this.maxSize) {
                  
-                logger.debug("currentSize " + currentSize);
-                logger.debug("maxSize " + maxSize);
-               
                 final LinkedData bottom = (LinkedData) this.persistCache.get("bottomKey");
                 
                 if(bottom == null) {

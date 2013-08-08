@@ -331,10 +331,7 @@ public class FileHash<Key, Value> {
         final int limitedHash = Math.abs(key.hashCode()) % hashSize; //limit the hash size to our hash
       
         int hashedIndex = limitedHash * (BUCKET_SIZE); //multiply by bucket size so we know index.
-        
-        logger.debug("put key " + key);
-        logger.debug(limitedHash + "     " + hashedIndex + "     " + key.hashCode());
-     
+             
         try {
           
             final RandomAccessFile random = new RandomAccessFile(file, "rws");
@@ -365,10 +362,7 @@ public class FileHash<Key, Value> {
                    }
                    
                }
-               else {
-                   logger.debug("blobIndex was " + blobIndex);
-               }
-               
+                              
                //if this key was already in the bucket remove it.
                Entry<Key, Value> remove = null;
                
@@ -432,10 +426,7 @@ public class FileHash<Key, Value> {
         final int limitedHash = Math.abs(key.hashCode()) % hashSize; //limit the hash to our hash size
     
         int hashedIndex = limitedHash * (BUCKET_SIZE); //determine byte index
-        
-        logger.debug("get key " + key);
-        logger.debug(limitedHash + "     " + hashedIndex + "     " + key.hashCode());
-        
+                
         try {
         
             final RandomAccessFile random = new RandomAccessFile(file, "rws");
@@ -448,9 +439,7 @@ public class FileHash<Key, Value> {
              
                 //read in key at this hash location.
                 final int read = random.read(currentKeyIn);
-                
-                logger.debug("read " + read);
-             
+                             
                 if(read <= 0) { //file should have been initialized to hash size
                     throw new RuntimeException("hash was not initialized properly");
                 }
@@ -458,24 +447,18 @@ public class FileHash<Key, Value> {
                 //convert the values read into an index
                 int blobIndex = converter.convert(currentKeyIn);
              
-                logger.debug("blob Index " + blobIndex);
-                
                 Value returnVal = null;
                
                 if(blobIndex >= 0) {
                  
                     //if there is values on this hash
                     final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
-                    
-                    logger.debug("blobs " + blobs);
-                    
+                                        
                     if(blobs == null) { //data corrupt lets remove our reference.
                         throw new CorruptedDataException("there should have been blobs at blobIndex");
                     }
                     else {
-                    	
-                    	logger.debug("data not corrupt");
-                 
+                    	                 
                         for(Entry<Key, Value> blob : blobs) {
                            
                             if(blob.getKey().equals(key)) {
@@ -520,9 +503,7 @@ public class FileHash<Key, Value> {
     }
 
     public void remove(Key key) throws HashBlobException {
-        
-        logger.debug("removing key " + key);
-        
+                
         final int limitedHash = Math.abs(key.hashCode()) % hashSize; //limit the hash size
         
         int hashedIndex = limitedHash * (BUCKET_SIZE); 
@@ -550,9 +531,7 @@ public class FileHash<Key, Value> {
                if(blobIndex >= 0) {
                  
                    Entry<Key, Value> removing = null;
-                   
-                   logger.debug("blobIndex2 " + blobIndex);
-                   
+                                      
                    final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
                    
                    if(blobs == null) { //data corrupt lets remove our reference.
@@ -566,9 +545,7 @@ public class FileHash<Key, Value> {
                    else {
                  
                        for(Entry<Key, Value> blob : blobs) {
-                           
-                           logger.debug("blob at index " + blob.getKey());
-                           
+                                                      
                            if(blob.getKey().equals(key)) {
                                
                                //once we find a key that matches removed the value
@@ -584,8 +561,6 @@ public class FileHash<Key, Value> {
                    if(removing != null) {
                        
                        //save the blobs after removing the value mapped to our key
-                       logger.debug("removing not null");
-                       
                        blobs.remove(removing);
                        
                        if(blobs.size() == 0) {
@@ -593,9 +568,7 @@ public class FileHash<Key, Value> {
                            blobManager.eraseBlobs(blobIndex);
                            
                            //if blobs is empty, remove the hash as well.
-                           
-                           logger.debug("blobs size 0");
-                           
+                                                      
                            final byte[] bytesIndex = converter.restore(-1);
                          
                            random.seek(hashedIndex);
@@ -664,9 +637,7 @@ public class FileHash<Key, Value> {
                    blobManager.eraseBlobs(blobIndex);
                    
                    //if blobs is empty, remove the hash as well.
-                   
-                   logger.debug("blobs size 0");
-                   
+                                      
                    final byte[] bytesIndex = converter.restore(-1);
                  
                    random.seek(hashedIndex);
@@ -702,9 +673,7 @@ public class FileHash<Key, Value> {
 
     public void clear() throws HashBlobException {
         
-        for(int i = 0; i < hashSize; i++) {
-            
-            logger.debug("deleting " + (i * (BUCKET_SIZE)));
+        for(int i = 0; i < hashSize; i++) {            
             delete(i * (BUCKET_SIZE));            
         }
         

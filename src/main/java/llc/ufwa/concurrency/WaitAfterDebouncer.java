@@ -104,21 +104,15 @@ public class WaitAfterDebouncer {
 	 * Signal the debouncer to execute.
 	 */
 	public synchronized void signal() {
-	
-	    logger.debug("debouncer signaled");
-	    
+		    
 		if(!signalOut) {
-		    
-		    logger.debug("signal wasn't out");
-		    
+		    		    
 		    try {
 		        
 		        synchronized(shouldRun) {
 		            
                     if(shouldRun.provide()) {
-                        
-                        logger.debug("shouldRun");
-                    
+                                            
                         shouldRun.push(false);
                         
                     	signalOut = true;
@@ -128,9 +122,7 @@ public class WaitAfterDebouncer {
        
                     			@Override
                     			public void run() {
-                    			    
-        						    logger.debug("started debouncer");
-        						    
+                    			            						    
         						    executor.execute(
                                             
                                         new Runnable() {
@@ -143,9 +135,7 @@ public class WaitAfterDebouncer {
                                         }
                                         
                                     );
-        						    
-        						    logger.debug("debouncer waiting " + System.currentTimeMillis());
-                                    
+        						                                        
                                     synchronized(lock) {
                                         
                                         if(delay != 0) {
@@ -160,9 +150,7 @@ public class WaitAfterDebouncer {
                                         }
                                         
                                     }
-                                    
-                                    logger.debug("debouncer not waiting" + System.currentTimeMillis());
-        						    
+                                            						    
         						    synchronized(WaitAfterDebouncer.this) {
                                         signalOut = false;
                                     }
@@ -174,9 +162,7 @@ public class WaitAfterDebouncer {
                         );
                     
                     }
-                    else {
-                        logger.debug("shouldn't run");
-                    }
+                    
 		        }
                 
             }
@@ -185,10 +171,7 @@ public class WaitAfterDebouncer {
             }
 		    
 		}
-		else {
-		    logger.debug("signal was out already doing nothing");
-		}
-		
+				
 	}
 
 	/**

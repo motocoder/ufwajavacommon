@@ -104,21 +104,15 @@ public class Debouncer {
 	 * Signal the debouncer to execute.
 	 */
 	public synchronized void signal() {
-	
-	    logger.debug("debouncer signaled");
-	    
+		    
 		if(!signalOut) {
-		    
-		    logger.debug("signal wasn't out");
-		    
+		    		    
 		    try {
 		        
 		        synchronized(shouldRun) {
 		            
                     if(shouldRun.provide()) {
-                        
-                        logger.debug("shouldRun");
-                    
+                                            
                         shouldRun.push(false);
                         
                     	signalOut = true;
@@ -128,9 +122,7 @@ public class Debouncer {
        
                     			@Override
                     			public void run() {
-                    			    
-                    			    logger.debug("debouncer waiting " + System.currentTimeMillis());
-                    			    
+                    			                        			    
                     				synchronized(lock) {
                     				    
                     				    if(delay != 0) {
@@ -145,11 +137,7 @@ public class Debouncer {
                     				    }
                     				    
                     				}
-                    				
-                    				logger.debug("debouncer not waiting" + System.currentTimeMillis());
-
-        						    logger.debug("started debouncer");
-        						    
+       
         						    executor.execute(
                                             
                                         new Runnable() {
@@ -174,9 +162,7 @@ public class Debouncer {
                         );
                     
                     }
-                    else {
-                        logger.debug("shouldn't run");
-                    }
+                    
 		        }
                 
             }
@@ -185,9 +171,7 @@ public class Debouncer {
             }
 		    
 		}
-		else {
-		    logger.debug("signal was out already doing nothing");
-		}
+		
 		
 	}
 

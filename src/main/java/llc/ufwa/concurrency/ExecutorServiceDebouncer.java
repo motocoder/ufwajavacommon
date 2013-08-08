@@ -130,8 +130,6 @@ public class ExecutorServiceDebouncer {
 			@Override
 			public void run() {
 			    
-			    logger.debug("debouncer waiting " + System.currentTimeMillis());
-			    
 				synchronized(lock) {
 				    
 					if (run == RunType.RUN_AFTER) {
@@ -167,28 +165,19 @@ public class ExecutorServiceDebouncer {
 					}
 				    
 				}
-				
-				logger.debug("debouncer not waiting" + System.currentTimeMillis());
-			    logger.debug("started debouncer");
-			    		
+						    		
 			}
 			
 		};
 	
-	    logger.debug("debouncer signaled");
-	    
 		if(!signalOut) {
-		    
-		    logger.debug("signal wasn't out");
-		    
+		   
 		    try {
 		        
 		        synchronized(shouldRun) {
 		            
                     if(shouldRun.provide()) {
-                        
-                        logger.debug("shouldRun");
-                        
+                       
                         shouldRun.push(false);
                         
                     	signalOut = true;
@@ -208,9 +197,7 @@ public class ExecutorServiceDebouncer {
                     	}
                     	
                     }
-                    else {
-                        logger.debug("shouldn't run");
-                    }
+                    
 		        }
                 
             }
@@ -219,9 +206,7 @@ public class ExecutorServiceDebouncer {
             }
 		    
 		}
-		else {
-		    logger.debug("signal was out already doing nothing");
-		}
+		
 		
 	}
 
