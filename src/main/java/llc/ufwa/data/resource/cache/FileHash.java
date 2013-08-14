@@ -673,9 +673,12 @@ public class FileHash<Key, Value> {
 
     public void clear() throws HashBlobException {
         
+        //TODO make bulk delete
         for(int i = 0; i < hashSize; i++) {            
             delete(i * (BUCKET_SIZE));            
         }
+        
+        blobManager.clear();
         
     }
     

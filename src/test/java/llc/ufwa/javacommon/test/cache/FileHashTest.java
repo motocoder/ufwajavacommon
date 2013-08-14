@@ -444,6 +444,11 @@ public class FileHashTest {
             internal.eraseBlobs(blobIndex);
             
         }
+
+        @Override
+        public void clear() {
+            internal.clear();            
+        }
     }
     
     private void checkFileEmpty(final File root) {

@@ -157,8 +157,7 @@ public class CacheFactory {
      * @return
      */
     public static final <Value> Cache<String, Value> getHashCashFileCache(
-        final File cacheRoot,
-        final Converter<Integer, Value> sizeConverter
+        final File cacheRoot
     ) {
         
         final File dataFolder = new File(cacheRoot, "data");
