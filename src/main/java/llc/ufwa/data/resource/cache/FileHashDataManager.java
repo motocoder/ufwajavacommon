@@ -470,7 +470,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         final FileOutputStream out = new FileOutputStream(tempFile); //store the data in a temporary file
                         
                         try {
-                        
+                            
                             for(int i = 0; i < dataFill; ) {
                                 
                                 final int amountToRead;
@@ -485,6 +485,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                                 final int read = random.read(buffer, 0, amountToRead);
                                 
                                 dataRead += read;
+                                i += read;
+                                
                                 
                                 if(read != amountToRead) {
                                     throw new HashBlobException("cannot read entire segment");
@@ -1164,6 +1166,11 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
         
         return returnVal;
         
+    }
+
+    @Override
+    public void clear() {       
+        root.delete();        
     }
 
 }

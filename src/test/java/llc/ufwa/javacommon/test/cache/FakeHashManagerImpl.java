@@ -36,5 +36,10 @@ public class FakeHashManagerImpl<Key, Value> implements HashDataManager<Key, Val
     public void eraseBlobs(int blobIndex) throws HashBlobException {
         blobs.remove(blobIndex);        
     }
+
+    @Override
+    public void clear() {
+        blobs.clear();        
+    }
     
 }

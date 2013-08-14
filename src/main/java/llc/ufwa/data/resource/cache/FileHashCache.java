@@ -72,6 +72,8 @@ public class FileHashCache implements Cache<String, InputStream> {
             
         }
         catch (HashBlobException e) {
+            
+            logger.error("HASH BLOW EXCEPTION", e);
             throw new ResourceException("ERROR", e);
         }
         
