@@ -235,5 +235,54 @@ public class CacheFactory {
         return converted;
         
 	}
+	
+	public static final <Value> Cache<String, Value> getMaxSizeExpiringFileCache(
+        final File cacheRoot,
+        final int maxSize,
+        final int expireTimeout,
+        final Converter<Integer, Value> sizeConverter, 
+        final Converter<byte[], InputStream> valueConvertBytesToStream,
+        final Converter<Value, byte[]> valueConvertJobToBytes
+    ) {
+        
+        final File dataFolder = new File(cacheRoot, "data");
+        final File tempFolder = new File(cacheRoot, "temp");
+        
+        final File expiringRoot = new File(cacheRoot, "expiringRoot");
+        
+        final File expiringDataFolder = new File(expiringRoot, "data");
+        final File expiringTempFolder = new File(expiringRoot, "temp");
+        
+        final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+        
+        final Cache<String, Value> fileCache = 
+            new SynchronizedCache<String, Value> (
+                    new ValueConvertingCache<String, Value, byte[]> (
+                        new ValueConvertingCache<String, byte[], InputStream> (
+                            diskCache,
+                            valueConvertBytesToStream
+                        ),
+                        valueConvertJobToBytes
+                    )
+                );
+            
+        final FileHashCache expringPersistDiskCache = new FileHashCache(expiringDataFolder, expiringTempFolder);
+            
+        final Cache<String, Value> cache = 
+            new FilePersistedExpiringCache<Value>(                    
+                new FilePersistedMaxSizeCache<Value>(
+                    dataFolder,
+                    fileCache,
+                    sizeConverter,
+                    maxSize
+                ),
+                expringPersistDiskCache,
+                (long)expireTimeout,
+                (long)(expireTimeout * 2)
+            );
+        
+        return new SynchronizedCache<String, Value>(cache);
+                
+    }
 
 }
