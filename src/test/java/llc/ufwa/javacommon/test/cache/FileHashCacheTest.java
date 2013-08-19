@@ -29,11 +29,6 @@ public class FileHashCacheTest {
     }
 	
 	@Test 
-    public void testFileHashCache() {
-		universalTest();	
-	}
-	
-	
 	public void universalTest() {
 		
 		try {
@@ -55,7 +50,7 @@ public class FileHashCacheTest {
 	        final String value = "ddwerfsadfwefwaefwfawfewsadfsad4";
 	        final String key2 = "dtsffffdfsjhgjnvdfsddfsasdeasdf";
 	        final String value2 = "saasdfasdfdfasdfaewasfsadfasfdadscasdfasdfasdfsdfg";
-	        final String key3 = "adatiwefwwawfwfdfdsgdfgsdgasddfsds";
+	        final String key3 = "adatiwefwwawfwfdfdsgdfgsdgasdd982y4d8913y894d012ny4d92803u4d89023mnd4038912d4ymn09128dyhmn9821d4yn328yd4n289314yndm9812ynd409jkjlafoasudf8904uy04uf4309u0oidsnhfioashd9834jh0q4f08943qhlq34hf89034fh48fih3fsds";
 	        String returnValue;
 	        
 	        // TEST PUT, GET, REMOVE, and EXISTS
@@ -171,5 +166,224 @@ public class FileHashCacheTest {
             root.delete();
         }
     }
-
+	
+	@Test 
+	public void secondaryTest() {
+		
+		try {
+			
+	        final File tempFolder = new File("./target/test-files/temp-data");
+	        final File dataFolder = new File("./target/test-files/data");
+	        final File dataFolderItem = new File("./target/test-files/data/data");
+	        
+	        deleteRoot(tempFolder);
+	        deleteRoot(dataFolder);
+	        dataFolderItem.delete();
+	        
+	        tempFolder.mkdirs();
+	        dataFolder.mkdirs();
+	        
+	        final FileHashCache cache = new FileHashCache(dataFolderItem, tempFolder);
+	        
+	        // create very long string by concatenation
+	        String key = "abcdefghijklmnopqrstuvwxyz0123456789";
+	        String value = "abcdefghijklmnopqrstuvwxyz0123456789";
+	        int iterations = 3;
+	        
+	        
+	        for (int i = 0; i < iterations; i++) {
+	        	key += key.concat(key);
+	        	value += value.concat(value);
+	        }
+	        
+	        logger.info("value is this long: " + value.length());
+	        
+	        String returnValue;
+	        
+	        // TEST PUT, GET, REMOVE, and EXISTS
+	        
+	        for (int i = 0; i < 10; i++) {
+	        	cache.put(key, new ByteArrayInputStream(value.getBytes()));
+	        }
+	        
+	        InputStream baos = null;
+	        
+	        for (int i = 0; i < 10; i++) {
+	        	baos = cache.get(key);
+	        }
+			
+	        returnValue = getStringFromInputStream(baos);
+	        
+	        TestCase.assertEquals(value, returnValue);
+	        for (int i = 0; i < 10; i++) {
+	        	TestCase.assertEquals(cache.exists(key), true);
+	        }
+	        
+	        for (int i = 0; i < 10; i++) {
+	        	cache.clear(); //Test Clear
+	        }
+	        
+	        TestCase.assertEquals(cache.exists(key), false);
+	        
+	        baos.close();
+	        
+		}
+		catch (ResourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	@Test 
+	public void multiThreadedTest() {
+		
+		for (int x = 0; x < 25; x++) {
+			
+			Thread thread = new Thread() {
+			
+				public void run() {
+					
+					try {
+				
+				        final File tempFolder = new File("./target/test-files/temp-data");
+				        final File dataFolder = new File("./target/test-files/data");
+				        final File dataFolderItem = new File("./target/test-files/data/data");
+				        
+				        deleteRoot(tempFolder);
+				        deleteRoot(dataFolder);
+				        dataFolderItem.delete();
+				        
+				        tempFolder.mkdirs();
+				        dataFolder.mkdirs();
+				        
+				        final FileHashCache cache = new FileHashCache(dataFolderItem, tempFolder);
+				        
+				        // create varying length strings by concatenation
+				        String key = "abcdefghijklmnopqrstuvwxyz0123456789";
+				        String value = "abcdefghijklmnopqrstuvwxyz0123456789";
+				        Random random = new Random();
+						int iterations = random.nextInt(5);
+				        
+				        for (int i = 0; i < iterations; i++) {
+				        	key = key.concat(key);
+				        	value = value.concat(value);
+				        }
+				        
+				        logger.info("putting value of length: " + value.length());
+				        
+				        String returnValue;
+				        
+				        // TEST PUT, GET, REMOVE, and EXISTS
+				        
+				        cache.put(key, new ByteArrayInputStream(value.getBytes()));
+				        
+				        InputStream baos = null;
+				        
+				        baos = cache.get(key);
+						
+				        returnValue = getStringFromInputStream(baos);
+				        
+				        TestCase.assertEquals(value, returnValue);
+				        TestCase.assertEquals(cache.exists(key), true);
+				        
+				        cache.clear(); // test clear
+				        
+				        TestCase.assertEquals(cache.exists(key), false);
+				        
+				        baos.close();
+				        
+					}
+					catch (ResourceException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			        
+				}
+		        
+			};
+			
+			thread.start();
+			
+		}
+		
+	}
+	
+	
+	@Test 
+	public void varyingKeyLengthTest() {
+		
+		try {
+			
+			for (int x = 0; x < 25; x++) {
+				
+		        final File tempFolder = new File("./target/test-files/temp-data");
+		        final File dataFolder = new File("./target/test-files/data");
+		        final File dataFolderItem = new File("./target/test-files/data/data");
+		        
+		        deleteRoot(tempFolder);
+		        deleteRoot(dataFolder);
+		        dataFolderItem.delete();
+		        
+		        tempFolder.mkdirs();
+		        dataFolder.mkdirs();
+		        
+		        final FileHashCache cache = new FileHashCache(dataFolderItem, tempFolder);
+		        
+		        // create varying length strings by concatenation
+		        String key = "abcdefghijklmnopqrstuvwxyz0123456789";
+		        String value = "abcdefghijklmnopqrstuvwxyz0123456789";
+		        Random random = new Random();
+				int iterations = random.nextInt(10);
+		        
+		        for (int i = 0; i < iterations; i++) {
+		        	key = key.concat(key);
+		        	value = value.concat(value);
+		        }
+		        
+		        logger.info("putting value of length: " + value.length());
+		        
+		        String returnValue;
+		        
+		        // TEST PUT, GET, REMOVE, and EXISTS
+		        
+		        cache.put(key, new ByteArrayInputStream(value.getBytes()));
+		        
+		        InputStream baos = null;
+		        
+		        baos = cache.get(key);
+				
+		        returnValue = getStringFromInputStream(baos);
+		        
+		        TestCase.assertEquals(value, returnValue);
+		        TestCase.assertEquals(cache.exists(key), true);
+		        
+		        cache.clear(); // test clear
+		        
+		        TestCase.assertEquals(cache.exists(key), false);
+		        
+		        baos.close();
+		        
+			}
+		        
+		}
+		catch (ResourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 }
