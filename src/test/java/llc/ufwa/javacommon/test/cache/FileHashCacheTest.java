@@ -12,7 +12,16 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 import llc.ufwa.data.exception.ResourceException;
+import llc.ufwa.data.resource.Converter;
+import llc.ufwa.data.resource.InputStreamConverter;
+import llc.ufwa.data.resource.ReverseConverter;
+import llc.ufwa.data.resource.SerializingConverter;
+import llc.ufwa.data.resource.StringSizeConverter;
+import llc.ufwa.data.resource.cache.Cache;
 import llc.ufwa.data.resource.cache.FileHashCache;
+import llc.ufwa.data.resource.cache.FilePersistedMaxSizeCache;
+import llc.ufwa.data.resource.cache.SynchronizedCache;
+import llc.ufwa.data.resource.cache.ValueConvertingCache;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
@@ -30,13 +39,13 @@ public class FileHashCacheTest {
 	
 	@Test 
 	public void universalTest() {
-		
+
+        final File tempFolder = new File("./target/test-files/temp-dataa");
+        final File dataFolder = new File("./target/test-files/dataa");
+        final File dataFolderItem = new File("./target/test-files/data/dataa");
+        
 		try {
 			
-	        final File tempFolder = new File("./target/test-files/temp-data");
-	        final File dataFolder = new File("./target/test-files/data");
-	        final File dataFolderItem = new File("./target/test-files/data/data");
-	        
 	        deleteRoot(tempFolder);
 	        deleteRoot(dataFolder);
 	        dataFolderItem.delete();
@@ -50,7 +59,7 @@ public class FileHashCacheTest {
 	        final String value = "ddwerfsadfwefwaefwfawfewsadfsad4";
 	        final String key2 = "dtsffffdfsjhgjnvdfsddfsasdeasdf";
 	        final String value2 = "saasdfasdfdfasdfaewasfsadfasfdadscasdfasdfasdfsdfg";
-	        final String key3 = "adatiwefwwawfwfdfdsgdfgsdgasdd982y4d8913y894d012ny4d92803u4d89023mnd4038912d4ymn09128dyhmn9821d4yn328yd4n289314yndm9812ynd409jkjlafoasudf8904uy04uf4309u0oidsnhfioashd9834jh0q4f08943qhlq34hf89034fh48fih3fsds";
+	        final String key3 = "adatiwefwwawfwfdfdsgdfgsdgasdd982y4d8913y894d012ny4dyn328yd4n289314yndm9812ynd409jkjlafoasudf8904uy04uf4309u0oidsnhfioashd9834jh0q4f08943qhlq34hf89034fh48fih3fsds";
 	        String returnValue;
 	        
 	        // TEST PUT, GET, REMOVE, and EXISTS
@@ -106,14 +115,15 @@ public class FileHashCacheTest {
 	        
 		}
 		catch (ResourceException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			deleteRoot(tempFolder);
+	        deleteRoot(dataFolder);
+	        dataFolderItem.delete();
 		}
 		
 	}
@@ -229,11 +239,9 @@ public class FileHashCacheTest {
 	        
 		}
 		catch (ResourceException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 		catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -242,7 +250,14 @@ public class FileHashCacheTest {
 	@Test 
 	public void multiThreadedTest() {
 		
-		for (int x = 0; x < 25; x++) {
+		final File root2 = new File("/target/test-files/temporary-dataa");
+		
+		deleteRoot(root2);
+		
+		final File dataFolder = new File(root2, "data");
+        final File tempFolder = new File(root2, "temp");
+		
+		for (int x = 0; x < 2; x++) {
 			
 			Thread thread = new Thread() {
 			
@@ -250,60 +265,37 @@ public class FileHashCacheTest {
 					
 					try {
 				
-				        final File tempFolder = new File("./target/test-files/temp-data");
-				        final File dataFolder = new File("./target/test-files/data");
-				        final File dataFolderItem = new File("./target/test-files/data/data");
-				        
-				        deleteRoot(tempFolder);
-				        deleteRoot(dataFolder);
-				        dataFolderItem.delete();
-				        
-				        tempFolder.mkdirs();
-				        dataFolder.mkdirs();
-				        
-				        final FileHashCache cache = new FileHashCache(dataFolderItem, tempFolder);
+						final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+						
+						final Cache<String, String> fileCache = 
+							new ValueConvertingCache<String, String, byte []>(
+								new ValueConvertingCache<String, byte [], InputStream>(
+										diskCache,
+										new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+									),
+									new SerializingConverter<String>()
+								);
+						
+						final Cache<String, String> cache = new SynchronizedCache<String, String>(fileCache);
 				        
 				        // create varying length strings by concatenation
-				        String key = "abcdefghijklmnopqrstuvwxyz0123456789";
-				        String value = "abcdefghijklmnopqrstuvwxyz0123456789";
-				        Random random = new Random();
-						int iterations = random.nextInt(5);
+						final String value = "adasdfasdfasfdasfasdfdfsdf";
+						final Random random = new Random();
 				        
-				        for (int i = 0; i < iterations; i++) {
-				        	key = key.concat(key);
-				        	value = value.concat(value);
-				        }
+						final String key = "e" + String.valueOf(random.nextInt(999999));
 				        
-				        logger.info("putting value of length: " + value.length());
-				        
-				        String returnValue;
+				        logger.info("putting value of length: " + value.length() + " with the key of " + key);
 				        
 				        // TEST PUT, GET, REMOVE, and EXISTS
 				        
-				        cache.put(key, new ByteArrayInputStream(value.getBytes()));
+				        cache.put(key, value);
 				        
-				        InputStream baos = null;
-				        
-				        baos = cache.get(key);
-						
-				        returnValue = getStringFromInputStream(baos);
+				        final String returnValue = cache.get(key);
 				        
 				        TestCase.assertEquals(value, returnValue);
 				        TestCase.assertEquals(cache.exists(key), true);
 				        
-				        cache.clear(); // test clear
-				        
-				        TestCase.assertEquals(cache.exists(key), false);
-				        
-				        baos.close();
-				        
-					}
-					catch (ResourceException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					catch (IOException e) {
-						// TODO Auto-generated catch block
+					} catch (ResourceException e) {
 						e.printStackTrace();
 					}
 			        
@@ -321,14 +313,14 @@ public class FileHashCacheTest {
 	@Test 
 	public void varyingKeyLengthTest() {
 		
+        final File tempFolder = new File("./target/test-files/temp-dataaaa");
+        final File dataFolder = new File("./target/test-files/dataaaa");
+        final File dataFolderItem = new File("./target/test-files/data/dataaaa");
+		
 		try {
 			
-			for (int x = 0; x < 25; x++) {
+			for (int x = 0; x < 17; x++) {
 				
-		        final File tempFolder = new File("./target/test-files/temp-data");
-		        final File dataFolder = new File("./target/test-files/data");
-		        final File dataFolderItem = new File("./target/test-files/data/data");
-		        
 		        deleteRoot(tempFolder);
 		        deleteRoot(dataFolder);
 		        dataFolderItem.delete();
@@ -340,16 +332,13 @@ public class FileHashCacheTest {
 		        
 		        // create varying length strings by concatenation
 		        String key = "abcdefghijklmnopqrstuvwxyz0123456789";
-		        String value = "abcdefghijklmnopqrstuvwxyz0123456789";
-		        Random random = new Random();
-				int iterations = random.nextInt(10);
+		        String value = "abcdefgh";
 		        
-		        for (int i = 0; i < iterations; i++) {
-		        	key = key.concat(key);
+		        for (int i = 0; i < x; i++) {
 		        	value = value.concat(value);
 		        }
 		        
-		        logger.info("putting value of length: " + value.length());
+		        logger.info("putting value of length: " + value.length() + " with key of length: " + key.length());
 		        
 		        String returnValue;
 		        
@@ -376,12 +365,15 @@ public class FileHashCacheTest {
 		        
 		}
 		catch (ResourceException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 		catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} 
+		finally {
+			deleteRoot(tempFolder);
+	        deleteRoot(dataFolder);
+	        dataFolderItem.delete();
 		}
 		
 	}
