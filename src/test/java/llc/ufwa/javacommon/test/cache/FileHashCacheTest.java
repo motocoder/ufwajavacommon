@@ -9,6 +9,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 import llc.ufwa.data.exception.ResourceException;
@@ -252,59 +255,71 @@ public class FileHashCacheTest {
 		
 		final File root2 = new File("/target/test-files/temporary-dataa");
 		
+		ExecutorService pool = Executors.newFixedThreadPool(10);
+		
 		deleteRoot(root2);
 		
 		final File dataFolder = new File(root2, "data");
         final File tempFolder = new File(root2, "temp");
 		
-		for (int x = 0; x < 2; x++) {
+		for (int x = 0; x < 9; x++) {
 			
-			Thread thread = new Thread() {
-			
-				public void run() {
+			pool.execute(
+                    
+                new Runnable() {
+
+                    @Override
+                    public void run() {
 					
-					try {
-				
-						final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
-						
-						final Cache<String, String> fileCache = 
-							new ValueConvertingCache<String, String, byte []>(
-								new ValueConvertingCache<String, byte [], InputStream>(
-										diskCache,
-										new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
-									),
-									new SerializingConverter<String>()
-								);
-						
-						final Cache<String, String> cache = new SynchronizedCache<String, String>(fileCache);
-				        
-				        // create varying length strings by concatenation
-						final String value = "adasdfasdfasfdasfasdfdfsdf";
-						final Random random = new Random();
-				        
-						final String key = "e" + String.valueOf(random.nextInt(999999));
-				        
-				        logger.info("putting value of length: " + value.length() + " with the key of " + key);
-				        
-				        // TEST PUT, GET, REMOVE, and EXISTS
-				        
-				        cache.put(key, value);
-				        
-				        final String returnValue = cache.get(key);
-				        
-				        TestCase.assertEquals(value, returnValue);
-				        TestCase.assertEquals(cache.exists(key), true);
-				        
-					} catch (ResourceException e) {
-						e.printStackTrace();
-					}
+						try {
+					
+							final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+							
+							final Cache<String, String> fileCache = 
+								new ValueConvertingCache<String, String, byte []>(
+									new ValueConvertingCache<String, byte [], InputStream>(
+											diskCache,
+											new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+										),
+										new SerializingConverter<String>()
+									);
+							
+							final Cache<String, String> cache = new SynchronizedCache<String, String>(fileCache);
+					        
+					        // create varying length strings by concatenation
+							final String value = "adasdfasdfasfdasfasdfdfsdf";
+							final Random random = new Random();
+					        
+							final String key = "e" + String.valueOf(random.nextInt(999999));
+					        
+					        logger.info("putting value: " + value + " with the key of " + key);
+					        
+					        // TEST PUT, GET, REMOVE, and EXISTS
+					        
+					        cache.put(key, value);
+					        
+					        final String returnValue = cache.get(key);
+					        
+					        TestCase.assertEquals(value, returnValue);
+					        TestCase.assertEquals(cache.exists(key), true);
+					        
+						} catch (ResourceException e) {
+							e.printStackTrace();
+						}
 			        
-				}
-		        
-			};
+                    }
+                    
+                }
+                
+			);
 			
-			thread.start();
-			
+		}
+		
+		try {
+			pool.awaitTermination(1000, TimeUnit.SECONDS);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 		
 	}
