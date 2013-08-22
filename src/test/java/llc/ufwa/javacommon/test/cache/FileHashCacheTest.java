@@ -255,12 +255,25 @@ public class FileHashCacheTest {
 		
 		final File root2 = new File("/target/test-files/temporary-dataa");
 		
-		ExecutorService pool = Executors.newFixedThreadPool(10);
+		final ExecutorService pool = Executors.newFixedThreadPool(10);
 		
 		deleteRoot(root2);
 		
 		final File dataFolder = new File(root2, "data");
         final File tempFolder = new File(root2, "temp");
+        
+		final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+		
+		final Cache<String, String> fileCache = 
+			new ValueConvertingCache<String, String, byte []>(
+				new ValueConvertingCache<String, byte [], InputStream>(
+						diskCache,
+						new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+					),
+					new SerializingConverter<String>()
+				);
+		
+		final Cache<String, String> cache = new SynchronizedCache<String, String>(fileCache);
 		
 		for (int x = 0; x < 9; x++) {
 			
@@ -273,19 +286,6 @@ public class FileHashCacheTest {
 					
 						try {
 					
-							final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
-							
-							final Cache<String, String> fileCache = 
-								new ValueConvertingCache<String, String, byte []>(
-									new ValueConvertingCache<String, byte [], InputStream>(
-											diskCache,
-											new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
-										),
-										new SerializingConverter<String>()
-									);
-							
-							final Cache<String, String> cache = new SynchronizedCache<String, String>(fileCache);
-					        
 					        // create varying length strings by concatenation
 							final String value = "adasdfasdfasfdasfasdfdfsdf";
 							final Random random = new Random();
