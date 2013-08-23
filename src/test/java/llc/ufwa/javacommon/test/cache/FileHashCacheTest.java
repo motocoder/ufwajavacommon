@@ -326,6 +326,8 @@ public class FileHashCacheTest {
 			e1.printStackTrace();
 		}
 		
+		deleteRoot(root2);
+		
 	}
 	
 	
