@@ -275,6 +275,8 @@ public class FileHashCacheTest {
 		
 		final Cache<String, String> cache = new SynchronizedCache<String, String>(fileCache);
 		
+		logger.info("created cache");
+		
 		for (int x = 0; x < 9; x++) {
 			
 			pool.execute(
@@ -315,10 +317,12 @@ public class FileHashCacheTest {
 			
 		}
 		
+		pool.shutdown();
+		
 		try {
 			pool.awaitTermination(1000, TimeUnit.SECONDS);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
+		} 
+		catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
 		
