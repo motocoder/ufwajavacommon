@@ -43,9 +43,9 @@ public class FileHashCacheTest {
 	@Test 
 	public void universalTest() {
 
-        final File tempFolder = new File("./target/test-files/temp-dataa");
-        final File dataFolder = new File("./target/test-files/dataa");
-        final File dataFolderItem = new File("./target/test-files/data/dataa");
+        final File tempFolder = new File("/target/test-files/temp-dataa");
+        final File dataFolder = new File("/target/test-files/dataa");
+        final File dataFolderItem = new File("/target/test-files/data/dataa");
         
 		try {
 			
@@ -327,6 +327,70 @@ public class FileHashCacheTest {
 		}
 		
 		deleteRoot(root2);
+		
+	}
+	
+	@Test
+	public void extraTests() {
+		
+		try {
+	        
+			File root2 = new File("./target/test-files/temp/");
+			
+			deleteRoot(root2);
+			
+			final Converter<Integer, String> converter = new ReverseConverter<Integer, String>(new StringSizeConverter());
+			
+			final File dataFolder = new File(root2, "data");
+	        final File tempFolder = new File(root2, "temp");
+	        final File persistingFolder = new File(root2, "persisting");
+	        
+			FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+			
+			Cache<String, String> fileCache = 
+				new ValueConvertingCache<String, String, byte []>(
+					new ValueConvertingCache<String, byte [], InputStream>(
+							diskCache,
+							new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+						),
+						new SerializingConverter<String>()
+					);
+				
+			Cache<String, String> cache =
+	            new FilePersistedMaxSizeCache<String>(
+	                persistingFolder,
+	                fileCache,
+	                converter,
+	                150
+	            );
+	        
+	        final String key = "dtsffffdfsjhgjnvdfsddfssdffsdfewfeasdf";
+	        final String value = "ddwerfsadfwefwaefwfawfewsadfsad4";
+	        final String key2 = "dtsffffdfsjhgjnvdfsddfsasdeasdf";
+	        final String key3 = "adatiwefwwawfwfdfdsgdfgsdgasdd982y4d8913y894d012ny4dyn328yd4n289314yndm9812ynd409jkjlafoasudf8904uy04uf4309u0oidsnhfioashd9834jh0q4f08943qhlq34hf89034fh48fih3fsds";
+	        String returnValue;
+	        
+	        // TEST PUT, GET, REMOVE, and EXISTS
+	        
+	        cache.put(key, value);
+	        
+	        returnValue = cache.get(key);
+	        
+	        TestCase.assertEquals(value, returnValue);
+	        TestCase.assertEquals(cache.exists(key), true);
+	        
+	        cache.clear();
+	        
+	        TestCase.assertEquals(cache.exists(key), false);
+	        
+	        cache.clear();
+		       
+	        TestCase.assertEquals(cache.exists(key), false);
+	        
+		}
+		catch (ResourceException e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
