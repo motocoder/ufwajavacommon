@@ -3,12 +3,17 @@ package llc.ufwa.data.resource.cache;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.Converter;
 import llc.ufwa.data.resource.loader.ResourceLoader;
 
 public class ValueConvertingCache<Key, Value, OldValue> implements Cache<Key, Value> {
     
+	private static final Logger logger = LoggerFactory.getLogger(ValueConvertingCache.class);
+	
     private final Cache<Key, OldValue> internal;
     private final Converter<Value, OldValue> converter;
 
@@ -107,7 +112,11 @@ public class ValueConvertingCache<Key, Value, OldValue> implements Cache<Key, Va
             internal.put(key, converter.convert(value));
         } 
         catch (ResourceException e) {
+        	
+        	logger.error("ERROR:", e);
+        	
             throw new RuntimeException("<ValueConvertingCache><5>, " + e);
+            
         }
     }
     

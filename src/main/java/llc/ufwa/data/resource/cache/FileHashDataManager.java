@@ -23,6 +23,7 @@ import llc.ufwa.data.exception.BadDataException;
 import llc.ufwa.data.exception.CorruptDataException;
 import llc.ufwa.data.exception.CorruptedDataException;
 import llc.ufwa.data.exception.HashBlobException;
+import llc.ufwa.data.exception.InvalidIndexException;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.ByteArrayIntegerConverter;
 import llc.ufwa.data.resource.Converter;
@@ -742,7 +743,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     final long length = random.length();
                   
                     if((blobIndex + 4) >= length) {
-                        throw new HashBlobException("invalid index");
+                        throw new InvalidIndexException("invalid index " + blobIndex + " " + length);
                     }
                   
                     final byte [] currentKeyIn = new byte[4];
@@ -830,7 +831,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 final long length = random.length();
               
                 if((writtingIndex + 4) >= length) {
-                    throw new HashBlobException("invalid index");
+                    throw new InvalidIndexException("invalid index " + (writtingIndex + 4) + " " + length + root.length());
                 }
               
                 final byte [] currentKeyIn = new byte[4];
@@ -1093,7 +1094,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             if(returnVal < 0) {
                 
                 //create new segment
-                
+            	
                 try {
                     
                     final RandomAccessFile random = new RandomAccessFile(root, "rws");
@@ -1116,7 +1117,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         
                         random.seek(totalSize + length + 4); //seek to last 4 bytes of seg.
                         random.write(fillData);
-                                                
+                                             
                     } 
                     finally {
                         random.close();
@@ -1149,7 +1150,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             
         }
         else {
-            
+           
             //use existing free segment that we already know about.
             
             final Entry<Integer, Set<Integer>> first = tail.firstEntry();
@@ -1163,14 +1164,17 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             returnVal = list.iterator().next();
             
         }
-        
+       
         return returnVal;
         
     }
 
     @Override
     public void clear() {       
-        root.delete();        
+        
+    	root.delete();        
+        freeSegments.clear();
+        
     }
 
 }
