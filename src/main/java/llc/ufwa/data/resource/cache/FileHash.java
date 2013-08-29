@@ -349,7 +349,7 @@ public class FileHash<Key, Value> {
                }
                
                final int blobIndex = converter.convert(currentKeyIn);
-             
+               
                final Set<Entry<Key, Value>> toWrite = new HashSet<Entry<Key, Value>>();
                
                if(blobIndex >= 0) {
@@ -358,6 +358,7 @@ public class FileHash<Key, Value> {
                    final Set<Entry<Key, Value>> blobs = blobManager.getBlobsAt(blobIndex);
                    
                    if(blobs != null) {
+                	   
                        toWrite.addAll(blobs);
                    }
                    

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import llc.ufwa.data.exception.CorruptedDataException;
 import llc.ufwa.data.exception.HashBlobException;
+import llc.ufwa.data.exception.InvalidIndexException;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.SerializingConverter;
 
@@ -48,9 +49,18 @@ public class FileHashCache implements Cache<String, InputStream> {
     	    logger.error("CORRUPTED DATA, CLEARING", e);
     	    clear();
     	    
-    	    return false;
+    	    throw new ResourceException("ERROR", e);
     	    
     	}
+        catch(InvalidIndexException e) {
+        	
+        	logger.error("ERROR:", e);
+        	
+        	clear();
+
+        	throw new ResourceException("ERROR", e);
+        	
+        }
     	catch (HashBlobException e) {
             throw new ResourceException("ERROR", e);
         }
@@ -68,8 +78,17 @@ public class FileHashCache implements Cache<String, InputStream> {
             logger.error("CORRUPTED DATA, CLEARING", e);
             clear();
             
-            return null;
+            throw new ResourceException("ERROR", e);
             
+        }
+        catch(InvalidIndexException e) {
+        	
+        	logger.error("ERROR:", e);
+        	
+        	clear();
+        	
+        	throw new ResourceException("ERROR", e);
+        	
         }
         catch (HashBlobException e) {
             
@@ -93,8 +112,17 @@ public class FileHashCache implements Cache<String, InputStream> {
                 logger.error("CORRUPTED DATA, CLEARING", e);
                 clear();
                 
-                return null;
+                throw new ResourceException("ERROR", e);
                 
+            }
+            catch(InvalidIndexException e) {
+            	
+            	logger.error("ERROR:", e);
+            	
+            	clear();
+            	
+            	throw new ResourceException("ERROR", e);
+            	
             }
             catch (HashBlobException e) {
                 throw new ResourceException("ERROR", e);
@@ -111,6 +139,7 @@ public class FileHashCache implements Cache<String, InputStream> {
         try {
             hash.clear();
         } 
+        
         catch (HashBlobException e) {
             throw new ResourceException("ERROR", e);
         } 
@@ -128,8 +157,16 @@ public class FileHashCache implements Cache<String, InputStream> {
             logger.error("CORRUPTED DATA, CLEARING", e);
             clear();
             
-            return;
+            throw new ResourceException("ERROR", e);
             
+        }
+        catch(InvalidIndexException e) {
+        	
+        	logger.error("ERROR:", e);
+        	
+        	clear();
+        	throw new ResourceException("ERROR", e);
+        	
         }
         catch (HashBlobException e) {
             throw new ResourceException("ERROR", e);
@@ -143,12 +180,21 @@ public class FileHashCache implements Cache<String, InputStream> {
         try {
             hash.put(key, value);
         }
+        catch(InvalidIndexException e) {
+        	
+        	logger.error("ERROR:", e);
+        	
+        	clear();
+        	
+        	throw new ResourceException("ERROR", e);
+        	
+        }
         catch(CorruptedDataException e) {
             
             logger.error("CORRUPTED DATA, CLEARING", e);
             clear();
             
-            return;
+            throw new ResourceException("ERROR", e);
             
         }
         catch (HashBlobException e) {
