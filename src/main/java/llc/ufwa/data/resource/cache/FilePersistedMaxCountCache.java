@@ -8,6 +8,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import llc.ufwa.concurrency.Callback;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.Converter;
 import llc.ufwa.data.resource.InputStreamConverter;
@@ -27,6 +28,7 @@ public class FilePersistedMaxCountCache<Value> implements Cache<String, Value> {
     private final int maxCount;
     private final Cache<String, Value> internal;
     private final Cache<String, Serializable> persistCache;
+    private final Callback<Void, Value> valueRemovedCallback;
     
     /**
      * 
@@ -37,11 +39,13 @@ public class FilePersistedMaxCountCache<Value> implements Cache<String, Value> {
     public FilePersistedMaxCountCache(
         final File rootFolder,
         final Cache<String, Value> internal,
-        final int maxCount
+        final int maxCount,
+        final Callback<Void, Value> valueRemovedCallback
     ) {
         
         this.maxCount = maxCount;
         this.internal = internal;
+        this.valueRemovedCallback = valueRemovedCallback;
         
         final File persistRoot = new File(rootFolder, "countPersisted");
         
@@ -209,7 +213,11 @@ public class FilePersistedMaxCountCache<Value> implements Cache<String, Value> {
                     
                     this.persistCache.put("currentSize", currentSize);
                     
+                    final Value valueToRemove = internal.get(bottom.getMyKey());
+                    
                     internal.remove(bottom.getMyKey());
+                    
+                    valueRemovedCallback.call(valueToRemove);
                     
                 }
                 

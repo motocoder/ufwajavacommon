@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import junit.framework.TestCase;
+import llc.ufwa.concurrency.Callback;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.Converter;
 import llc.ufwa.data.resource.InputStreamConverter;
@@ -72,7 +73,14 @@ public class FilePersistedMaxCountCacheTest {
             new FilePersistedMaxCountCache<String>(
                 persistingFolder,
                 fileCache,
-                2
+                2,
+                new Callback<Void, String>() {
+
+                    @Override
+                    public Void call(String value) {
+                        return null;
+                    }
+                }
             );
 
 		try {
@@ -129,7 +137,14 @@ public class FilePersistedMaxCountCacheTest {
 	            new FilePersistedMaxCountCache<String>(
 	                persistingFolder,
 	                fileCache,
-	                2
+	                2,
+	                new Callback<Void, String>() {
+
+	                    @Override
+	                    public Void call(String value) {
+	                        return null;
+	                    }
+	                }
 	            );
 			
 			TestCase.assertTrue(cache.exists("4"));
