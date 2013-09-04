@@ -67,7 +67,6 @@ public class CacheFactory {
     public static final <Value> Cache<String, Value> getSerializingMaxCountFileCache(
         final int maxCount,
         final File cacheRoot,
-        final Converter<Integer, Value> sizeConverter,
         final Callback<Void, Value> onRemoved
     ) {
         
