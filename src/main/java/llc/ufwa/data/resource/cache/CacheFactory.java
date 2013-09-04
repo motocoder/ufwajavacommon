@@ -3,6 +3,7 @@ package llc.ufwa.data.resource.cache;
 import java.io.File;
 import java.io.InputStream;
 
+import llc.ufwa.concurrency.Callback;
 import llc.ufwa.data.resource.Converter;
 import llc.ufwa.data.resource.InputStreamConverter;
 import llc.ufwa.data.resource.ReverseConverter;
@@ -58,6 +59,39 @@ public class CacheFactory {
                 (long)expireTimeout,
                 (long)(expireTimeout * 2)
             );
+        
+        return new SynchronizedCache<String, Value>(cache);
+        
+    }
+    
+    public static final <Value> Cache<String, Value> getSerializingMaxCountFileCache(
+        final int maxCount,
+        final File cacheRoot,
+        final Converter<Integer, Value> sizeConverter,
+        final Callback<Void, Value> onRemoved
+    ) {
+        
+        final File dataFolder = new File(cacheRoot, "data");
+        final File tempFolder = new File(cacheRoot, "temp");
+        
+        final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+        
+        final ValueConvertingCache<String, Value, byte[]> fileCache = 
+            new ValueConvertingCache<String, Value, byte []>(
+                new ValueConvertingCache<String, byte [], InputStream>(
+                        diskCache,
+                        new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+                    ),
+                    new SerializingConverter<Value>()
+                );
+            
+        final Cache<String, Value> cache =                
+                new FilePersistedMaxCountCache<Value>(
+                    dataFolder,
+                    fileCache,
+                    maxCount,
+                    onRemoved
+                );
         
         return new SynchronizedCache<String, Value>(cache);
         
