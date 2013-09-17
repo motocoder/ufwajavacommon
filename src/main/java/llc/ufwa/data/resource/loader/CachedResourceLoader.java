@@ -10,6 +10,9 @@ import java.util.Set;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.cache.Cache;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *  
  *  The CachedResourceLoader is an implementation of the ResourceLoader interface
@@ -26,10 +29,12 @@ import llc.ufwa.data.resource.cache.Cache;
 
 public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Value> {
     
+    private static final Logger logger = LoggerFactory.getLogger(CachedResourceLoader.class);
     
     private final Cache<Key, Value> valueCache;
     private final Cache<Key, Boolean> searchCache;
     private final ResourceLoader<Key, Value> internal;
+    private final String tag;
 
     /**
      * 
@@ -47,8 +52,24 @@ public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Val
         this.searchCache = searchCache;
         this.internal = internal;
         
+        this.tag = null;
+        
     }
     
+    public CachedResourceLoader(
+        final ResourceLoader<Key, Value> internal,
+        final Cache<Key, Value> valueCache,
+        final Cache<Key, Boolean> searchCache, 
+        final String tag
+    ) {
+        
+        this.internal = internal;
+        this.searchCache = searchCache;
+        this.valueCache = valueCache;
+        
+        this.tag = tag;
+    }
+
     /**
      * This method returns a boolean if the value assigned to the
      * specified key parameter is not null as well as storing
@@ -66,6 +87,11 @@ public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Val
         }
         
         final Boolean searchCacheValue = searchCache.get(key);
+        
+        if(tag != null) {
+            logger.info("search cache for " + tag + " key " + key + " was " + searchCacheValue);
+            
+        }
         
         final boolean returnVal;
         
@@ -111,6 +137,11 @@ public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Val
         }
         
         final Value cachedValue = valueCache.get(key);
+        
+        if(tag != null) {
+            logger.info("get cache for " + tag + " key " + key + " was " + cachedValue);
+            
+        }
         
         final Value returnVal;
         

@@ -297,12 +297,13 @@ public class CacheFactory {
                         ),
                         valueConvertJobToBytes
                     )
-                );
+                
+            );
             
         final FileHashCache expringPersistDiskCache = new FileHashCache(expiringDataFolder, expiringTempFolder);
             
         final Cache<String, Value> cache = 
-            new FilePersistedExpiringCache<Value>(                    
+            new FilePersistedExpiringCache<Value>(     
                 new FilePersistedMaxSizeCache<Value>(
                     dataFolder,
                     fileCache,
