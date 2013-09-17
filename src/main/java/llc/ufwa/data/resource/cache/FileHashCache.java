@@ -71,7 +71,11 @@ public class FileHashCache implements Cache<String, InputStream> {
     public InputStream get(String key) throws ResourceException {
         
         try {
-            return hash.get(key);
+            
+            final InputStream returnVal = hash.get(key);
+            
+            return returnVal;
+            
         } 
         catch(CorruptedDataException e) {
             

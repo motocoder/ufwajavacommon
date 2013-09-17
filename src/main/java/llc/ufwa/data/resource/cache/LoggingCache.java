@@ -84,7 +84,7 @@ public class LoggingCache<Key, Value> implements Cache<Key, Value> {
         
         final StopWatch watch = new StopWatch();
         watch.start();
-        
+
         internal.remove(key);
         
         logger.info("LoggingCache: " + tag + ": remove for key: " + key + " time: " + watch.getTime());
