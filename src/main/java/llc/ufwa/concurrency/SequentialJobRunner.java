@@ -19,9 +19,15 @@ public abstract class SequentialJobRunner<Job> {
 
     private final Queue<Job> jobCache; 
     private int run = 0;
+    private final int maxSize;
 
-    public SequentialJobRunner(final Executor worker, Queue<Job> cache) {
+    public SequentialJobRunner(
+        final Executor worker,
+        final Queue<Job> cache, 
+        final int maxSize
+    ) {
       
+        this.maxSize = maxSize;
         this.worker = worker;
         this.jobCache = cache;
         
@@ -42,8 +48,12 @@ public abstract class SequentialJobRunner<Job> {
 
         synchronized (jobCache) {
 
-            jobCache.add(job);
-
+            if(maxSize >= 0 && jobCache.size() < maxSize) {
+                
+                jobCache.add(job);
+                
+            }
+            
             start();
              
         }
