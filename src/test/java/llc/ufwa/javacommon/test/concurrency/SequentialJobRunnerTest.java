@@ -26,7 +26,7 @@ public class SequentialJobRunnerTest {
             final SequentialJobRunner<TestJob> jobRunner =
                     new SequentialJobRunner<TestJob>(
                         Executors.newFixedThreadPool(10), 
-                        new LinkedList<TestJob>()
+                        new LinkedList<TestJob>(), 750
                     ) {
     
                     @Override
