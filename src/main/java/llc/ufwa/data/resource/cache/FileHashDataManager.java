@@ -980,12 +980,14 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
     
     private int findFreeSegment(final int totalSize) throws HashBlobException {
         
-        final NavigableMap<Integer, Set<Integer>> tail = this.freeSegments.tailMap(totalSize, true);
+//        final NavigableMap<Integer, Set<Integer>> tail = this.freeSegments.tailMap(totalSize, true);
+        
+        final Entry<Integer, Set<Integer>> ceiling = this.freeSegments.ceilingEntry(totalSize);
         
         int returnVal = -1;
         
         //first look into the existing free segments
-        if(tail.size() == 0) {
+        if(ceiling == null) {
             
             int blobIndex = 0;
             
@@ -1153,12 +1155,10 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
            
             //use existing free segment that we already know about.
             
-            final Entry<Integer, Set<Integer>> first = tail.firstEntry();
-            
-            final Set<Integer> list = first.getValue();
+            final Set<Integer> list = ceiling.getValue();
             
             if(list.size() == 1) {
-                this.freeSegments.remove(first.getKey());
+                this.freeSegments.remove(ceiling.getKey());
             }
             
             returnVal = list.iterator().next();
