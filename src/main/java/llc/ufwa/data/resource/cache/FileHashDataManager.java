@@ -13,14 +13,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NavigableMap;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import llc.ufwa.connection.stream.WrappingInputStream;
 import llc.ufwa.data.DefaultEntry;
 import llc.ufwa.data.exception.BadDataException;
-import llc.ufwa.data.exception.CorruptDataException;
 import llc.ufwa.data.exception.CorruptedDataException;
 import llc.ufwa.data.exception.HashBlobException;
 import llc.ufwa.data.exception.InvalidIndexException;
@@ -29,7 +28,6 @@ import llc.ufwa.data.resource.ByteArrayIntegerConverter;
 import llc.ufwa.data.resource.Converter;
 import llc.ufwa.data.resource.provider.DefaultResourceProvider;
 import llc.ufwa.data.resource.provider.ResourceProvider;
-import llc.ufwa.util.DataUtils;
 import llc.ufwa.util.StreamUtil;
 
 import org.slf4j.Logger;
@@ -982,12 +980,12 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
         
 //        final NavigableMap<Integer, Set<Integer>> tail = this.freeSegments.tailMap(totalSize, true);
         
-        final Entry<Integer, Set<Integer>> ceiling = this.freeSegments.ceilingEntry(totalSize);
+        final SortedMap<Integer, Set<Integer>> tail = this.freeSegments.tailMap(totalSize);
         
         int returnVal = -1;
         
         //first look into the existing free segments
-        if(ceiling == null) {
+        if(tail.size() == 0) {
             
             int blobIndex = 0;
             
@@ -1155,10 +1153,11 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
            
             //use existing free segment that we already know about.
             
-            final Set<Integer> list = ceiling.getValue();
+            Set<Integer> list = tail.get(tail.firstKey());
+            
             
             if(list.size() == 1) {
-                this.freeSegments.remove(ceiling.getKey());
+                this.freeSegments.remove(tail.firstKey());
             }
             
             returnVal = list.iterator().next();
