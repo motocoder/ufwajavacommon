@@ -107,17 +107,10 @@ public class ValueConvertingCache<Key, Value, OldValue> implements Cache<Key, Va
     }
 
     @Override
-    public void put(Key key, Value value) {
-        try {
-            internal.put(key, converter.convert(value));
-        } 
-        catch (ResourceException e) {
-        	
-        	logger.error("ERROR:", e);
-        	
-//            throw new RuntimeException("<ValueConvertingCache><5>, " + e);  //this is crashing smaato apps
-            
-        }
+    public void put(Key key, Value value) throws ResourceException {
+        
+        internal.put(key, converter.convert(value));
+        
     }
     
 }
