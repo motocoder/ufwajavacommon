@@ -115,7 +115,7 @@ public class ValueConvertingCache<Key, Value, OldValue> implements Cache<Key, Va
         	
         	logger.error("ERROR:", e);
         	
-            throw new RuntimeException("<ValueConvertingCache><5>, " + e);
+//            throw new RuntimeException("<ValueConvertingCache><5>, " + e);  //this is crashing smaato apps
             
         }
     }
