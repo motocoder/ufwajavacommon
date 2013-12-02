@@ -191,10 +191,16 @@ public final class FileCache implements Cache<String, InputStream> {
 
 						final OutputStream tempOut= new FileOutputStream(tempFile);
 
-						StreamUtil.copyTo(in, tempOut);
+						try {
+						    
+						    StreamUtil.copyTo(in, tempOut);
 
-						tempOut.flush();
-						tempOut.close();
+						    tempOut.flush();
+						    
+						}
+						finally {
+						    tempOut.close();
+						}
 
 						final InputStream tempIn = new FileInputStream(tempFile);
 
@@ -273,6 +279,7 @@ public final class FileCache implements Cache<String, InputStream> {
 		final File inCache = buildCachedImagePath(parent, key);
 
 		try {
+		    
 			if(inCache.exists()) {
 
 				states.removeFromSize(inCache.length());
@@ -288,8 +295,10 @@ public final class FileCache implements Cache<String, InputStream> {
 				out.flush();	            
 			}
 			finally {
+			    
 				out.close();
 				cacheLastModified = parent.lastModified();
+				
 			}    
 
 			final File wroteFile = buildCachedImagePath(parent, key);
@@ -323,8 +332,10 @@ public final class FileCache implements Cache<String, InputStream> {
 		final File file = buildCachedImagePath(parent, key);
 
 		if(file.exists()) {
+		    
 			file.delete();
 			cacheLastModified = parent.lastModified();
+			
 		}
 
 	}
