@@ -79,6 +79,59 @@ public class WebUtil {
         } 
     }
     
+    public static WebResponseBytes doGetBytesResponse(final URL url, final Map<String, String> headers) throws IOException, FourOhOneException {
+        
+        try {
+            
+            final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            
+            connection.setRequestMethod("GET");
+            connection.setReadTimeout(10000);
+            
+            for(final Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.addRequestProperty(entry.getKey(), entry.getValue());
+            }          
+            connection.connect();
+            
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();            
+            final InputStream in = connection.getInputStream();
+            
+            if(connection.getResponseCode() == 401) {
+                throw new FourOhOneException();
+            }
+            
+            if(in != null) {
+                
+                try {
+                    StreamUtil.copyTo(in, out);
+                }
+                finally {
+                    in.close();
+                }
+                
+            }
+            else {
+                throw new IOException("<WebUtil><1>" + "Failed to get response");
+            }
+            
+            return new WebResponseBytes(out.toByteArray(), connection.getHeaderFields(), connection.getResponseCode());
+            
+                      
+        } 
+        catch (MalformedURLException e) {
+            
+            logger.error("<WebUtil><2>" + "ERROR:", e);
+            throw new IOException("<WebUtil><3>" + "ERROR:");
+            
+        }
+        catch (ProtocolException e) {
+            
+            logger.error("<WebUtil><4>" + "ERROR:", e);
+            throw new IOException("<WebUtil><5>" + "Error:");
+            
+        } 
+    }
+    
     public static byte [] doDeleteBytes(final URL url, final Map<String, String> headers) throws IOException, FourOhOneException {
         
         try {
@@ -414,6 +467,40 @@ public class WebUtil {
         
         public boolean wasError() {
             return wasError;
+        }
+
+        public List<String> getHeader(String headerName) {
+            return headers.get(headerName);
+        }
+        
+    }
+    
+    /**
+     * @author littleboy
+     *
+     */
+    public static class WebResponseBytes {
+        
+        private final byte [] response;
+        private final Map<String, List<String>> headers = new HashMap<String, List<String>>(); 
+        private final int responseCode;
+        
+        public WebResponseBytes(
+            final byte [] response, 
+            final Map<String, List<String>> headers,
+            final int responseCode
+        ) {
+            this.response = response;
+            this.headers.putAll(headers);
+            this.responseCode = responseCode;
+        }
+       
+        public byte [] getResponse() {
+            return response;
+        }
+        
+        public int getResponseCode() {
+            return responseCode;
         }
 
         public List<String> getHeader(String headerName) {
