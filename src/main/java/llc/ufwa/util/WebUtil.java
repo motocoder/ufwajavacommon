@@ -15,6 +15,7 @@ import java.util.Map;
 
 import llc.ufwa.exception.FourOhFourException;
 import llc.ufwa.exception.FourOhOneException;
+import llc.ufwa.util.WebUtil.WebResponseBytes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -508,6 +509,36 @@ public class WebUtil {
         }
         
     }
+    
+    public static class WebResponseStream {
+        
+        private final InputStream response;
+        private final Map<String, List<String>> headers = new HashMap<String, List<String>>(); 
+        private final int responseCode;
+        
+        public WebResponseStream(
+            final InputStream response, 
+            final Map<String, List<String>> headers,
+            final int responseCode
+        ) {
+            this.response = response;
+            this.headers.putAll(headers);
+            this.responseCode = responseCode;
+        }
+       
+        public InputStream getResponse() {
+            return response;
+        }
+        
+        public int getResponseCode() {
+            return responseCode;
+        }
+
+        public List<String> getHeader(String headerName) {
+            return headers.get(headerName);
+        }
+        
+    }
 
     public static WebResponse doPostJSON(
         final URL url, 
@@ -705,6 +736,42 @@ public class WebUtil {
 
     public static String doDelete(URL url, Map<String, String> headers) throws IOException, FourOhOneException {
         return new String(doDeleteBytes(url, headers));      
+    }
+
+    public static WebResponseStream doGetInputStreamResponse(URL url, Map<String, String> headers) throws IOException, FourOhOneException {
+
+        try {
+            
+            final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            
+            connection.setRequestMethod("GET");
+            connection.setReadTimeout(10000);
+            
+            for(final Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.addRequestProperty(entry.getKey(), entry.getValue());
+            }       
+            
+            connection.connect();
+            
+            if(connection.getResponseCode() == 401) {
+                throw new FourOhOneException();
+            }
+            
+            return new WebResponseStream(connection.getInputStream(), connection.getHeaderFields(), connection.getResponseCode());
+                      
+        } 
+        catch (MalformedURLException e) {
+            
+            logger.error("<WebUtil><16>" + "ERROR:", e);
+            throw new IOException("<WebUtil><17>" + "ERROR:");
+            
+        }
+        catch (ProtocolException e) {
+            
+            logger.error("<WebUtil><18>" + "ERROR:", e);
+            throw new IOException("<WebUtil><19>" + "Error:");
+            
+        } 
     }
 
 }
