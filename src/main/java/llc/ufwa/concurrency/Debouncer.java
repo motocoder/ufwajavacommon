@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
  * @author seanwagner
  *
  */
-@Deprecated
 public class Debouncer {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Debouncer.class);
