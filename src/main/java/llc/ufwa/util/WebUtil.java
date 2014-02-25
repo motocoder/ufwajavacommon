@@ -35,7 +35,7 @@ public class WebUtil {
             final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             
             connection.setRequestMethod("GET");
-            connection.setReadTimeout(10000);
+            connection.setReadTimeout(30000);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
@@ -87,7 +87,7 @@ public class WebUtil {
             final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             
             connection.setRequestMethod("GET");
-            connection.setReadTimeout(10000);
+            connection.setReadTimeout(30000);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
@@ -140,7 +140,7 @@ public class WebUtil {
             final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             
             connection.setRequestMethod("DELETE");
-            connection.setReadTimeout(10000);
+            connection.setReadTimeout(30000);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
@@ -199,7 +199,7 @@ public class WebUtil {
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "application/xml");
 
-            connection.setReadTimeout(10000);
+            connection.setReadTimeout(30000);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
@@ -275,7 +275,7 @@ public class WebUtil {
                 connection.setRequestMethod("PUT");
                 connection.setDoOutput(true);
 
-                connection.setReadTimeout(10000);
+                connection.setReadTimeout(30000);
                 
                 for(final Map.Entry<String, String> entry : headers.entrySet()) {
                     connection.addRequestProperty(entry.getKey(), entry.getValue());
@@ -329,7 +329,7 @@ public class WebUtil {
             final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             
             connection.setRequestMethod("GET");
-            connection.setReadTimeout(10000);
+            connection.setReadTimeout(30000);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
@@ -371,7 +371,7 @@ public class WebUtil {
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Content-Type", "application/xml");
 
-            connection.setReadTimeout(10000);
+            connection.setReadTimeout(30000);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
@@ -553,13 +553,13 @@ public class WebUtil {
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
             connection.setDoInput(true);
-            connection.setReadTimeout(10000);
+            connection.setReadTimeout(30000);
             connection.setRequestProperty("Accept", "application/json");
             if(!headers.containsKey("Content-Type")) {
                 connection.addRequestProperty("Content-Type", "application/json");
             }
 
-            connection.setReadTimeout(10000);
+            connection.setReadTimeout(30000);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
@@ -664,10 +664,9 @@ public class WebUtil {
             connection.setRequestMethod("PUT");
             connection.setDoOutput(true);
             connection.setDoInput(true);
-            connection.setReadTimeout(10000);
             connection.setRequestProperty("Content-Type", "application/json");
 
-            connection.setReadTimeout(10000);
+            connection.setReadTimeout(30000);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
@@ -745,7 +744,7 @@ public class WebUtil {
             final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             
             connection.setRequestMethod("GET");
-            connection.setReadTimeout(10000);
+            connection.setReadTimeout(30000);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
