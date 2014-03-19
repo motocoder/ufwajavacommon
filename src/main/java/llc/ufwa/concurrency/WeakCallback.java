@@ -19,7 +19,10 @@ public class WeakCallback<Caller, Value> implements Callback<Caller, Value>{
         CallbackFinalizer finalizer) {
         
         this.finalizer = finalizer;
-        finalizer.onStart(internal);
+        
+        if(finalizer != null) {
+            finalizer.onStart(internal);
+        }
         this.throwExceptionOnNotThere = throwExceptionOnNotThere;
         this.internalWeak = new WeakReference<Callback<Caller, Value>>(internal);
         
@@ -34,7 +37,10 @@ public class WeakCallback<Caller, Value> implements Callback<Caller, Value>{
         if(internal != null) {
             
             returnVal = internal.call(value);
-            finalizer.onFinished(internal);
+            
+            if(finalizer != null) {
+                finalizer.onFinished(internal);    
+            }
             
         }
         else {
