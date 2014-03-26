@@ -238,6 +238,58 @@ public class CacheFactory {
         return listCache;
         
 	}
+    
+    public static final <Value> Cache<String, Value> getHashCashFileCache(
+            final File cacheRoot,
+            final Converter<Value, byte[]> valueConvertListToBytes
+    ) {
+        
+        final File dataFolder = new File(cacheRoot, "data");
+        final File tempFolder = new File(cacheRoot, "temp");
+        
+        final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+        
+        final Cache<String, Value> listCache = 
+                new SynchronizedCache<String, Value>(
+                    new ValueConvertingCache<String, Value, byte[]>(
+                        new ValueConvertingCache<String, byte[], InputStream>(
+                            new KeyEncodingCache<InputStream>(
+                                diskCache
+                            ),
+                            new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+                        ),
+                        valueConvertListToBytes
+                    )
+                );
+        
+        return listCache;
+        
+    }
+    
+    public static final <Value> Cache<String, Value> getHashCashFileCacheStream(
+          final File cacheRoot,
+          final Converter<Value, InputStream> valueConvertListToBytes
+  ) {
+      
+      final File dataFolder = new File(cacheRoot, "data");
+      final File tempFolder = new File(cacheRoot, "temp");
+      
+      final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+      
+      final Cache<String, Value> listCache = 
+              new SynchronizedCache<String, Value>(
+                  new ValueConvertingCache<String, Value, InputStream>(
+                       new KeyEncodingCache<InputStream>(
+                              diskCache
+                          ), 
+                          valueConvertListToBytes
+                      )
+                  );
+      
+      return listCache;
+      
+  }
+    
 
 	public static final <Value> Cache<Long, Value> getHashCashFileCacheLong(
 			final File cacheRoot,
