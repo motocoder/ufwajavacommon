@@ -21,6 +21,8 @@ public abstract class SequentialJobRunner<Job> {
     private int run = 0;
     private final int maxSize;
 
+    private boolean enabled = true;
+
     public SequentialJobRunner(
         final Executor worker,
         final Queue<Job> cache, 
@@ -64,7 +66,7 @@ public abstract class SequentialJobRunner<Job> {
         
         synchronized (jobCache) {
             
-            if (!running && jobCache.size() > 0) {
+            if (!running && jobCache.size() > 0 && enabled) {
                 
                 running = true;
                 
@@ -112,7 +114,20 @@ public abstract class SequentialJobRunner<Job> {
                             while(true) {
                                 
                                 try {
+                                    
                                     doJob(next);
+                                    
+                                    if(!enabled) {
+                                        
+                                        synchronized(jobCache) {
+                                            
+                                            running = false;                                     
+                                            onAllJobsComplete(); 
+                                             
+                                        }
+                                        
+                                    }
+                                    
                                 }
                                 catch(JobRunningException e) {
                                     
@@ -130,7 +145,7 @@ public abstract class SequentialJobRunner<Job> {
                                 
                                 synchronized(jobCache) {
                                     
-                                    jobCache.poll(); //TODO mmmm wont work if multithreaded. 
+                                    jobCache.poll(); 
                                     
                                     next = jobCache.peek();
                                     
@@ -207,6 +222,10 @@ public abstract class SequentialJobRunner<Job> {
             return run;
         }
         
+    }
+    
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
     
 }
