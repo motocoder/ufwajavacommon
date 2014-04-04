@@ -211,7 +211,7 @@ public abstract class SequentialJobRunner<Job> {
     public boolean isRunning() {
         
         synchronized(jobCache) {
-            return jobCache.size() > 0;
+            return jobCache.size() > 0 && running;
         }
         
     }
