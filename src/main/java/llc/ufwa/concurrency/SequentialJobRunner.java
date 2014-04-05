@@ -64,9 +64,16 @@ public abstract class SequentialJobRunner<Job> {
     
     public void start() {
         
+        logger.debug("starting");
+        
         synchronized (jobCache) {
             
+            logger.debug("1 " + running + " " + enabled + " " + jobCache.size());
+            
+            
             if (!running && jobCache.size() > 0 && enabled) {
+            
+                logger.debug("2");
                 
                 running = true;
                 
@@ -75,6 +82,8 @@ public abstract class SequentialJobRunner<Job> {
     
                         @Override
                         public void run() {
+                            
+                            logger.debug("3");
                             
                             Job next; 
                             
@@ -93,6 +102,9 @@ public abstract class SequentialJobRunner<Job> {
                                 }
                                  
                             }
+                            
+                            logger.debug("4");
+                            
                                 
                             try {
                                 prepare();
@@ -113,6 +125,7 @@ public abstract class SequentialJobRunner<Job> {
                          
                             while(true) {
                                 
+                                logger.debug("5");
                                 try {
                                     
                                     doJob(next);
@@ -123,8 +136,10 @@ public abstract class SequentialJobRunner<Job> {
                                             
                                             running = false;                                     
                                             onAllJobsComplete(); 
-                                             
+                                            
                                         }
+                                        
+                                        break;
                                         
                                     }
                                     
@@ -209,7 +224,7 @@ public abstract class SequentialJobRunner<Job> {
     }
     
     public boolean isRunning() {
-        
+    
         synchronized(jobCache) {
             return jobCache.size() > 0 && running;
         }
