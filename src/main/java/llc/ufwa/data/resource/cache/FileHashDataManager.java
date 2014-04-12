@@ -322,9 +322,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
         if(!tempFileDirectory.exists()) {
             tempFileDirectory.mkdirs();
         }
-        
-        tempFileDirectory.delete();
-        
+                
         if(!tempFileDirectory.isDirectory()) {
             throw new RuntimeException("file location must be a directory " + tempFileDirectory);
         }
@@ -504,7 +502,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         finally {
                             
                             out.close();
-                            tempFile.delete();
                             
                         }
                     }
