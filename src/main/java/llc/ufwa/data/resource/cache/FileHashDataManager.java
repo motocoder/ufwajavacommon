@@ -323,7 +323,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             tempFileDirectory.mkdirs();
         }
         
-        tempFileDirectory.deleteOnExit();
+        tempFileDirectory.delete();
         
         if(!tempFileDirectory.isDirectory()) {
             throw new RuntimeException("file location must be a directory " + tempFileDirectory);
@@ -504,7 +504,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         finally {
                             
                             out.close();
-                            tempFile.deleteOnExit();
+                            tempFile.delete();
                             
                         }
                     }
@@ -679,7 +679,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             try {
             	
                 tempFile = new File(this.tempFileDirectory, idProvider.provide());
-                tempFile.deleteOnExit();
                 
             } 
             catch (ResourceException e1) {
