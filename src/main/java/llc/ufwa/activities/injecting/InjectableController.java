@@ -32,6 +32,9 @@ public abstract class InjectableController<T extends InjectingDisplay> {
         
     }
 
+    protected void createDisplay(T display) {
+        
+    }
     
     protected abstract void configureDisplay(T display);
     
