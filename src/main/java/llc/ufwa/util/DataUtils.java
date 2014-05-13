@@ -3,8 +3,11 @@ package llc.ufwa.util;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 public class DataUtils {
     
@@ -60,4 +63,48 @@ public class DataUtils {
         
     }
 
+    /**
+     * 
+     * @param bytesIn
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T deserialize(final InputStream bytesIn) throws IOException, ClassNotFoundException {
+        
+        if(bytesIn == null) {
+            throw new NullPointerException("<DataUtils><2>, " + "bytes cannot be null");
+        }
+        
+        final ObjectInputStream objectsIn = new ObjectInputStream(bytesIn);
+        
+    	return (T) objectsIn.readObject();
+        
+    }
+	
+    /**
+     * 
+     * @param object
+     * @return
+     * @throws IOException
+     */
+	public static InputStream serializeToStream(final Object object) throws IOException {
+        
+        if(object == null) {
+            throw new NullPointerException("<DataUtils><1>, " + "object cannot be null");
+        }
+        
+        final PipedOutputStream pipedOut = new PipedOutputStream();        
+        final PipedInputStream pipedIn = new PipedInputStream(pipedOut);
+        
+        final ObjectOutputStream objectsOut = new ObjectOutputStream(pipedOut);
+        
+        objectsOut.writeObject(object);
+        objectsOut.flush();
+        objectsOut.close();
+        
+        return pipedIn;
+        
+    }
 }

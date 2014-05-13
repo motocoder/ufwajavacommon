@@ -2,8 +2,10 @@ package llc.ufwa.data.resource.cache;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.Serializable;
 
 import llc.ufwa.concurrency.Callback;
+import llc.ufwa.data.DataSizes;
 import llc.ufwa.data.resource.Converter;
 import llc.ufwa.data.resource.InputStreamConverter;
 import llc.ufwa.data.resource.ReverseConverter;
@@ -102,6 +104,9 @@ public class CacheFactory {
      * @param cacheRoot - must be unique to this cache. Can not be any other cache's root directory.
      * @param sizeConverter
      * @return
+     * 
+     * example - CacheFactory.getMaxSizeFileCache(DataSizes.ONE_MB, propsFile, new FixedSizeConverter<Serializable>(1024));
+     * 
      */
     public static final <Value> Cache<String, Value> getMaxSizeFileCache(
     	final long maxSize,
@@ -210,6 +215,26 @@ public class CacheFactory {
         return new SynchronizedCache<String, Value>(fileCache);
         
     }
+    
+    /**
+     * CacheFactory.getStreamHashCacheFileCache(musicFolder);
+     * 
+     * @param cacheRoot
+     * @return
+     */
+    public static final Cache<String, InputStream> getStreamHashCacheFileCache(
+        final File cacheRoot
+    ) {
+        
+        final File dataFolder = new File(cacheRoot, "data");
+        final File tempFolder = new File(cacheRoot, "temp");
+        
+        final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+        
+        return new SynchronizedCache<String, InputStream>(diskCache);
+        
+    }
+
     
     public static final <Value> Cache<String, Value> getHashCashFileCache(
 			final File cacheRoot,
@@ -370,5 +395,54 @@ public class CacheFactory {
         return new SynchronizedCache<String, Value>(cache);
                 
     }
+	
+	/**
+	 * 
+	 * CacheFactory.getMaxSizeExpiringFileCache(propsFile, DataSizes.FIVE_MB, (int)ONE_DAY);
+	 * 
+	 * @param cacheRoot
+	 * @param maxSize
+	 * @param expireTimeout
+	 * @return
+	 */
+	public static final Cache<String, InputStream> getMaxSizeExpiringFileCache(
+        final File cacheRoot,
+        final int maxSize,
+        final int expireTimeout
+    ) {
+        
+        final File dataFolder = new File(cacheRoot, "data");
+        final File tempFolder = new File(cacheRoot, "temp");
+        
+        final File expiringRoot = new File(cacheRoot, "expiringRoot");
+        
+        final File expiringDataFolder = new File(expiringRoot, "data");
+        final File expiringTempFolder = new File(expiringRoot, "temp");
+        
+        final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+        
+        final Cache<String, InputStream> fileCache = 
+            new SynchronizedCache<String, InputStream> (
+                diskCache
+            );
+            
+        final FileHashCache expringPersistDiskCache = new FileHashCache(expiringDataFolder, expiringTempFolder);
+            
+        final Cache<String, InputStream> cache = 
+            new FilePersistedExpiringCache<InputStream>(     
+                new FilePersistedMaxSizeStreamCache(
+                    dataFolder,
+                    fileCache,
+                    maxSize
+                ),
+                expringPersistDiskCache,
+                (long)expireTimeout,
+                (long)(expireTimeout * 2)
+            );
+        
+        return new SynchronizedCache<String, InputStream>(cache);
+                
+    }
+
 
 }
