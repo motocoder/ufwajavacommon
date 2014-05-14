@@ -1066,14 +1066,18 @@ public class ParallelResourceLoaderImpl<Key, Value> implements ParallelResourceL
                                 final LinkedList<Callback<Object, ResourceEvent<Value>>> origCallbacks =
                                     respondTo.get(key);
                                 
-                                origCallbacks.remove(onComplete);
-                                
-                                if(origCallbacks.size() == 0) {
+                                if(origCallbacks != null) {
                                     
-                                    final CallbackControl reallyCancel = callbackControls.get(key);
+                                    origCallbacks.remove(onComplete);
                                     
-                                    if(reallyCancel != null) {
-                                        reallyCancel.cancel();
+                                    if(origCallbacks.size() == 0) {
+                                        
+                                        final CallbackControl reallyCancel = callbackControls.get(key);
+                                        
+                                        if(reallyCancel != null) {
+                                            reallyCancel.cancel();
+                                        }
+                                        
                                     }
                                     
                                 }

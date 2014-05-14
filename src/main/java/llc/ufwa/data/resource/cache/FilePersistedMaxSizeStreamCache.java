@@ -167,38 +167,43 @@ public class FilePersistedMaxSizeStreamCache implements Cache<String, InputStrea
         
         final File tempFile = new File(tempFolder2, "temp-" + idProvider.provide() + ".tmp");
         
-        final int sizeOfAdding;
-        
         try {
-            sizeOfAdding = this.checkSize(value, tempFile);
-        }
-        finally {
+            
+            final int sizeOfAdding;
             
             try {
-                value.close();
+                sizeOfAdding = this.checkSize(value, tempFile);
             }
-            catch (IOException e) {
-                throw new ResourceException("Failed to close");    
-            }
-            
-            tempFile.delete();
-            
-        }
-        
-        {
-            
-            int currentSize = (Integer)this.persistCache.get("currentSize");
-            currentSize += sizeOfAdding;
-            
-            this.persistCache.put("currentSize", currentSize);
-            
-        }
+            finally {
                 
-        try {
-            internal.put(key, new FileInputStream(tempFile));
-        } 
-        catch (FileNotFoundException e1) {
-            throw new ResourceException("FAILED TO WRITE TEMP");
+                try {
+                    value.close();
+                }
+                catch (IOException e) {
+                    throw new ResourceException("Failed to close");    
+                }
+                            
+            }
+            
+            {
+                
+                int currentSize = (Integer)this.persistCache.get("currentSize");
+                currentSize += sizeOfAdding;
+                
+                this.persistCache.put("currentSize", currentSize);
+                
+            }
+                    
+            try {
+                internal.put(key, new FileInputStream(tempFile));
+            } 
+            catch (FileNotFoundException e1) {
+                throw new ResourceException("FAILED TO WRITE TEMP");
+            }
+            
+        }
+        finally {
+            tempFile.delete();
         }
         
         final LinkedData topKey = (LinkedData) persistCache.get("topKey");
