@@ -351,10 +351,9 @@ public class FilePersistedMaxSizeStreamCache implements Cache<String, InputStrea
         //final File tempFile = new File(tempFolder, "temp-" + idProvider.provide() + ".tmp");
 		
 		if(tempFile.exists()) {
-			throw new RuntimeException("Temp file exists");
+			//throw new RuntimeException("Temp file exists"); //commenting this out fixes the issue
 		}
 		
-
 		final SizeCountingInputStream wrapped = new SizeCountingInputStream(newVal);
 		
 		try {
