@@ -8,8 +8,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataUtils {
+    
+    private static final Logger logger = LoggerFactory.getLogger(DataUtils.class);
     
     private DataUtils() {
         
@@ -95,14 +101,50 @@ public class DataUtils {
             throw new NullPointerException("<DataUtils><1>, " + "object cannot be null");
         }
         
+        logger.debug("1");
+        
         final PipedOutputStream pipedOut = new PipedOutputStream();        
         final PipedInputStream pipedIn = new PipedInputStream(pipedOut);
         
+        logger.debug("2");
+        
         final ObjectOutputStream objectsOut = new ObjectOutputStream(pipedOut);
         
-        objectsOut.writeObject(object);
-        objectsOut.flush();
-        objectsOut.close();
+        logger.debug("3");
+        
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                objectsOut.writeObject(object);
+                
+                logger.debug("4b");
+                
+                objectsOut.flush();
+                objectsOut.close();
+                
+                logger.debug("5b");
+                
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                finally {
+                    
+                    try {
+                        objectsOut.close();
+                    } 
+                    catch (IOException e) {
+                        logger.error("ERROR:",e);
+                    }
+                    
+                }
+                
+            }});
+
+        logger.debug("5b");
+        
         
         return pipedIn;
         

@@ -70,6 +70,8 @@ public class FileHashCache implements Cache<String, InputStream> {
     @Override
     public InputStream get(String key) throws ResourceException {
         
+        logger.debug("file hash cache get");
+        
         try {
             
             final InputStream returnVal = hash.get(key);
@@ -139,6 +141,7 @@ public class FileHashCache implements Cache<String, InputStream> {
 
     @Override
     public void clear() throws ResourceException {
+        logger.debug("file hash cache clear");
         
         try {
             hash.clear();
@@ -152,6 +155,8 @@ public class FileHashCache implements Cache<String, InputStream> {
 
     @Override
     public void remove(String key) throws ResourceException {
+        
+        logger.debug("file hash cache remove");
         
         try {
             hash.remove(key);
@@ -182,7 +187,11 @@ public class FileHashCache implements Cache<String, InputStream> {
     public void put(String key, InputStream value) throws ResourceException {
         
         try {
+            
+            logger.debug("file hash cache put");
+            
             hash.put(key, value);
+            
         }
         catch(InvalidIndexException e) {
         	
