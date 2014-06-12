@@ -92,6 +92,20 @@ public class MultiRunAndQueueExecutor implements Executor {
           }
 
     }
+    
+    public boolean running() {
+        
+        synchronized(runList) {
+            
+            if(runList.size() != 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+            
+        }
+    }
 
     @Override
     public void execute(final Runnable command) {

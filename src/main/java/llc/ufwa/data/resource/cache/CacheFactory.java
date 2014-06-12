@@ -2,14 +2,20 @@ package llc.ufwa.data.resource.cache;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.Serializable;
+import java.util.LinkedList;
 
 import llc.ufwa.concurrency.Callback;
-import llc.ufwa.data.DataSizes;
+import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.Converter;
 import llc.ufwa.data.resource.InputStreamConverter;
+import llc.ufwa.data.resource.LongStringConverter;
 import llc.ufwa.data.resource.ReverseConverter;
 import llc.ufwa.data.resource.SerializingConverter;
+import llc.ufwa.data.resource.provider.CachedPushProvider;
+import llc.ufwa.data.resource.provider.DefaultResourceProvider;
+import llc.ufwa.data.resource.provider.PushProvider;
+import llc.ufwa.data.resource.provider.ResourceProvider;
+import llc.ufwa.data.resource.provider.SynchronizedPushProvider;
 
 public class CacheFactory {
     
@@ -95,6 +101,61 @@ public class CacheFactory {
                 );
         
         return new SynchronizedCache<String, Value>(cache);
+        
+    }
+    
+    /**
+     * example - (FifoCache<DownloadingJob>)CacheFactory.getFIFOCache(DownloadingJob.class, rootFile)
+     * 
+     * @param returnType - the generic type of the return fifo cache
+     * @param cacheRoot
+     * @return
+     */
+    public static <Job> FifoCache<Job> getFIFOCache(final Class<Job> returnType, File cacheRoot) {
+            
+//        final File cacheDir = FileNames.getDir(FileNames.IMPRESSION_JOBS, context, Context.MODE_APPEND);
+        
+        final File cacheDir = new File(cacheRoot, "file-cache");
+        
+        final Converter<Job, byte[]> valueConvertJobToBytes = new SerializingConverter<Job>();
+        final Converter<byte[], InputStream> valueConvertBytesToStream = new ReverseConverter<byte[], InputStream> (new InputStreamConverter());
+        final Converter<Long, String> keyConvertLongToString = new LongStringConverter();
+        
+        final Cache<Long, Job> converted = CacheFactory.getHashCashFileCacheLong(cacheDir, keyConvertLongToString, valueConvertBytesToStream, keyConvertLongToString, valueConvertJobToBytes);
+        
+        
+//        final File listCacheDir = FileNames.getDir(FileNames.IMPRESSION_LIST, context, Context.MODE_APPEND);
+
+        final Converter<LinkedList<Long>, byte[]> valueConvertListToBytes = new SerializingConverter<LinkedList<Long>>();
+        final Converter<byte[], InputStream> valueConvertBytesToStream2 = new ReverseConverter<byte[], InputStream> (new InputStreamConverter());
+        
+        final File listCacheDir = new File(cacheRoot, "fifo-list");
+        
+        final Cache<String, LinkedList<Long>> listCache = CacheFactory.getHashCashFileCache(listCacheDir, valueConvertBytesToStream2, valueConvertListToBytes);
+
+
+        final PushProvider<LinkedList<Long>> provider;
+        
+        {
+            
+            final ResourceProvider<LinkedList<Long>> rootProvider =
+                new DefaultResourceProvider<LinkedList<Long>>() {
+
+                    @Override
+                    public LinkedList<Long> provide() throws ResourceException {
+                        return new LinkedList<Long>();
+                    }
+                    
+                };
+                
+            provider = new SynchronizedPushProvider<LinkedList<Long>>(
+                new CachedPushProvider<LinkedList<Long>>(listCache, rootProvider)
+            );
+            
+        }
+        
+        
+        return new FifoCache<Job>(provider, converted);
         
     }
     
