@@ -657,8 +657,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
     @Override
     public int setBlobs(int blobIndex, Set<Entry<Key, InputStream>> blobs) throws HashBlobException {
                 
-        logger.debug("set blobs");
-        
         if(blobs.size() == 0 || blobs == null) {
             
             throw new HashBlobException("You must pass in data for set. Use erase instead");
@@ -975,9 +973,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
     }
     
     private int findFreeSegment(final int totalSize) throws HashBlobException {
-        
-        logger.debug("finding free segment");
-        
+                
 //        final NavigableMap<Integer, Set<Integer>> tail = this.freeSegments.tailMap(totalSize, true);
         
         final SortedMap<Integer, Set<Integer>> tail = this.freeSegments.tailMap(totalSize);
@@ -990,9 +986,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             int blobIndex = 0;
             
             while(true) {
-                
-                logger.debug("while loop");
-                
+                                
                 try {
                     
                     final RandomAccessFile random = new RandomAccessFile(root, "rws");
