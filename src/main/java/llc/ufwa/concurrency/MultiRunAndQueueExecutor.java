@@ -1,6 +1,8 @@
 package llc.ufwa.concurrency;
 
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
@@ -18,7 +20,7 @@ public class MultiRunAndQueueExecutor implements Executor {
     private static final Logger logger = LoggerFactory.getLogger(OneThroughLimitingExecutor.class); 
 
     private final Executor threads;
-    private final LinkedList<Runnable> runList = new LinkedList<Runnable>();
+    private final Set<Runnable> runList = new HashSet<Runnable>();
     private final LinkedList<Runnable> queueList = new LinkedList<Runnable>();
     private final int runners;
     private final int queuers; 
