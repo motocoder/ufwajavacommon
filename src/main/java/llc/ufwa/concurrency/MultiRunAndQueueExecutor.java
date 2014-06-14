@@ -38,59 +38,55 @@ public class MultiRunAndQueueExecutor implements Executor {
     
     private void startIfAvailable() {
 
-        synchronized (runList) {
+        threads.execute(
 
-            if (runList.size() > 0) {
+            new Runnable() {
 
-                threads.execute(
+                @Override
+                public void run() {
 
-                        new Runnable() {
+                    final Runnable toRun;
+                    
+                    synchronized(runList) {
 
-                            @Override
-                            public void run() {
+                        if(runList.size() < runners && queueList.size() > 0) {
+                            
+                            toRun = queueList.pop();
+                            runList.add(toRun);
+                            
+                        }
+                        else {
+                            toRun = null;
+                        }
+                        
+                    }
 
-                                final Runnable toRun;
+                    if(toRun != null) {
 
-                                if (runList.size() != 0) {
-                                    toRun = runList.getFirst();
-                                } else if (runList.size() == 0 && queueList.size() > 0) {
-                                    
-                                    runList.add(queueList.pop());
-                                    toRun = runList.getFirst();
-                                    
-                                } else {
-                                    toRun = null;
-                                }
+                        try {
 
-                                if (toRun != null) {
+                            toRun.run();
 
-                                    try {
+                        } 
+                        finally {
 
-                                        toRun.run();
-
-                                    } finally {
-
-                                        
-                                        runList.removeFirst();
-
-                                        if (runList.size() < runners && queueList.size() > 0) {
-                                            runList.add(queueList.pop());
-                                        }
-
-                                        startIfAvailable();
-
-                                    }
-
-                                }
-
+                            synchronized(runList) {
+                                runList.remove(toRun);
                             }
 
+                            startIfAvailable();
+                              
                         }
 
-                    );
-              }
-          }
+                    
+                    }
 
+                }
+
+            }
+
+        );
+        
     }
     
     public boolean running() {
@@ -109,38 +105,20 @@ public class MultiRunAndQueueExecutor implements Executor {
 
     @Override
     public void execute(final Runnable command) {
-
+        
         synchronized(runList) {
-            synchronized(queueList) {
-           
-                if(runList.size() >= 0 && runList.size() < runners) {
-
-                    runList.add(command);
-                    startIfAvailable();
-
-                }
-                else if(runList.size() >= runners) {
+            
+            if(queueList.size() < queuers) {
+             
+                queueList.add(command);
                 
-                    if(queueList.size() < queuers) {
-
-                        queueList.add(command);
-                        
-                    }
-                    else if(queueList.size() == queuers) {
-                    
-                        queueList.removeLast();
-                        queueList.add(command);
-                    
-                    }
-                }
-                if(runList.size() < runners && queueList.size() > 0) {
+                startIfAvailable();
                 
-                    runList.add(queueList.pop());
-                    startIfAvailable();
-                
-                }
             }
+            
         }
+        
+        
     }
     
 }

@@ -40,7 +40,7 @@ public abstract class ParallelJobRunner<Job> {
     protected abstract void doJob(Job job) throws JobRunningException;
     protected abstract void prepare() throws JobRunningException;
     protected abstract void onAllJobsComplete();   
-    protected abstract void onJobErroredComplete();  
+    protected abstract void onJobErroredComplete(Job next);  
 
     /** 
      * Adds a job to be run. If jobs aren't already being executed it starts job execution.
@@ -63,34 +63,33 @@ public abstract class ParallelJobRunner<Job> {
 
     }
     
-    public void start() {
+    public void removeJob(Job job) {
         
-        logger.debug("starting");
+        synchronized (jobCache) {
+            jobCache.remove(job);            
+        }
+        
+    }
+    
+    public void start() {
         
         synchronized (jobCache) {
             
-            logger.debug(enabled + " " + jobCache.size());
-            
-            
             if (jobCache.size() > 0 && enabled) {
-            
-                logger.debug("2");
                 
                 threads.execute(
                     new Runnable() {
     
                         @Override
                         public void run() {
-                            
-                            logger.debug("3");
-                            
+                                                        
                             Job next; 
                             
                             synchronized(jobCache) {
                                 
                                 run++;
                                 
-                                next = jobCache.peek();
+                                next = jobCache.poll();
                                 
                                 if(next == null) { 
                                                                
@@ -100,9 +99,7 @@ public abstract class ParallelJobRunner<Job> {
                                 }
                                  
                             }
-                            
-                            logger.debug("4");
-                                
+                                                            
                             try {
                                 prepare();
                             }
@@ -111,8 +108,10 @@ public abstract class ParallelJobRunner<Job> {
                                 logger.error("<SequentialJobRunner><1>, COULD NOT PREPARE:", e);
                                 
                                 synchronized(jobCache) {
+                                    
+                                    jobCache.add(next);
                                                                      
-                                    onAllJobsComplete();
+                                    onJobErroredComplete(next);
                                     return;
                                     
                                 }
@@ -121,7 +120,6 @@ public abstract class ParallelJobRunner<Job> {
                          
                             while(true) {
                                 
-                                logger.debug("5");
                                 try {
                                     
                                     doJob(next);
@@ -144,8 +142,10 @@ public abstract class ParallelJobRunner<Job> {
                                     logger.error("<SequentialJobRunner><2>, Error:", e);
                                     
                                     synchronized(jobCache) {
+                                        
+                                        jobCache.add(next);
                                                                             
-                                        onJobErroredComplete(); 
+                                        onJobErroredComplete(next); 
                                          
                                     }
                                     break;
@@ -153,8 +153,6 @@ public abstract class ParallelJobRunner<Job> {
                                 }
                                 
                                 synchronized(jobCache) {
-                                    
-                                    jobCache.poll(); 
                                     
                                     next = jobCache.peek();
                                     
