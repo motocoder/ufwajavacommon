@@ -379,7 +379,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     final int fill;
                     
                     final int readCount = random.read(intIn); //read the key length
-                                        
+                           
+                    //TODO should be checking readCount == 4
                     dataRead += 4;
                     
                     fill = converter.convert(intIn);
