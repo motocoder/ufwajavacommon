@@ -6,6 +6,7 @@ import java.util.TreeMap;
 
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.Converter;
+import llc.ufwa.data.resource.ReverseConverter;
 import llc.ufwa.data.resource.loader.DefaultResourceLoader;
 import llc.ufwa.util.StopWatch;
 
@@ -66,6 +67,20 @@ public class MemoryCache<Key, Value> extends DefaultResourceLoader<Key, Value> i
         }
         
         this.sizer = sizer;
+        this.maxSize = maxSize;
+        
+    }
+    
+    public MemoryCache(
+        final int maxSize,
+        final Converter<Integer, Value> sizer
+    ) {
+
+        if(sizer == null) {
+            throw new NullPointerException("<MemoryCache><1>, Size cannot be null");
+        }
+        
+        this.sizer = new ReverseConverter<Value, Integer>(sizer);
         this.maxSize = maxSize;
         
     }

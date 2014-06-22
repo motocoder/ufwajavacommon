@@ -370,7 +370,7 @@ public class WebUtil {
             
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Content-Type", "application/xml");
-
+            connection.setDoOutput(true);
             connection.setReadTimeout(30000);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
@@ -378,11 +378,7 @@ public class WebUtil {
             }   
             
             connection.connect();
-            
-            if(connection.getResponseCode() == 401) {
-                throw new FourOhOneException();
-            }
-            
+                        
             {
                 
                 final OutputStream writing = connection.getOutputStream();
@@ -393,11 +389,17 @@ public class WebUtil {
                     
                     StreamUtil.copyTo(reading, writing);
                     
+                    writing.flush();
+                    
                 }
                 finally {
                     writing.close();
                 }
                 
+            }
+            
+            if(connection.getResponseCode() == 401) {
+                throw new FourOhOneException();
             }
             
             final ByteArrayOutputStream out = new ByteArrayOutputStream();            
