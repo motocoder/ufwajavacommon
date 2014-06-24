@@ -437,6 +437,87 @@ public class WebUtil {
     
     }
     
+    public static String doGetEncoded(
+        final URL url,
+        final Map<String, String> headers,
+        final String body
+    ) throws IOException, FourOhOneException {
+        
+        try {
+            
+            final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setReadTimeout(30000);
+            
+            for(final Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.addRequestProperty(entry.getKey(), entry.getValue());
+            }   
+            
+            connection.connect();
+                        
+            {
+                
+                final OutputStream writing = connection.getOutputStream();
+                
+                try {
+                    
+                    final InputStream reading = new ByteArrayInputStream(body.getBytes("UTF-8"));
+                    
+                    StreamUtil.copyTo(reading, writing);
+                    
+                    writing.flush();
+                    
+                }
+                finally {
+                    writing.close();
+                }
+                
+            }
+            
+            if(connection.getResponseCode() == 401) {
+                throw new FourOhOneException();
+            }
+            
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();            
+            final InputStream in = connection.getInputStream();
+            
+            if(in != null) {
+                
+                try {
+                    StreamUtil.copyTo(in, out);
+                }
+                finally {
+                    in.close();
+                }
+                
+            }
+            else {
+                throw new IOException("<WebUtil><20>" + "Failed to get response");
+            }
+            
+            return new String(out.toByteArray());
+                      
+        } 
+        catch (MalformedURLException e) {
+            
+            logger.error("<WebUtil><21>" + "ERROR:", e);
+            throw new IOException("<WebUtil><22>" + "ERROR:");
+            
+        }
+        catch (ProtocolException e) {
+            
+            logger.error("<WebUtil><23>" + "ERROR:", e);
+            throw new IOException("<WebUtil><24>" + "Error:");
+            
+        } 
+    
+    }
+
+    
     public static class WebResponse {
         
         private final String response;
