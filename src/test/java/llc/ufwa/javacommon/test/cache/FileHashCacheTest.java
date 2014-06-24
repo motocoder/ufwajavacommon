@@ -404,7 +404,7 @@ public class FileHashCacheTest {
 		
 		try {
 			
-			for (int x = 0; x < 17; x++) {
+			for (int x = 0; x < 23; x++) {
 				
 		        deleteRoot(tempFolder);
 		        deleteRoot(dataFolder);
