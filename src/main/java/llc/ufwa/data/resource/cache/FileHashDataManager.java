@@ -17,8 +17,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.swing.text.html.HTMLDocument.Iterator;
-
 import llc.ufwa.connection.stream.WrappingInputStream;
 import llc.ufwa.data.DefaultEntry;
 import llc.ufwa.data.exception.BadDataException;
