@@ -596,6 +596,223 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
     }
     
     /**
+     * Go to index, read data, return blobs
+     * @throws  
+     */
+    public Set<Entry<Key, byte[]>> getBlobs(int blobIndex) throws HashBlobException {
+        
+        try {
+            
+            final Set<Entry<Key, byte[]>> returnBlobs = new HashSet<Entry<Key, byte[]>>();
+            
+            final RandomAccessFile random = new RandomAccessFile(root, "rws");
+            
+            try {
+                
+                random.seek(blobIndex); //go to index
+                
+                final byte [] intIn = new byte[4];
+                
+                //read the segment length
+                final int segLength;
+                final int readSegCount;
+                
+                {
+                
+                    readSegCount = random.read(intIn);
+                    segLength = converter.convert(intIn);
+                
+                }
+                
+                if(segLength < -1 || segLength == 0 || segLength > random.length()) { 
+                    //This segment was not initialized properly, it is bad we need to never attempt to use it, delete
+                    throw new BadDataException();
+                }
+                
+                if (readSegCount != intIn.length) {
+                	throw new CorruptedDataException("bytes read is different from intended");
+                }
+                
+                int dataRead = 0;
+                
+                //while we approach the end
+                while(dataRead + 4 < segLength) {
+                    
+                    final File tempFile = new File(tempFileDirectory, this.idProvider.provide());
+                     
+                    final int fill;
+                    
+                    final int readCount = random.read(intIn); //read the key length
+                           
+                    if (readCount != 4) {
+                    	throw new CorruptedDataException("bytes read is wrong length");
+                    }
+                    
+                    dataRead += 4;
+                    
+                    fill = converter.convert(intIn);
+                                        
+                    if(dataRead == 4 && fill < 0) { //return null if there is nothing here, we do this for empty segments
+                        return null;
+                    }
+                    
+                    if(dataRead > 4 && fill < 0) { //segment was short recycled one. we are done
+                       break;                        
+                    }
+                    
+                    if(fill > segLength) { //corrupt data
+                        throw new CorruptedDataException("<1> data is corrupt");
+                    }
+
+                    //extract a key from the data
+                    final Key key;
+                    
+                    {
+                      
+                        //read the key data
+                        final byte [] buffer = new byte[BUFFER_SIZE];
+                        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        
+                        try {
+                        
+                            for(int i = 0; i < fill; ) {
+                                
+                                final int amountToRead;
+                                
+                                if(i + buffer.length > fill) {
+                                    amountToRead = fill - i;    
+                                }
+                                else {
+                                    amountToRead = buffer.length;
+                                }
+                                
+                                final int read = random.read(buffer, 0, amountToRead);
+                                
+                                dataRead += read;
+                                
+                                if(read != amountToRead) {
+                                    throw new CorruptedDataException("<2> data is corrupt");
+                                }
+                                
+                                out.write(buffer, 0, read);
+
+                                if (out.size() != read) {
+                                	throw new CorruptedDataException("output buffer wrong size");
+                                }
+                                
+                                out.flush();
+                                
+                                if(read < buffer.length) {
+                                    break;
+                                }
+                                                            
+                            }
+                            
+                            key = keySerializer.restore(out.toByteArray()); 
+                            
+                        }
+                        finally {
+                            out.close();
+                        }
+                        
+                    }
+                    
+                    //extract the data for this key                    
+                    final int dataFill;
+                    final int readDataLength;
+                    
+                    readDataLength = random.read(intIn);
+                    
+                    if (readDataLength != intIn.length) {
+                    	throw new CorruptedDataException("bytes read is wrong length");
+                    }
+                    
+                    dataRead += 4;
+                    
+                    if(dataRead > segLength) {
+                        throw new CorruptedDataException("<3> data is corrupt");
+                    }
+                    
+                    dataFill = converter.convert(intIn);
+                    
+                    if(dataRead + dataFill > segLength) {
+                        throw new CorruptedDataException("<4> data is corrupt");
+                    }
+                   
+                    {
+                        
+                        final byte [] buffer = new byte[BUFFER_SIZE];
+                        
+                        for(int i = 0; i < dataFill; ) {
+                            
+                            final int amountToRead;
+                            
+                            if(i + BUFFER_SIZE > dataFill) {
+                                amountToRead = dataFill - i;    
+                            }
+                            else {
+                                amountToRead = BUFFER_SIZE;
+                            }
+                            
+                            final int read = random.read(buffer, 0, amountToRead);
+                            
+                            dataRead += read;
+                            i += read;
+                            
+                            if(read != amountToRead) {
+                                throw new HashBlobException("cannot read entire segment");
+                            }
+                            if(read < BUFFER_SIZE) {
+                                break;
+                            }
+                                                        
+                        }
+                        
+                        //add this to prepared values
+                        DefaultEntry<Key, byte[]> entry = new DefaultEntry<Key, byte[]>(key, buffer);
+                        returnBlobs.add(entry);
+                            
+                    }
+                    
+                }
+                
+            } 
+            catch (BadDataException e) {
+                
+                logger.error("bad data", e);
+                throw new CorruptedDataException("Data has been corrupted");                
+                
+            }
+            finally {
+                random.close();
+            }
+            
+            //return blobs of new data
+            return returnBlobs;
+            
+        } 
+        catch (FileNotFoundException e) {
+          
+            logger.error("Failed to allocate new bucket", e);
+            throw new CorruptedDataException("failed to allocate new bucket");
+          
+        }
+        catch (ResourceException e) {
+            
+            logger.error("Failed to allocate new bucket3", e);
+            throw new CorruptedDataException("failed to allocate new bucket3");
+            
+        }
+        catch (IOException e) {
+          
+            logger.error("Failed to allocate new bucket2", e);
+            throw new CorruptedDataException("failed to allocate new bucket2");
+          
+        }
+        
+    }
+    
+    /**
      * Clears out the data at this segment freeing it up.
      * 
      * @param blobIndex
