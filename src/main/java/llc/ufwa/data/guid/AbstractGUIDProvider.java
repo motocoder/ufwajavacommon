@@ -1,9 +1,12 @@
 package llc.ufwa.data.guid;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import llc.ufwa.data.dao.BucketDAO;
 import llc.ufwa.data.dao.exception.DAOException;
+import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.provider.DefaultResourceProvider;
 
 import org.slf4j.Logger;
@@ -20,7 +23,7 @@ public abstract class AbstractGUIDProvider extends DefaultResourceProvider<Strin
     }
     
     @Override
-    public String provide() {
+    public String provide() throws ResourceException {
         
         final UUID uuid = UUID.randomUUID();
         
@@ -32,15 +35,20 @@ public abstract class AbstractGUIDProvider extends DefaultResourceProvider<Strin
             try {
                 
                 bucket.createGuid(guid);
-                
-                createChildren(bucket, guid);
-                
+                                
             }
             catch(DAOException daoException) {
                 
                 logger.error("GUID MUST HAVE ALREADY BEEN USED:", daoException);
                 continue;
                 
+            }
+            
+            try {
+                createChildren(bucket, guid);
+            } 
+            catch (DAOException e) {
+                throw new ResourceException("Failed to create children");
             }
             
             return guid;
@@ -52,7 +60,55 @@ public abstract class AbstractGUIDProvider extends DefaultResourceProvider<Strin
     }
     
     protected abstract String getGuidPrefix();
-    protected abstract boolean createChildren(final BucketDAO bucket, final String newGUID) throws DAOException;
+    protected abstract void createChildren(final BucketDAO bucket, final String newGUID) throws DAOException;
     
-
+    public Set<String> provide(int count) throws ResourceException {
+        
+        final UUID uuid = UUID.randomUUID();
+        
+        //try to create a guid 5 times, if collision happens, try again.
+        for(int i = 0; i < 5; i++) {
+            
+            final Set<String> guids = new HashSet<String>();
+            
+            for(int num = 0; num < count; num++) {
+                
+                final String guid = getGuidPrefix() + uuid.toString();
+                
+                guids.add(guid);
+                
+                try {
+                    
+                    bucket.createGuid(guid);
+                    
+                }
+                catch(DAOException daoException) {
+                    
+                    logger.error("GUID MUST HAVE ALREADY BEEN USED:", daoException);
+                    continue;
+                    
+                }
+                
+            }
+            
+            
+            try {
+                
+                for(final String guid : guids) {
+                    createChildren(bucket, guid);    
+                }
+                
+            } 
+            catch (DAOException e) {
+                throw new ResourceException("Failed to create children");
+            }
+            
+            return guids;
+            
+        }
+        
+        throw new RuntimeException("Something is wrong with your database probably");
+        
+    }
+    
 }
