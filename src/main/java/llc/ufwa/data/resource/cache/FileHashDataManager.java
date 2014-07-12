@@ -1,5 +1,6 @@
 package llc.ufwa.data.resource.cache;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -341,7 +342,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
      */
     @Override
     public Set<Entry<Key, InputStream>> getBlobsAt(int blobIndex) throws HashBlobException {
-        
+    	
         try {
             
             final Set<Entry<Key, File>> tempFiles = new HashSet<Entry<Key, File>>();
@@ -365,9 +366,16 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 
                 }
                 
+                System.out.println("seglength" + segLength);
+                
                 if(segLength < -1 || segLength == 0 || segLength > random.length()) { 
                     //This segment was not initialized properly, it is bad we need to never attempt to use it, delete
                     throw new BadDataException();
+                }
+                
+                // check if segLength > 1MB, if so, use getBlobs
+                if (segLength > 1048576) {
+                	return getBlobs(blobIndex);
                 }
                 
                 if (readSegCount != intIn.length) {
@@ -599,11 +607,11 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
      * Go to index, read data, return blobs
      * @throws  
      */
-    public Set<Entry<Key, byte[]>> getBlobs(int blobIndex) throws HashBlobException {
+    public Set<Entry<Key, InputStream>> getBlobs(int blobIndex) throws HashBlobException {
         
         try {
             
-            final Set<Entry<Key, byte[]>> returnBlobs = new HashSet<Entry<Key, byte[]>>();
+            final Set<Entry<Key, InputStream>> returnBlobStreams = new HashSet<Entry<Key, InputStream>>();
             
             final RandomAccessFile random = new RandomAccessFile(root, "rws");
             
@@ -768,9 +776,11 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                                                         
                         }
                         
+                        InputStream inputStream = new ByteArrayInputStream(buffer);
+                        
                         //add this to prepared values
-                        DefaultEntry<Key, byte[]> entry = new DefaultEntry<Key, byte[]>(key, buffer);
-                        returnBlobs.add(entry);
+                        DefaultEntry<Key, InputStream> entry = new DefaultEntry<Key, InputStream>(key, inputStream);
+                        returnBlobStreams.add(entry);
                             
                     }
                     
@@ -788,7 +798,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             }
             
             //return blobs of new data
-            return returnBlobs;
+            return returnBlobStreams;
             
         } 
         catch (FileNotFoundException e) {
