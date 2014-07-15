@@ -366,8 +366,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 
                 }
                 
-                System.out.println("seglength" + segLength);
-                
                 if(segLength < -1 || segLength == 0 || segLength > random.length()) { 
                     //This segment was not initialized properly, it is bad we need to never attempt to use it, delete
                     throw new BadDataException();
