@@ -397,45 +397,48 @@ public class FileHashCacheTest {
 	
 	@Test 
 	public void varyingKeyLengthTest() {
-		
-        final File tempFolder = new File("./target/test-files/temp-dataaaa");
-        final File dataFolder = new File("./target/test-files/dataaaa");
-        final File dataFolderItem = new File("./target/test-files/data/dataaaa");
+
+		final File root2 = new File("/target/test-files/temporary-dataa");
 		
 		try {
 			
 			for (int x = 0; x < 23; x++) {
 				
-		        deleteRoot(tempFolder);
-		        deleteRoot(dataFolder);
-		        dataFolderItem.delete();
+				final File dataFolder = new File(root2, "data");
+		        final File tempFolder = new File(root2, "temp");
 		        
-		        tempFolder.mkdirs();
-		        dataFolder.mkdirs();
-		        
-		        final FileHashCache cache = new FileHashCache(dataFolderItem, tempFolder);
+				final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+				
+				final Cache<String, String> fileCache =
+					new ValueConvertingCache<String, String, byte []>(
+						new ValueConvertingCache<String, byte [], InputStream>(
+								diskCache,
+								new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+							),
+							new SerializingConverter<String>()
+						);
+				
+				final Cache<String, String> cache = new SynchronizedCache<String, String>(fileCache);
 		        
 		        // create varying length strings by concatenation
-		        String key = "abcdefghijklmnopqrstuvwxyz0123456789";
-		        String value = "abcdefgh";
+		        String key = "abcdef0123456789";
+		        String value = "abcdefghi";
 		        
 		        for (int i = 0; i < x; i++) {
 		        	value = value.concat(value);
+		        	key = key.concat("f");
 		        }
 		        
 		        logger.info("putting value of length: " + value.length() + " with key of length: " + key.length());
 		        
-		        String returnValue;
-		        
 		        // TEST PUT, GET, REMOVE, and EXISTS
 		        
-		        cache.put(key, new ByteArrayInputStream(value.getBytes()));
+		        cache.put(key, value);
 		        
-		        InputStream baos = null;
-		        
-		        baos = cache.get(key);
-				
-		        returnValue = getStringFromInputStream(baos);
+		        String returnValue = cache.get(key);
+			
+		        System.out.println(returnValue);
+		        System.out.println(value);
 		        
 		        TestCase.assertEquals(value, returnValue);
 		        TestCase.assertEquals(cache.exists(key), true);
@@ -444,7 +447,69 @@ public class FileHashCacheTest {
 		        
 		        TestCase.assertEquals(cache.exists(key), false);
 		        
-		        baos.close();
+			}
+		        
+		}
+		catch (ResourceException e) {
+			e.printStackTrace();
+		} 
+		finally {
+			
+		}
+		
+	}
+	
+	@Test 
+	public void assortedTest() {
+
+		final File root2 = new File("/target/test-files/tempor-dataa");
+		
+		try {
+			
+			for (int x = 0; x < 20; x++) {
+				
+				final File dataFolder = new File(root2, "data");
+		        final File tempFolder = new File(root2, "temp");
+		        
+				final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+				
+				final Cache<String, String> fileCache =
+					new ValueConvertingCache<String, String, byte []>(
+						new ValueConvertingCache<String, byte [], InputStream>(
+								diskCache,
+								new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+							),
+							new SerializingConverter<String>()
+						);
+				
+				final Cache<String, String> cache = new SynchronizedCache<String, String>(fileCache);
+		        
+		        // create varying length strings by concatenation
+		        String key = "abcdefojlkc,mnaproflksaflkd0123456789";
+		        String value = "abcdefghi";
+		        
+		        for (int i = 0; i < x; i++) {
+		        	value = value.concat(value);
+		        	key = key.concat("f");
+		        }
+		        
+		        logger.info("putting value of length: " + value.length() + " with key of length: " + key.length());
+		        
+		        // TEST PUT, GET, REMOVE, and EXISTS
+		        
+		        cache.put(key, value);
+		        
+		        String returnValue = cache.get(key);
+			
+		        System.out.println(returnValue);
+		        System.out.println(value);
+		        
+		        TestCase.assertEquals(value, returnValue);
+		        TestCase.assertEquals(cache.exists(key), true);
+		        
+		        cache.clear(); // test clear
+		        
+		        TestCase.assertEquals(cache.exists(key), false);
 		        
 			}
 		        
@@ -452,13 +517,8 @@ public class FileHashCacheTest {
 		catch (ResourceException e) {
 			e.printStackTrace();
 		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		} 
 		finally {
-			deleteRoot(tempFolder);
-	        deleteRoot(dataFolder);
-	        dataFolderItem.delete();
+			
 		}
 		
 	}
