@@ -372,7 +372,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 }
                 
                 // check if segLength > 1MB, if so, use getBlobs
-                if (segLength > 1048576) {
+                if (segLength < 1000000) {
                 	return getBlobs(blobIndex);
                 }
                 
@@ -644,8 +644,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 //while we approach the end
                 while(dataRead + 4 < segLength) {
                     
-                    final File tempFile = new File(tempFileDirectory, this.idProvider.provide());
-                     
                     final int fill;
                     
                     final int readCount = random.read(intIn); //read the key length
@@ -748,6 +746,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     {
                         
                         final byte [] buffer = new byte[BUFFER_SIZE];
+                        final InputStream inputStream;
                         
                         for(int i = 0; i < dataFill; ) {
                             
@@ -768,17 +767,20 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                             if(read != amountToRead) {
                                 throw new HashBlobException("cannot read entire segment");
                             }
+                            
                             if(read < BUFFER_SIZE) {
+                            	
+                            	inputStream = new ByteArrayInputStream(buffer, 0, read);
+                                //add this to prepared values
+                                DefaultEntry<Key, InputStream> entry = new DefaultEntry<Key, InputStream>(
+                                		key, new WrappingInputStream(inputStream) {});
+                                
+                                returnBlobStreams.add(entry);
+                                
                                 break;
                             }
                                                         
                         }
-                        
-                        InputStream inputStream = new ByteArrayInputStream(buffer);
-                        
-                        //add this to prepared values
-                        DefaultEntry<Key, InputStream> entry = new DefaultEntry<Key, InputStream>(key, inputStream);
-                        returnBlobStreams.add(entry);
                             
                     }
                     
@@ -1226,7 +1228,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
         
         return writingIndex;
         
-        
     }
     
     private int findFreeSegment(final int totalSize) throws HashBlobException {
@@ -1320,7 +1321,9 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         
                         blobIndex += 8 + Math.abs(segLength); //skip to next segment
                         
-                    } 
+                        System.out.println("blobIndex = " + blobIndex);
+                        
+                    }
                     finally {
                         random.close();
                     }
@@ -1360,21 +1363,15 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         if (length < Integer.MIN_VALUE || length > Integer.MAX_VALUE) {
                         	throw new IllegalArgumentException("cannot cast length to int");
                         }
-                      
-                        returnVal = (int)length;
+                        
+                        returnVal = (int) length;
                         
                         final byte [] lengthData = converter.restore(totalSize);
                         
                         random.seek(length);
                         
-//                        random.write(lengthData);
-//                        
-//                        final byte [] fillData = converter.restore(-1);
-//                    
-//                        random.write(fillData);
-                        
                         final byte [] fillData = converter.restore(-1);
-                    
+                        
                         final byte [] totalData = concat(lengthData, fillData);
                         
                         random.write(totalData);
