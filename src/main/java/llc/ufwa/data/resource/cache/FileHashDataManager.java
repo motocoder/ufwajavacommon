@@ -373,6 +373,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 
                 // check if segLength > 1MB, if so, use getBlobs
                 if (segLength < 1000000) {
+                	random.close();
                 	return getBlobs(blobIndex);
                 }
                 
@@ -398,7 +399,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     dataRead += 4;
                     
                     fill = converter.convert(intIn);
-                                        
+                    
                     if(dataRead == 4 && fill < 0) { //return null if there is nothing here, we do this for empty segments
                         return null;
                     }
@@ -464,7 +465,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         
                     }
                     
-                    //extract the data for this key                    
+                    //extract the data for this key
                     final int dataFill;
                     final int readDataLength;
                     
@@ -606,7 +607,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
      * @throws  
      */
     public Set<Entry<Key, InputStream>> getBlobs(int blobIndex) throws HashBlobException {
-        
+    	
         try {
             
             final Set<Entry<Key, InputStream>> returnBlobStreams = new HashSet<Entry<Key, InputStream>>();
@@ -695,13 +696,13 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                                 dataRead += read;
                                 
                                 if(read != amountToRead) {
-                                    throw new CorruptedDataException("<2> data is corrupt");
+                                    throw new CorruptedDataException("<2> data is corrupt - read = " + read + ", amountToRead = " + amountToRead);
                                 }
                                 
                                 out.write(buffer, 0, read);
 
                                 if (out.size() != read) {
-                                	throw new CorruptedDataException("output buffer wrong size");
+                                	throw new CorruptedDataException("output buffer wrong size - out:" + out.size() + ", read:" + read);
                                 }
                                 
                                 out.flush();
@@ -744,49 +745,59 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     }
                    
                     {
-                        
+                    	
                         final byte [] buffer = new byte[BUFFER_SIZE];
-                        final InputStream inputStream;
+                        int readFinal = 0;
                         
-                        for(int i = 0; i < dataFill; ) {
-                            
-                            final int amountToRead;
-                            
-                            if(i + BUFFER_SIZE > dataFill) {
-                                amountToRead = dataFill - i;    
-                            }
-                            else {
-                                amountToRead = BUFFER_SIZE;
-                            }
-                            
-                            final int read = random.read(buffer, 0, amountToRead);
-                            
-                            dataRead += read;
-                            i += read;
-                            
-                            if(read != amountToRead) {
-                                throw new HashBlobException("cannot read entire segment");
-                            }
-                            
-                            if(read < BUFFER_SIZE) {
-                            	
-                            	inputStream = new ByteArrayInputStream(buffer, 0, read);
-                                //add this to prepared values
-                                DefaultEntry<Key, InputStream> entry = new DefaultEntry<Key, InputStream>(
-                                		key, new WrappingInputStream(inputStream) {});
-                                
-                                returnBlobStreams.add(entry);
-                                
-                                break;
-                            }
-                                                        
+                    	try {
+	                        
+	                        for(int i = 0; i < dataFill; ) {
+	                            
+	                            final int amountToRead;
+	                            
+	                            if(i + BUFFER_SIZE > dataFill) {
+	                                amountToRead = dataFill - i;    
+	                            }
+	                            else {
+	                                amountToRead = BUFFER_SIZE;
+	                            }
+	                            
+	                            final int read = random.read(buffer, 0, amountToRead);
+	                            
+	                            dataRead += read;
+	                            i += read;
+	                            
+	                            if(read != amountToRead) {
+	                                throw new HashBlobException("cannot read entire segment");
+	                            }
+	                            
+	                            if(read < BUFFER_SIZE) {
+	                            	readFinal = read;
+	                                break;
+	                            }
+	                            
+	                        }
+	                        
+                    	}
+                        finally {
+                        	
+                            final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer, 0, readFinal);
+
+                            //add this to prepared values
+                            DefaultEntry<Key, InputStream> entry = new DefaultEntry<Key, InputStream>(
+                            		key, new WrappingInputStream(inputStream) {});
+                       
+                            returnBlobStreams.add(entry);
+                        	inputStream.close();
+                        	
                         }
-                            
-                    }
+	                    
+                	}
                     
                 }
                 
-            } 
+            }
+                
             catch (BadDataException e) {
                 
                 logger.error("bad data", e);
@@ -800,7 +811,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             //return blobs of new data
             return returnBlobStreams;
             
-        } 
+        }
         catch (FileNotFoundException e) {
           
             logger.error("Failed to allocate new bucket", e);
