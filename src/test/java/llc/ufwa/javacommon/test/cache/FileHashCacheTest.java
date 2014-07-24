@@ -2,6 +2,7 @@ package llc.ufwa.javacommon.test.cache;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +26,7 @@ import llc.ufwa.data.resource.cache.FileHashCache;
 import llc.ufwa.data.resource.cache.FilePersistedMaxSizeCache;
 import llc.ufwa.data.resource.cache.SynchronizedCache;
 import llc.ufwa.data.resource.cache.ValueConvertingCache;
+import llc.ufwa.util.StreamUtil;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
@@ -134,34 +136,22 @@ public class FileHashCacheTest {
 	// convert InputStream to String
 	private static String getStringFromInputStream(InputStream is) {
 	    
-	    if(is == null) {
-	        throw new NullPointerException("InputStream is null");
+	    try {
+	        
+    	    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    	    
+    	    StreamUtil.copyTo(is, out);
+    	    
+     
+    		return new String(out.toByteArray(), "UTF-8");
+    		
 	    }
- 
-		BufferedReader br = null;
-		StringBuilder sb = new StringBuilder();
- 
-		String line;
-		try {
- 
-			br = new BufferedReader(new InputStreamReader(is));
-			while ((line = br.readLine()) != null) {
-				sb.append(line);
-			}
- 
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
- 
-		return sb.toString();
+	    catch(Exception e) {
+	        
+	        TestCase.fail();
+	        throw new RuntimeException();
+	        
+	    }
  
 	}
 	
@@ -253,27 +243,21 @@ public class FileHashCacheTest {
 	@Test 
 	public void multiThreadedTest() {
 		
-		final File root2 = new File("/target/test-files/temporary-dataa");
-		
 		final ExecutorService pool = Executors.newFixedThreadPool(10);
-		
-		deleteRoot(root2);
-		
-		final File dataFolder = new File(root2, "data");
-        final File tempFolder = new File(root2, "temp");
+
+        final File tempFolder = new File("./target/test-files/temp-data");
+        final File dataFolder = new File("./target/test-files/data");
+        final File dataFolderItem = new File("./target/test-files/data/data");
         
-		final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
-		
-		final Cache<String, String> fileCache = 
-			new ValueConvertingCache<String, String, byte []>(
-				new ValueConvertingCache<String, byte [], InputStream>(
-						diskCache,
-						new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
-					),
-					new SerializingConverter<String>()
-				);
-		
-		final Cache<String, String> cache = new SynchronizedCache<String, String>(fileCache);
+        deleteRoot(tempFolder);
+        deleteRoot(dataFolder);
+        dataFolderItem.delete();
+        
+        tempFolder.mkdirs();
+        dataFolder.mkdirs();
+        
+        final Cache<String, InputStream> fileCache = new FileHashCache(dataFolderItem, tempFolder);
+		final Cache<String, InputStream> cache = new SynchronizedCache<String, InputStream>(fileCache);
 		
 		logger.info("created cache");
 		
@@ -298,9 +282,9 @@ public class FileHashCacheTest {
 					        
 					        // TEST PUT, GET, REMOVE, and EXISTS
 					        
-					        cache.put(key, value);
+					        cache.put(key, new ByteArrayInputStream(value.getBytes()));
 					        
-					        final String returnValue = cache.get(key);
+					        final String returnValue = getStringFromInputStream(cache.get(key));
 					        
 					        TestCase.assertEquals(value, returnValue);
 					        TestCase.assertEquals(cache.exists(key), true);
@@ -325,8 +309,6 @@ public class FileHashCacheTest {
 		catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
-		
-		deleteRoot(root2);
 		
 	}
 	
@@ -394,18 +376,17 @@ public class FileHashCacheTest {
 		
 	}
 	
-	
 	@Test 
 	public void varyingKeyLengthTest() {
 		
-        final File tempFolder = new File("./target/test-files/temp-dataaaa");
-        final File dataFolder = new File("./target/test-files/dataaaa");
-        final File dataFolderItem = new File("./target/test-files/data/dataaaa");
-		
 		try {
 			
-			for (int x = 0; x < 23; x++) {
+			for (int x = 0; x < 18; x++) {
 				
+		        final File tempFolder = new File("./target/test-files/temp-data");
+		        final File dataFolder = new File("./target/test-files/data");
+		        final File dataFolderItem = new File("./target/test-files/data/data");
+		        
 		        deleteRoot(tempFolder);
 		        deleteRoot(dataFolder);
 		        dataFolderItem.delete();
@@ -413,29 +394,95 @@ public class FileHashCacheTest {
 		        tempFolder.mkdirs();
 		        dataFolder.mkdirs();
 		        
-		        final FileHashCache cache = new FileHashCache(dataFolderItem, tempFolder);
-		        
+		        final Cache<String, InputStream> fileCache = new FileHashCache(dataFolderItem, tempFolder);
+				final Cache<String, InputStream> cache = new SynchronizedCache<String, InputStream>(fileCache);
+				
 		        // create varying length strings by concatenation
-		        String key = "abcdefghijklmnopqrstuvwxyz0123456789";
-		        String value = "abcdefgh";
+		        String key = "abcdef0123456789";
+		        String value = "abcdefghi";
 		        
 		        for (int i = 0; i < x; i++) {
 		        	value = value.concat(value);
+		        	key = key.concat("f");
+		        	
+		        	
 		        }
 		        
 		        logger.info("putting value of length: " + value.length() + " with key of length: " + key.length());
 		        
-		        String returnValue;
+		        // TEST PUT, GET, REMOVE, and EXISTS
+		        
+		        logger.debug("writting value " + value.getBytes().length);
+		        
+		        cache.put(key, new ByteArrayInputStream(value.getBytes()));
+		        
+		        String returnValue = getStringFromInputStream(cache.get(key));
+			
+		        logger.debug(returnValue);
+		        logger.debug(value);
+		        
+		        TestCase.assertEquals(value.length(), returnValue.length());
+		        TestCase.assertEquals(value, returnValue);
+		        TestCase.assertEquals(cache.exists(key), true);
+		        
+		        cache.clear(); // test clear
+		        
+		        TestCase.assertEquals(cache.exists(key), false);
+		        
+			}
+		        
+		}
+		catch (ResourceException e) {
+			e.printStackTrace();
+		} 
+		finally {
+			
+		}
+		
+	}
+	
+	@Test 
+	public void assortedTest() {
+
+		final File root2 = new File("/target/test-files/tempor-dataa");
+		
+		try {
+			
+			for (int x = 0; x < 18; x++) {
+				
+		        final File tempFolder = new File("./target/test-files/temp-data");
+		        final File dataFolder = new File("./target/test-files/data");
+		        final File dataFolderItem = new File("./target/test-files/data/data");
+		        
+		        deleteRoot(tempFolder);
+		        deleteRoot(dataFolder);
+		        dataFolderItem.delete();
+		        
+		        tempFolder.mkdirs();
+		        dataFolder.mkdirs();
+		        
+		        final Cache<String, InputStream> fileCache = new FileHashCache(dataFolderItem, tempFolder);
+				final Cache<String, InputStream> cache = new SynchronizedCache<String, InputStream>(fileCache);
+				
+		        // create varying length strings by concatenation
+		        String key = "abcdef0123456789";
+		        String value = "abcdefghi";
+		        
+		        for (int i = 0; i < x; i++) {
+		        	value = value.concat(value);
+		        	key = key.concat("f");
+		        }
+		        
+		        logger.info("putting value of length: " + value.length() + " with key of length: " + key.length());
 		        
 		        // TEST PUT, GET, REMOVE, and EXISTS
 		        
 		        cache.put(key, new ByteArrayInputStream(value.getBytes()));
 		        
-		        InputStream baos = null;
-		        
-		        baos = cache.get(key);
-				
-		        returnValue = getStringFromInputStream(baos);
+		        String returnValue = getStringFromInputStream(cache.get(key));
+			
+		        System.out.println(returnValue);
+		        System.out.println(value);
 		        
 		        TestCase.assertEquals(value, returnValue);
 		        TestCase.assertEquals(cache.exists(key), true);
@@ -444,21 +491,14 @@ public class FileHashCacheTest {
 		        
 		        TestCase.assertEquals(cache.exists(key), false);
 		        
-		        baos.close();
-		        
 			}
 		        
 		}
 		catch (ResourceException e) {
 			e.printStackTrace();
 		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		} 
 		finally {
-			deleteRoot(tempFolder);
-	        deleteRoot(dataFolder);
-	        dataFolderItem.delete();
+			
 		}
 		
 	}
