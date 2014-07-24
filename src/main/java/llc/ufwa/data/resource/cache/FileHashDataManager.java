@@ -1,5 +1,6 @@
 package llc.ufwa.data.resource.cache;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -279,7 +280,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
 
     private static final Logger logger = LoggerFactory.getLogger(FileHashDataManager.class); 
     
-    private final int BUFFER_SIZE = 2048;
+    private static final int BUFFER_SIZE = 2048;
     
     private final File root;
     private final File tempFileDirectory;
@@ -341,10 +342,340 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
      */
     @Override
     public Set<Entry<Key, InputStream>> getBlobsAt(int blobIndex) throws HashBlobException {
-        
+    	
         try {
             
             final Set<Entry<Key, File>> tempFiles = new HashSet<Entry<Key, File>>();
+            
+            final RandomAccessFile random = new RandomAccessFile(root, "rws");
+            
+            try {
+                
+                random.seek(blobIndex); //go to index
+                
+                final byte [] intIn = new byte[4];
+                
+                //read the segment length
+                final int segLength;
+                final int readSegCount;
+                
+                {
+                
+                    readSegCount = random.read(intIn);
+                    segLength = converter.convert(intIn);
+                
+                }
+                
+                if(segLength < -1 || segLength == 0 || segLength > random.length()) { 
+                    //This segment was not initialized properly, it is bad we need to never attempt to use it, delete
+                    throw new BadDataException();
+                }
+                
+                // check if segLength > 1MB, if so, use getBlobs
+                if (segLength < 1000000) {
+                	random.close();
+                	return getBlobs(blobIndex);
+                }
+                
+                if (readSegCount != intIn.length) {
+                	throw new CorruptedDataException("bytes read is different from intended");
+                }
+                
+                int dataRead = 0;
+                
+                //while we approach the end
+                while(dataRead + 4 < segLength) {
+                                        
+                    final File tempFile = new File(tempFileDirectory, this.idProvider.provide());
+                     
+                    final int fill;
+                    
+                    final int readCount = random.read(intIn); //read the key length
+                           
+                    if (readCount != 4) {
+                    	throw new CorruptedDataException("bytes read is wrong length");
+                    }
+                    
+                    dataRead += 4;
+                    
+                    fill = converter.convert(intIn);
+                    
+                    if(dataRead == 4 && fill < 0) { //return null if there is nothing here, we do this for empty segments
+                        return null;
+                    }
+                    
+                    if(dataRead > 4 && fill < 0) { //segment was short recycled one. we are done
+                       break;                        
+                    }
+                    
+                    if(fill > segLength) { //corrupt data
+                        throw new CorruptedDataException("<1> data is corrupt");
+                    }
+
+                    final Key key;
+                    
+                    {
+                        final int currentIndex = segLength - dataRead;
+                        
+                        //extract a key from the data
+                        key = extractKey(random, currentIndex, currentIndex + fill);
+                        
+                        dataRead += fill;
+                        
+                    }
+                    
+                    //extract the data for this key
+                    final int dataFill;
+                    final int readDataLength;
+                    
+                    readDataLength = random.read(intIn);
+                    
+                    if (readDataLength != intIn.length) {
+                    	throw new CorruptedDataException("bytes read is wrong length");
+                    }
+                    
+                    dataRead += 4;
+                    
+                    if(dataRead > segLength) {
+                        throw new CorruptedDataException("<3> data is corrupt");
+                    }
+                    
+                    dataFill = converter.convert(intIn);
+                    
+                    if(dataRead + dataFill > segLength) {
+                        throw new CorruptedDataException("<4> data is corrupt");
+                    }
+                    
+                    {
+                        
+                        final FileOutputStream out = new FileOutputStream(tempFile); //store the data in a temporary file
+                        
+                        try {
+                            
+                            final int currentIndex = segLength - dataRead;
+                            
+                            extractValue(random, currentIndex, currentIndex + dataFill, out);
+                            
+                            dataRead += dataFill;
+                        
+                        }
+                        finally {
+                            
+                            out.close();
+                            
+                        }
+                    }
+
+                    //add this to prepared values
+                    DefaultEntry<Key, File> entry = new DefaultEntry<Key, File>(key, tempFile);
+                    
+                    tempFiles.add(entry);
+                   
+                }
+                
+            } 
+            catch (BadDataException e) {
+                
+                logger.error("bad data", e);
+                throw new CorruptedDataException("Data has been corrupted");                
+                
+            }
+            finally {
+                random.close();
+            }
+            
+            //return inputstreams to the new data
+            final Set<Entry<Key, InputStream>> returnVals = new HashSet<Entry<Key, InputStream>>();
+            
+            java.util.Iterator<Entry<Key, File>> itr = tempFiles.iterator();
+            
+            while (itr.hasNext()) {
+                            	
+            	final Entry<Key, File> temp = itr.next();
+                
+                returnVals.add(
+                    new DefaultEntry<Key, InputStream>(
+                        temp.getKey(),
+                        new WrappingInputStream(
+                            new FileInputStream(temp.getValue())) {
+    
+                                @Override
+                                public void close() throws IOException {
+                                    
+                                    super.close();
+                                    temp.getValue().delete();
+                                    
+                                }
+                            }
+                        )
+                    );
+                
+            }
+            
+            return returnVals;
+            
+        } 
+        catch (FileNotFoundException e) {
+          
+            logger.error("Failed to allocate new bucket", e);
+            throw new CorruptedDataException("failed to allocate new bucket");
+          
+        }
+        catch (ResourceException e) {
+            
+            logger.error("Failed to allocate new bucket3", e);
+            throw new CorruptedDataException("failed to allocate new bucket3");
+            
+        }
+        catch (IOException e) {
+          
+            logger.error("Failed to allocate new bucket2", e);
+            throw new CorruptedDataException("failed to allocate new bucket2");
+          
+        }
+        
+    }
+    
+    private Key extractKey(
+        final RandomAccessFile random, 
+        int start, 
+        int end
+    ) throws CorruptedDataException, IOException, ResourceException {
+        
+        final int delta = end - start;
+        
+        //extract a key from the data
+        {
+          
+            //read the key data
+            final byte [] buffer = new byte[BUFFER_SIZE];
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            
+            try {
+            
+                for(int i = 0; i < delta; ) {
+                                        
+                    final int amountToRead;
+                    
+                    if(i + buffer.length >= delta) {
+                        amountToRead = delta - i;    
+                    }
+                    else {
+                        amountToRead = buffer.length;
+                    }
+                    
+                    if(amountToRead == 0) {
+                        throw new RuntimeException("ERROR");                        
+                    }
+                    
+                    final int read = random.read(buffer, 0, amountToRead);
+                    
+                    if(read == 0) {
+                        throw new RuntimeException("ERROR");                        
+                    }
+                    
+                    if(read == -1) {
+                        
+                        break;
+                        
+                    }
+                    
+                    out.write(buffer, 0, read);
+
+                    if (out.size() != read) {
+                        throw new CorruptedDataException("output buffer wrong size - out:" + out.size() + ", read:" + read);
+                    }
+                    
+                    i += read;
+                                                
+                }
+                
+                out.flush();
+                
+                
+                return keySerializer.restore(out.toByteArray()); 
+                
+            }
+            finally {
+                out.close();
+            }
+            
+        }
+        
+    }
+    
+    private void extractValue(
+        final RandomAccessFile random, 
+        int start, 
+        int end,
+        final OutputStream out
+    ) throws CorruptedDataException, IOException, ResourceException {
+        
+        final int delta = end - start;
+        
+        //extract a key from the data
+        {
+          
+            //read the key data
+            final byte [] buffer = new byte[BUFFER_SIZE];
+            
+            try {
+            
+                for(int i = 0; i < delta; ) {
+                                        
+                    final int amountToRead;
+                    
+                    if(i + buffer.length >= delta) {
+                        amountToRead = delta - i;    
+                    }
+                    else {
+                        amountToRead = buffer.length;
+                    }
+                    
+                    if(amountToRead == 0) {
+                        break;                       
+                    }
+                    
+                    final int read = random.read(buffer, 0, amountToRead);
+                    
+                    if(read == 0) {
+                        throw new RuntimeException("ERROR");                        
+                    }
+                    
+                    if(read == -1) {
+                        
+                        logger.debug("nothing left to read");
+                        break;
+                        
+                    }
+                    
+                    out.write(buffer, 0, read);
+                    
+                    i += read;
+                                                
+                }
+                
+                out.flush();
+                
+                
+            }
+            finally {
+                out.close();
+            }
+            
+        }
+        
+    }
+
+    /**
+     * Go to index, read data, return blobs
+     * @throws  
+     */
+    public Set<Entry<Key, InputStream>> getBlobs(int blobIndex) throws HashBlobException {
+    	
+        try {
+            
+            final Set<Entry<Key, InputStream>> returnBlobStreams = new HashSet<Entry<Key, InputStream>>();
             
             final RandomAccessFile random = new RandomAccessFile(root, "rws");
             
@@ -378,9 +709,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 
                 //while we approach the end
                 while(dataRead + 4 < segLength) {
-                    
-                    final File tempFile = new File(tempFileDirectory, this.idProvider.provide());
-                     
+                                        
                     final int fill;
                     
                     final int readCount = random.read(intIn); //read the key length
@@ -409,52 +738,13 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     final Key key;
                     
                     {
-                      
-                        //read the key data
-                        final byte [] buffer = new byte[BUFFER_SIZE];
-                        final ByteArrayOutputStream out = new ByteArrayOutputStream();
                         
-                        try {
+                        final int currentIndex = segLength - dataRead;
                         
-                            for(int i = 0; i < fill; ) {
-                                
-                                final int amountToRead;
-                                
-                                if(i + buffer.length > fill) {
-                                    amountToRead = fill - i;    
-                                }
-                                else {
-                                    amountToRead = buffer.length;
-                                }
-                                
-                                final int read = random.read(buffer, 0, amountToRead);
-                                
-                                dataRead += read;
-                                
-                                if(read != amountToRead) {
-                                    throw new CorruptedDataException("<2> data is corrupt");
-                                }
-                                
-                                out.write(buffer, 0, read);
-
-                                if (out.size() != read) {
-                                	throw new CorruptedDataException("output buffer wrong size");
-                                }
-                                
-                                out.flush();
-                                
-                                if(read < buffer.length) {
-                                    break;
-                                }
-                                                            
-                            }
-                            
-                            key = keySerializer.restore(out.toByteArray()); 
-                            
-                        }
-                        finally {
-                            out.close();
-                        }
+                        //extract a key from the data
+                        key = extractKey(random, currentIndex, currentIndex + fill);
+                        
+                        dataRead += fill;
                         
                     }
                     
@@ -479,60 +769,31 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     if(dataRead + dataFill > segLength) {
                         throw new CorruptedDataException("<4> data is corrupt");
                     }
+                    
+                    final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                    
                     {
+                    	
+                        final int currentIndex = segLength - dataRead;
                         
-                        final byte [] buffer = new byte[BUFFER_SIZE];
-                        final FileOutputStream out = new FileOutputStream(tempFile); //store the data in a temporary file
-                        
-                        try {
-                            
-                            for(int i = 0; i < dataFill; ) {
-                                
-                                final int amountToRead;
-                                
-                                if(i + BUFFER_SIZE > dataFill) {
-                                    amountToRead = dataFill - i;    
-                                }
-                                else {
-                                    amountToRead = BUFFER_SIZE;
-                                }
-                                
-                                final int read = random.read(buffer, 0, amountToRead);
-                                
-                                dataRead += read;
-                                i += read;
-                                
-                                if(read != amountToRead) {
-                                    throw new HashBlobException("cannot read entire segment");
-                                }
-                                
-                                out.write(buffer, 0, read);
-                                
-                                out.flush();
-                                
-                                if(read < BUFFER_SIZE) {
-                                    break;
-                                }
-                                                            
-                            }
-                            
-                        }
-                        finally {
-                            
-                            out.close();
-                            
-                        }
-                    }
-                    
-                    //add this to prepared values
-                    DefaultEntry<Key, File> entry = new DefaultEntry<Key, File>(key, tempFile);
-                    
-                    tempFiles.add(entry);
+                        extractValue(random, currentIndex, currentIndex + dataFill, outputStream);
+	                        
+                        final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+
+                        //add this to prepared values
+                        DefaultEntry<Key, InputStream> entry = new DefaultEntry<Key, InputStream>(
+                                key, inputStream);
                    
+                        returnBlobStreams.add(entry);
+                        
+                        dataRead += dataFill;
+	                    
+                	}
+                    
                 }
                 
-            } 
+            }
+                
             catch (BadDataException e) {
                 
                 logger.error("bad data", e);
@@ -543,37 +804,10 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 random.close();
             }
             
-            //return inputstreams to the new data
-            final Set<Entry<Key, InputStream>> returnVals = new HashSet<Entry<Key, InputStream>>();
+            //return blobs of new data
+            return returnBlobStreams;
             
-            java.util.Iterator<Entry<Key, File>> itr = tempFiles.iterator();
-            
-            while (itr.hasNext()) {
-            	
-            	final Entry<Key, File> temp = itr.next();
-                
-                returnVals.add(
-                    new DefaultEntry<Key, InputStream>(
-                        temp.getKey(),
-                        new WrappingInputStream(
-                            new FileInputStream(temp.getValue())) {
-    
-                                @Override
-                                public void close() throws IOException {
-                                    
-                                    super.close();
-                                    temp.getValue().delete();
-                                    
-                                }
-                            }
-                        )
-                    );
-                
-            }
-            
-            return returnVals;
-            
-        } 
+        }
         catch (FileNotFoundException e) {
           
             logger.error("Failed to allocate new bucket", e);
@@ -690,7 +924,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
         java.util.Iterator<Entry<Key, InputStream>> itr = blobs.iterator();
         
         while (itr.hasNext()) {
-        	
+        	            
         	final Entry<Key, InputStream> entry = itr.next();
             
             final File tempFile;
@@ -877,7 +1111,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
               
                 //write out the keys and their data
                 while (itr2.hasNext()) {
-                	
+                	                    
                 	final Entry<Key, File> tempFile = itr2.next();
                     
                     final byte[] keyData = keyDatas.get(tempFile.getKey());
@@ -894,21 +1128,13 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     
                     totalWritten += keyData.length + 8;
            
-//                    random.write(keyData);
-//                    
-//                    final int fileLength = (int)tempFile.getValue().length();
-//                    
-//                    final byte[] sizeBytes = converter.restore(fileLength);
-//                    
-//                    random.write(sizeBytes);
+                    random.write(keyData);
                     
                     final int fileLength = (int)tempFile.getValue().length();
                     
                     final byte[] sizeBytes = converter.restore(fileLength);
-                  
-                    final byte[] totalData = concat(keyData, sizeBytes);
                     
-                    random.write(totalData);
+                    random.write(sizeBytes);
                     
                     if(!tempFile.getValue().exists()) {
                     	throw new CorruptedDataException("file doesn't exist " + tempFile.getValue().getAbsolutePath());
@@ -922,9 +1148,9 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         int totalRead = 0;
                         
                         while(true) {
-                            
+                                                        
                             final int read = input.read(buffer);
-                            
+                                                        
                             if(read > 0) {
                                 
                                 totalRead += read;
@@ -1001,10 +1227,11 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
         
         return writingIndex;
         
-        
     }
     
     private int findFreeSegment(final int totalSize) throws HashBlobException {
+                
+//        final NavigableMap<Integer, Set<Integer>> tail = this.freeSegments.tailMap(totalSize, true);
         
         final SortedMap<Integer, Set<Integer>> tail = this.freeSegments.tailMap(totalSize);
         
@@ -1016,7 +1243,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             int blobIndex = 0;
             
             while(true) {
-                                
+                                                
                 try {
                     
                     final RandomAccessFile random = new RandomAccessFile(root, "rws");
@@ -1039,12 +1266,11 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         
                         final int segLength;
                         final int fill;
-                        final int readSegCount;
-                        final int readSegCount2;
                         
                         {
                           
-                        	readSegCount = random.read(currentKeyIn);
+                        	random.read(currentKeyIn);
+                            
                             segLength = converter.convert(currentKeyIn);
                             
                         }
@@ -1053,19 +1279,12 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                             throw new CorruptedDataException("seg is corrupt " + blobIndex);    
                         }
                         
-                        if (readSegCount != currentKeyIn.length) {
-                        	throw new CorruptedDataException("<1> read count is wrong");
-                        }
-                        
                         {
                             
-                        	readSegCount2 = random.read(currentKeyIn);
+                            random.read(currentKeyIn);
+                        
                             fill = converter.convert(currentKeyIn);
                             
-                        }
-                        
-                        if (readSegCount2 != currentKeyIn.length) {
-                        	throw new CorruptedDataException("<2> read count is wrong");
                         }
                         
                         if(fill == -1 && segLength >= 0) { //encountered free segment, add it to known free.
@@ -1104,25 +1323,30 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 catch (FileNotFoundException e) {
                   
                     logger.error("Failed to allocate new bucket", e);
+                  
                     throw new CorruptedDataException("failed to allocate new bucket");
                   
                 }
                 catch (ResourceException e) {
                     
                     logger.error("Failed to allocate new bucket3", e);
+                     
                     throw new CorruptedDataException("failed to allocate new bucket3");
                     
                 }
                 catch (IOException e) {
                   
                     logger.error("Failed to allocate new bucket2", e);
+                  
                     throw new CorruptedDataException("failed to allocate new bucket2");
                   
                 }
                 
             }
             
-            if(returnVal < 0) { //create new segment
+            if(returnVal < 0) {
+                
+                //create new segment
             	
                 try {
                     
@@ -1131,10 +1355,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     try {
                       
                         final long length = random.length();
-                        
-                        if (length < Integer.MIN_VALUE || length > Integer.MAX_VALUE) {
-                        	throw new IllegalArgumentException("cannot cast length to int");
-                        }
                       
                         returnVal = (int)length;
                         
@@ -1142,21 +1362,15 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         
                         random.seek(length);
                         
-//                        random.write(lengthData);
-//                        
-//                        final byte [] fillData = converter.restore(-1);
-//                    
-//                        random.write(fillData);
+                        random.write(lengthData);
                         
                         final byte [] fillData = converter.restore(-1);
                     
-                        final byte [] totalData = concat(lengthData, fillData);
-                        
-                        random.write(totalData);
+                        random.write(fillData);
                         
                         random.seek(totalSize + length + 4); //seek to last 4 bytes of seg.
                         random.write(fillData);
-                            
+                                             
                     } 
                     finally {
                         random.close();
@@ -1166,18 +1380,21 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 catch (FileNotFoundException e) {
                   
                     logger.error("Failed to allocate new bucket", e);
+                  
                     throw new CorruptedDataException("failed to allocate new bucket");
                   
                 }
                 catch (ResourceException e) {
                     
                     logger.error("Failed to allocate new bucket3", e);
+                     
                     throw new CorruptedDataException("failed to allocate new bucket3");
                     
                 }
                 catch (IOException e) {
                   
                     logger.error("Failed to allocate new bucket2", e);
+                  
                     throw new CorruptedDataException("failed to allocate new bucket2");
                   
                 }
@@ -1190,6 +1407,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             //use existing free segment that we already know about.
             
             Set<Integer> list = tail.get(tail.firstKey());
+            
             
             if(list.size() == 1) {
                 this.freeSegments.remove(tail.firstKey());
@@ -1210,16 +1428,5 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
         freeSegments.clear();
         
     }
-    
-    private byte[] concat(byte[] A, byte[] B) {
-    	
-	   int aLen = A.length;
-	   int bLen = B.length;
-	   byte[] C= new byte[aLen + bLen];
-	   System.arraycopy(A, 0, C, 0, aLen);
-	   System.arraycopy(B, 0, C, aLen, bLen);
-	   return C;
-	   
-	}
 
 }
