@@ -8,6 +8,8 @@ public class DataSizes {
      public static final int THREAD_INFO_CACHE_SIZE = 300000; //~300kb
      public static final int IMAGE_CACHE_TINY = 200000;
      
+     public static final int ONE_DAY = 24 * 60 * 60 * 1000;
+     
      public static final int ONE_MB = 1000000; //~1MB
      public static final int FIVE_MB = 5000000; //~1MB
      public static final int TWO_MB = 2000000; //~1MB

@@ -352,11 +352,7 @@ public class FilePersistedExpiringCache<Value> implements Cache<String, Value>{
         if(key == null) {
             throw new NullPointerException("<ExpiringCache><9>, Key cannot be null");
         }
-        
-        
-        if(value == null) {
-            throw new NullPointerException("<ExpiringCache><10>, Value cannot be null");
-        }
+
         
         final long time = System.currentTimeMillis();       
         

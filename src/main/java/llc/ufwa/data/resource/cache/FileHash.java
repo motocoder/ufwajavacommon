@@ -328,8 +328,6 @@ public class FileHash<Key, Value> {
       final Value blob
     ) throws HashBlobException {
         
-        logger.debug("hash put");
-        
         final int limitedHash = Math.abs(key.hashCode()) % hashSize; //limit the hash size to our hash
       
         int hashedIndex = limitedHash * (BUCKET_SIZE); //multiply by bucket size so we know index.

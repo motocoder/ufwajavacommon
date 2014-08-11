@@ -3,8 +3,9 @@ package llc.ufwa.activities.injecting;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashSet;
 import java.util.Set;
+
+import llc.ufwa.collections.IdentityHashSet;
 
 /**
  * This is a wrapper for handling a collection of displays. It provides an
@@ -19,7 +20,7 @@ import java.util.Set;
 
 public class AllDisplays<Display extends InjectingDisplay> {
     
-    private final Set<Display> displays = new HashSet<Display>();
+    private final Set<Display> displays = new IdentityHashSet<Display>();
     private final Display internalDisplay;
     
     /**

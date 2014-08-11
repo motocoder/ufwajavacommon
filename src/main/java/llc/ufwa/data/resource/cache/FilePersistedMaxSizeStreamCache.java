@@ -165,6 +165,10 @@ public class FilePersistedMaxSizeStreamCache implements Cache<String, InputStrea
         	this.remove(key);
         }
         
+        if(value == null) { // we already removed it
+            return;
+        }
+        
         final File tempFile = new File(tempFolder2, "temp-" + idProvider.provide() + ".tmp");
         
         try {
