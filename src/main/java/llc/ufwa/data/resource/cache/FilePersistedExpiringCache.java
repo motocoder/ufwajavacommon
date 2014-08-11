@@ -333,6 +333,15 @@ public class FilePersistedExpiringCache<Value> implements Cache<String, Value>{
         this.internal.clear();
         this.persisting.clear();
         
+        final LinkedList<Entry<String, Long>> lastUpdated = new LinkedList<Entry<String, Long>>();
+        
+        try {
+            persisting.put(LAST_UPDATED_KEY, DataUtils.serialize(lastUpdated));
+        } 
+        catch (IOException e) {
+            throw new ResourceException("Couldn't recreate last updated");
+        }
+        
     }
 
     @Override
