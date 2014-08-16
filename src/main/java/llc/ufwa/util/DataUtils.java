@@ -101,50 +101,43 @@ public class DataUtils {
             throw new NullPointerException("<DataUtils><1>, " + "object cannot be null");
         }
         
-        logger.debug("1");
-        
         final PipedOutputStream pipedOut = new PipedOutputStream();        
         final PipedInputStream pipedIn = new PipedInputStream(pipedOut);
         
-        logger.debug("2");
-        
         final ObjectOutputStream objectsOut = new ObjectOutputStream(pipedOut);
         
-        logger.debug("3");
-        
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
+        Executors.newSingleThreadExecutor().execute(
+            new Runnable() {
 
-            @Override
-            public void run() {
-                try {
-                objectsOut.writeObject(object);
-                
-                logger.debug("4b");
-                
-                objectsOut.flush();
-                objectsOut.close();
-                
-                logger.debug("5b");
-                
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                finally {
-                    
+                @Override
+                public void run() {
                     try {
-                        objectsOut.close();
-                    } 
+                    objectsOut.writeObject(object);
+                    
+                    objectsOut.flush();
+                    objectsOut.close();
+                    
+                    }
                     catch (IOException e) {
-                        logger.error("ERROR:",e);
+                        logger.error("ERROR:", e);
+                    }
+                    finally {
+                        
+                        try {
+                            objectsOut.close();
+                        } 
+                        catch (IOException e) {
+                            logger.error("ERROR:",e);
+                        }
+                        
                     }
                     
                 }
                 
-            }});
+            }
+            
+        );
 
-        logger.debug("5b");
-        
         
         return pipedIn;
         

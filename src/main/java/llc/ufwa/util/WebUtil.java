@@ -28,14 +28,22 @@ public class WebUtil {
         return new String(doGetBytes(url, headers));        
     }
     
+    public static String doGet(final URL url, final Map<String, String> headers, final int timeout) throws IOException, FourOhOneException {
+        return new String(doGetBytes(url, headers, timeout));        
+    }
+    
     public static byte [] doGetBytes(final URL url, final Map<String, String> headers) throws IOException, FourOhOneException {
+        return doGetBytes(url, headers, 30000);
+    }
+    
+    public static byte [] doGetBytes(final URL url, final Map<String, String> headers, final int timeout) throws IOException, FourOhOneException {
         
         try {
             
             final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             
             connection.setRequestMethod("GET");
-            connection.setReadTimeout(30000);
+            connection.setReadTimeout(timeout);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
@@ -659,6 +667,117 @@ public class WebUtil {
                 try {
                     
                     final InputStream reading = new ByteArrayInputStream(body.getBytes("UTF-8"));
+                    
+                    StreamUtil.copyTo(reading, writing);
+                    
+                }
+                finally {
+                    writing.close();
+                }
+                
+            }
+            
+            final int responseCode = connection.getResponseCode();
+                        
+            if(responseCode == 401) {
+                throw new FourOhOneException();
+            }
+            
+            if(responseCode == 404) {
+                throw new FourOhFourException();
+            }
+            
+            if(responseCode != 200 && responseCode != 201) {
+                
+                final InputStream in = connection.getErrorStream();
+                
+                final ByteArrayOutputStream out = new ByteArrayOutputStream();            
+                
+                if(in != null) {
+                    
+                    try {
+                        StreamUtil.copyTo(in, out);
+                    }
+                    finally {
+                        in.close();
+                    }
+                    
+                }
+                
+                return new WebResponse(new String(out.toByteArray()), connection.getHeaderFields(), true);
+                
+            }
+            
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();            
+            final InputStream in = connection.getInputStream();
+            
+            if(in != null) {
+                
+                try {
+                    StreamUtil.copyTo(in, out);
+                }
+                finally {
+                    in.close();
+                }
+                
+            }
+            else {
+                throw new IOException("<WebUtil><26>" + "Failed to get response");
+            }
+            
+            return new WebResponse(new String(out.toByteArray()), connection.getHeaderFields());
+                      
+        } 
+        catch (MalformedURLException e) {
+            
+            logger.error("<WebUtil><27>" + "ERROR:", e);
+            throw new IOException("<WebUtil><28>" + "ERROR:");
+            
+        }
+        catch (ProtocolException e) {
+            
+            logger.error("<WebUtil><29>" + "ERROR:", e);
+            throw new IOException("<WebUtil><30>" + "Error:");
+            
+        } 
+    }
+
+    public static WebResponse doPostStreamJSON(
+        final URL url, 
+        final Map<String, String> headers,
+        final InputStream body
+    ) throws IOException, FourOhOneException, FourOhFourException {
+        
+        try {
+            
+            final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setReadTimeout(30000);
+            connection.setRequestProperty("Accept", "application/json");
+            if(!headers.containsKey("Content-Type")) {
+                connection.addRequestProperty("Content-Type", "application/json");
+            }
+
+            connection.setReadTimeout(30000);
+            
+            for(final Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.addRequestProperty(entry.getKey(), entry.getValue());
+            }   
+            
+            connection.connect();
+            
+            
+            
+            {
+                
+                final OutputStream writing = connection.getOutputStream();
+                
+                try {
+                    
+                    final InputStream reading = body;
                     
                     StreamUtil.copyTo(reading, writing);
                     
