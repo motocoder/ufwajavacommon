@@ -114,12 +114,12 @@ public abstract class SequentialJobRunner<Job> {
                                 logger.error("<SequentialJobRunner><1>, COULD NOT PREPARE:", e);
                                 
                                 synchronized(jobCache) {
-                                    
-                                    running = false;                                     
-                                    onAllJobsComplete();
-                                    return;
-                                    
+                                    running = false;                                    
                                 }
+                                
+                                onAllJobsComplete();
+                                return;
+                                
                                 
                             }  
                          
@@ -133,11 +133,10 @@ public abstract class SequentialJobRunner<Job> {
                                     if(!enabled) {
                                         
                                         synchronized(jobCache) {
-                                            
-                                            running = false;                                     
-                                            onAllJobsComplete(); 
-                                            
+                                            running = false;    
                                         }
+                                        
+                                        onAllJobsComplete();
                                         
                                         break;
                                         
@@ -151,9 +150,11 @@ public abstract class SequentialJobRunner<Job> {
                                     synchronized(jobCache) {
                                          
                                         running = false;                                     
-                                        onAllJobsComplete(); 
+                                        
                                          
                                     }
+                                    
+                                    onAllJobsComplete(); 
                                     break;
                                     
                                 }
@@ -164,14 +165,14 @@ public abstract class SequentialJobRunner<Job> {
                                     
                                     next = jobCache.peek();
                                     
-                                    if(next == null) {
-                                        
-                                        running = false;                                     
-                                        onAllJobsComplete();
-                                        break;
-                                        
-                                    }
-                                     
+                                }
+                                
+                                if(next == null) {
+                                    
+                                    running = false;                                     
+                                    onAllJobsComplete();
+                                    break;
+                                    
                                 }
                                   
                             };
