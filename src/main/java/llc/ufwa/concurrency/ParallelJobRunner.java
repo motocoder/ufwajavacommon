@@ -154,7 +154,7 @@ public abstract class ParallelJobRunner<Job> {
                                 
                                 synchronized(jobCache) {
                                     
-                                    next = jobCache.peek();
+                                    next = jobCache.poll();
                                     
                                     if(next == null) {
                                                                           
