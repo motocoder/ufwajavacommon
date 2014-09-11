@@ -48,7 +48,7 @@ public abstract class BatchedJobRunner<Job> {
         
     }
     
-    protected abstract void doJob(List<Job> jobs) throws JobRunningException;
+    protected abstract void doJobs(List<Job> jobs) throws JobRunningException;
     protected abstract void prepare() throws JobRunningException;
     protected abstract void onAllJobsComplete();   
     protected abstract void onJobErroredComplete(List<Job> next);  
@@ -143,7 +143,7 @@ public abstract class BatchedJobRunner<Job> {
                                 
                                 try {
                                     
-                                    doJob(next);
+                                    doJobs(next);
                                     
                                     if(!enabled) {
                                         
