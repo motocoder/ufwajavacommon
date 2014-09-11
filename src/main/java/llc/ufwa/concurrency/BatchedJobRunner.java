@@ -23,6 +23,14 @@ public abstract class BatchedJobRunner<Job> {
 
     private final int batchSize;
 
+    /**
+     * 
+     * @param cache
+     * @param concurrentJobs
+     * @param maxSize
+     * @param batchSize
+     * @param bulkThreads
+     */
     public BatchedJobRunner(
         final Queue<Job> cache, 
         final int concurrentJobs,
