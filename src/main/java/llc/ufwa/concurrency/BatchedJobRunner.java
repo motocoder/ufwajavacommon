@@ -145,6 +145,8 @@ public abstract class BatchedJobRunner<Job> {
                                     
                                     doJobs(next);
                                     
+                                    next.clear();
+                                    
                                     if(!enabled) {
                                         
                                         synchronized(jobCache) {
