@@ -95,7 +95,7 @@ public class MultiRunAndQueueExecutor implements Executor {
         
         synchronized(runList) {
             
-            if(runList.size() != 0) {
+            if(runList.size() != 0 && queueList.size() != 0) {
                 return true;
             }
             else {
