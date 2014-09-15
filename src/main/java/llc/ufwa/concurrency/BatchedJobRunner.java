@@ -23,6 +23,8 @@ public abstract class BatchedJobRunner<Job> {
 
     private final int batchSize;
 
+    private final boolean waitForBatch;
+
     /**
      * 
      * @param cache
@@ -30,21 +32,24 @@ public abstract class BatchedJobRunner<Job> {
      * @param maxSize
      * @param batchSize
      * @param bulkThreads
+     * @param waitForBatch
      */
     public BatchedJobRunner(
         final Queue<Job> cache, 
         final int concurrentJobs,
         final int maxSize,
         final int batchSize,
-        final Executor bulkThreads
+        final Executor bulkThreads,
+        boolean waitForBatch
     ) {
       
         this.threads = new MultiRunAndQueueExecutor(bulkThreads, concurrentJobs, maxSize);
         this.maxSize = maxSize;
         this.batchSize = batchSize;
         this.jobCache = cache;
+        this.waitForBatch = waitForBatch;
         
-        start();
+        start(false);
         
     }
     
@@ -68,7 +73,7 @@ public abstract class BatchedJobRunner<Job> {
                 
             }
             
-            start();
+            start(false);
              
         }
 
@@ -82,9 +87,19 @@ public abstract class BatchedJobRunner<Job> {
         
     }
     
-    public void start() {
+    public void start(final boolean force) {
         
         synchronized (jobCache) {
+            
+            if(waitForBatch && !force) {
+                
+                if(jobCache.size() < batchSize) {
+                    
+                    return;
+                    
+                }
+                
+            }
             
             if (jobCache.size() > 0 && enabled) {
                 
@@ -149,12 +164,6 @@ public abstract class BatchedJobRunner<Job> {
                                     
                                     if(!enabled) {
                                         
-                                        synchronized(jobCache) {
-                                                                         
-                                            onAllJobsComplete(); 
-                                            
-                                        }
-                                        
                                         break;
                                         
                                     }
@@ -176,6 +185,14 @@ public abstract class BatchedJobRunner<Job> {
                                 }
                                 
                                 synchronized(jobCache) {
+                                    
+                                    if(waitForBatch && !force) {
+                                        
+                                        if(jobCache.size() < batchSize) {
+                                            return;
+                                        }
+                                        
+                                    }
                                     
                                     //create a batch
                                     for(int batchItemCount = 0; batchItemCount < batchSize; batchItemCount++) {

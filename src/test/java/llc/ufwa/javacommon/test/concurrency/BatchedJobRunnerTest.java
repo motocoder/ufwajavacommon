@@ -45,7 +45,8 @@ public class BatchedJobRunnerTest {
                     		5,
                     		100,
                     		5,
-                    		Executors.newFixedThreadPool(100)
+                    		Executors.newFixedThreadPool(100), 
+                    		false
                     ) {
                         
                     @Override
