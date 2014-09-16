@@ -25,6 +25,8 @@ public abstract class BatchedJobRunner<Job> {
 
     private final boolean waitForBatch;
 
+    private final int concurrentJobs;
+
     /**
      * 
      * @param cache
@@ -44,6 +46,7 @@ public abstract class BatchedJobRunner<Job> {
     ) {
       
         this.threads = new MultiRunAndQueueExecutor(bulkThreads, concurrentJobs, maxSize);
+        this.concurrentJobs = concurrentJobs;
         this.maxSize = maxSize;
         this.batchSize = batchSize;
         this.jobCache = cache;
@@ -73,7 +76,7 @@ public abstract class BatchedJobRunner<Job> {
                 
             }
             
-            start(false);
+            startInternal(false);
              
         }
 
@@ -88,6 +91,15 @@ public abstract class BatchedJobRunner<Job> {
     }
     
     public void start(final boolean force) {
+        
+        //create a new job running thread for each concurrentJob.
+        for(int i = 0; i < this.concurrentJobs; i++) {
+            startInternal(force);
+        }
+        
+    }
+    
+    private void startInternal(final boolean force) {
         
         synchronized (jobCache) {
             
