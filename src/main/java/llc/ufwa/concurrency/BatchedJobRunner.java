@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class BatchedJobRunner<Job> {
     
-    private static final Logger logger = LoggerFactory.getLogger(ParallelJobRunner.class);
+    private static final Logger logger = LoggerFactory.getLogger(BatchedJobRunner.class);
 
     private final Queue<Job> jobCache; 
     private final int maxSize;
@@ -68,6 +68,8 @@ public abstract class BatchedJobRunner<Job> {
      */
     public void addJob(Job job) {
 
+        logger.debug("adding job");
+        
         synchronized (jobCache) {
 
             if(maxSize >= 0 && jobCache.size() < maxSize) {
@@ -101,11 +103,15 @@ public abstract class BatchedJobRunner<Job> {
     
     private void startInternal(final boolean force) {
         
+        logger.debug("starting " + force);
+        
         synchronized (jobCache) {
             
             if(waitForBatch && !force) {
                 
                 if(jobCache.size() < batchSize) {
+                    
+                    logger.debug("size " + jobCache.size() + " < " + batchSize);
                     
                     return;
                     
@@ -113,7 +119,11 @@ public abstract class BatchedJobRunner<Job> {
                 
             }
             
+            logger.debug("starting 2");
+            
             if (jobCache.size() > 0 && enabled) {
+                
+                logger.debug("starting 3");
                 
                 threads.execute(
                         
@@ -121,6 +131,8 @@ public abstract class BatchedJobRunner<Job> {
     
                         @Override
                         public void run() {
+                            
+                            logger.debug("starting 4");
                                                         
                             List<Job> next = new ArrayList<Job>(); 
                             
@@ -135,10 +147,16 @@ public abstract class BatchedJobRunner<Job> {
                                         
                                         if(next.size() == 0) {
                                             
+                                            logger.debug("starting 5");
+                                            
                                             onAllJobsComplete(); 
                                             return; //nothing to do
                                             
                                         }
+                                        else {
+                                            break;
+                                        }
+                                        
                                     }
                                     else {
                                         next.add(possible);
@@ -219,6 +237,10 @@ public abstract class BatchedJobRunner<Job> {
                                                 return; //nothing to do
                                                 
                                             }
+                                            else {
+                                                break;
+                                            }
+                                            
                                         }
                                         else {
                                             next.add(possible);
@@ -240,6 +262,8 @@ public abstract class BatchedJobRunner<Job> {
             } 
 
         }
+        
+        logger.debug("released");
         
     }
 
