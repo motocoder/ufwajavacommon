@@ -64,16 +64,11 @@ public abstract class SequentialJobRunner<Job> {
     
     public void start() {
         
-        logger.debug("starting");
+        logger.debug("sequential start");
         
         synchronized (jobCache) {
             
-            logger.debug("1 " + running + " " + enabled + " " + jobCache.size());
-            
-            
             if (!running && jobCache.size() > 0 && enabled) {
-            
-                logger.debug("2");
                 
                 running = true;
                 
@@ -83,7 +78,7 @@ public abstract class SequentialJobRunner<Job> {
                         @Override
                         public void run() {
                             
-                            logger.debug("3");
+                            logger.debug("sequential 3");
                             
                             Job next; 
                             
@@ -103,7 +98,7 @@ public abstract class SequentialJobRunner<Job> {
                                  
                             }
                             
-                            logger.debug("4");
+                            logger.debug("sequential 4");
                             
                                 
                             try {
@@ -125,7 +120,7 @@ public abstract class SequentialJobRunner<Job> {
                          
                             while(true) {
                                 
-                                logger.debug("5");
+                                logger.debug("sequential 5");
                                 try {
                                     
                                     doJob(next);
