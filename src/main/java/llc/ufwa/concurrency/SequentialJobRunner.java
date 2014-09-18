@@ -72,6 +72,8 @@ public abstract class SequentialJobRunner<Job> {
                 
                 running = true;
                 
+                logger.debug("sequential start");
+                
                 worker.execute(
                     new Runnable() {
     
@@ -160,11 +162,14 @@ public abstract class SequentialJobRunner<Job> {
                                     
                                     next = jobCache.peek();
                                     
+                                    if(next == null) {
+                                        running = false;   
+                                    }
+                                    
                                 }
                                 
                                 if(next == null) {
-                                    
-                                    running = false;                                     
+                                                                         
                                     onAllJobsComplete();
                                     break;
                                     
