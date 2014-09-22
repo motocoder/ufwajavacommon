@@ -15,31 +15,47 @@ import llc.ufwa.data.resource.cache.MemoryCache;
  */
 public class CachedPushProvider<T> implements PushProvider<T> {
  
-    private final String KEY = String.valueOf(System.currentTimeMillis()) + this.hashCode();
+    private final String KEY;
     private final Cache<String, T> cache;
     private final ResourceProvider<T> notInCacheProvider;
     private final Cache<String, Boolean> searchCache = new MemoryCache<String, Boolean>();
+    private final String logTag;
 
     /**
      * 
      * @param cache
      */
-    public CachedPushProvider(final Cache<String, T> cache) {
+    public CachedPushProvider(
+        final String key,
+        final String keyName, 
+        final Cache<String, T> cache
+    ) {
         
-        this.cache = cache;
-        this.notInCacheProvider = null;
+        this(key, cache, null, "provider-default");
                 
     }
+    
+    public CachedPushProvider(
+        final String key,
+        final Cache<String, T> cache,
+        final ResourceProvider<T> notInCacheProvider
+    ) {
+        this(key, cache, notInCacheProvider, "provider-default");
+    }
+    
     /**
      * 
      * @param cache
      * @param notInCacheProvider
      */
     public CachedPushProvider(
+        final String key,
         final Cache<String, T> cache,
-        final ResourceProvider<T> notInCacheProvider
+        final ResourceProvider<T> notInCacheProvider,
+        final String logTag
     ) {
-        
+        this.KEY = key;
+        this.logTag = logTag;        
         this.cache = cache;
         this.notInCacheProvider = notInCacheProvider;
         
