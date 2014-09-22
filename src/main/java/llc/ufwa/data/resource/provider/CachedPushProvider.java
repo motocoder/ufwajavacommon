@@ -1,5 +1,8 @@
 package llc.ufwa.data.resource.provider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.cache.Cache;
 import llc.ufwa.data.resource.cache.MemoryCache;
@@ -15,6 +18,8 @@ import llc.ufwa.data.resource.cache.MemoryCache;
  */
 public class CachedPushProvider<T> implements PushProvider<T> {
  
+    private static final Logger logger = LoggerFactory.getLogger(CachedPushProvider.class);
+    
     private final String KEY;
     private final Cache<String, T> cache;
     private final ResourceProvider<T> notInCacheProvider;
@@ -82,6 +87,8 @@ public class CachedPushProvider<T> implements PushProvider<T> {
             returnVal = false;
         }
       
+        logger.debug( logTag + " exists " + returnVal);
+        
         return returnVal;
         
     }
@@ -122,7 +129,7 @@ public class CachedPushProvider<T> implements PushProvider<T> {
     public void push(T value) throws ResourceException {
         
         cache.put(KEY, value);
-        searchCache.put(KEY, true);
+        searchCache.put(KEY, value != null);
         
     }
     
