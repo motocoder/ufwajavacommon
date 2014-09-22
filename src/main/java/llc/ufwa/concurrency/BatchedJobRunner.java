@@ -17,7 +17,7 @@ public abstract class BatchedJobRunner<Job> {
     private final Queue<Job> jobCache; 
     private final int maxSize;
 
-    private boolean enabled = true;
+    private volatile boolean enabled = true;
 
     private final MultiRunAndQueueExecutor threads;
 
@@ -88,12 +88,18 @@ public abstract class BatchedJobRunner<Job> {
         logger.debug( logTag + " adding job");
         
         synchronized (jobCache) {
+            
+            logger.debug( logTag + " adding " + maxSize + " " + jobCache.size());
 
             if(maxSize >= 0 && jobCache.size() < maxSize) {
+                
+                logger.debug(logTag + " added");
                 
                 jobCache.add(job);
                 
             }
+            
+            logger.debug( logTag + " size after add " + jobCache.size());
             
             startInternal(false);
              
@@ -137,6 +143,8 @@ public abstract class BatchedJobRunner<Job> {
             }
             
             logger.debug(logTag + " starting 2");
+            logger.debug(logTag + " enabled " + enabled);
+            logger.debug(logTag + " size " + jobCache.size());
             
             if (jobCache.size() > 0 && enabled) {
                 
