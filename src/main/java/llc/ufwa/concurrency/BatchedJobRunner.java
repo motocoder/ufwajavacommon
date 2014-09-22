@@ -27,6 +27,8 @@ public abstract class BatchedJobRunner<Job> {
 
     private final int concurrentJobs;
 
+    private String logTag;
+
     /**
      * 
      * @param cache
@@ -45,6 +47,21 @@ public abstract class BatchedJobRunner<Job> {
         boolean waitForBatch
     ) {
       
+        this(cache, concurrentJobs, maxSize, batchSize, bulkThreads, waitForBatch, "default");
+        
+    }
+    
+    public BatchedJobRunner(
+        final Queue<Job> cache, 
+        final int concurrentJobs,
+        final int maxSize,
+        final int batchSize,
+        final Executor bulkThreads,
+        boolean waitForBatch,
+        final String logTag
+    ) {
+      
+        this.logTag = logTag;
         this.threads = new MultiRunAndQueueExecutor(bulkThreads, concurrentJobs, maxSize);
         this.concurrentJobs = concurrentJobs;
         this.maxSize = maxSize;
@@ -68,7 +85,7 @@ public abstract class BatchedJobRunner<Job> {
      */
     public void addJob(Job job) {
 
-        logger.debug("adding job");
+        logger.debug( logTag + " adding job");
         
         synchronized (jobCache) {
 
@@ -103,7 +120,7 @@ public abstract class BatchedJobRunner<Job> {
     
     private void startInternal(final boolean force) {
         
-        logger.debug("starting " + force);
+        logger.debug(logTag + " starting " + force);
         
         synchronized (jobCache) {
             
@@ -111,7 +128,7 @@ public abstract class BatchedJobRunner<Job> {
                 
                 if(jobCache.size() < batchSize) {
                     
-                    logger.debug("size " + jobCache.size() + " < " + batchSize);
+                    logger.debug(logTag + " size " + jobCache.size() + " < " + batchSize);
                     
                     return;
                     
@@ -119,11 +136,11 @@ public abstract class BatchedJobRunner<Job> {
                 
             }
             
-            logger.debug("starting 2");
+            logger.debug(logTag + " starting 2");
             
             if (jobCache.size() > 0 && enabled) {
                 
-                logger.debug("starting 3");
+                logger.debug(logTag + " starting 3");
                 
                 threads.execute(
                         
@@ -132,7 +149,7 @@ public abstract class BatchedJobRunner<Job> {
                         @Override
                         public void run() {
                             
-                            logger.debug("starting 4");
+                            logger.debug(logTag + " starting 4");
                                                         
                             List<Job> next = new ArrayList<Job>(); 
                             
@@ -147,7 +164,7 @@ public abstract class BatchedJobRunner<Job> {
                                         
                                         if(next.size() == 0) {
                                             
-                                            logger.debug("starting 5");
+                                            logger.debug(logTag + " starting 5");
                                             
                                             onAllJobsComplete(); 
                                             return; //nothing to do
@@ -171,7 +188,7 @@ public abstract class BatchedJobRunner<Job> {
                             }
                             catch (JobRunningException e) {
                                 
-                                logger.error("<SequentialJobRunner><1>, COULD NOT PREPARE:", e);
+                                logger.error(logTag + " <SequentialJobRunner><1>, COULD NOT PREPARE:", e);
                                 
                                 synchronized(jobCache) {
                                     
@@ -201,7 +218,7 @@ public abstract class BatchedJobRunner<Job> {
                                 }
                                 catch(JobRunningException e) {
                                     
-                                    logger.error("<SequentialJobRunner><2>, Error:", e);
+                                    logger.error(logTag + " <SequentialJobRunner><2>, Error:", e);
                                     
                                     synchronized(jobCache) {
                                         
@@ -263,7 +280,7 @@ public abstract class BatchedJobRunner<Job> {
 
         }
         
-        logger.debug("released");
+        logger.debug(logTag + " released");
         
     }
 
