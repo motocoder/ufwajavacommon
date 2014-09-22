@@ -330,9 +330,6 @@ public abstract class BatchedJobRunner<Job> {
     public boolean isRunning() {
     
         synchronized(jobCache) {
-        	if (hasJobs()) {
-        		return true;
-        	}
             return threads.running();
         }
         
