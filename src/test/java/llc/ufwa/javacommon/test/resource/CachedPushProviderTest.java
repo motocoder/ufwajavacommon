@@ -43,7 +43,7 @@ public class CachedPushProviderTest {
             };
         
         final PushProvider<String> provider =
-            new CachedPushProvider<String>(new MemoryCache<String, String>(), root);
+            new CachedPushProvider<String>("test", new MemoryCache<String, String>(), root);
         
         try {
             
@@ -114,7 +114,7 @@ public class CachedPushProviderTest {
                 };
                 
             provider = new SynchronizedPushProvider<LinkedList<Long>>(
-                new CachedPushProvider<LinkedList<Long>>(listCache, rootProvider)
+                new CachedPushProvider<LinkedList<Long>>("test " + System.currentTimeMillis(), listCache, rootProvider)
             );
             
         }

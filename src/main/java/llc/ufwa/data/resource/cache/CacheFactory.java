@@ -111,7 +111,7 @@ public class CacheFactory {
      * @param cacheRoot
      * @return
      */
-    public static <Job> FifoCache<Job> getFIFOCache(final Class<Job> returnType, File cacheRoot) {
+    public static <Job> FifoCache<Job> getFIFOCache(final String queueKey, final Class<Job> returnType, File cacheRoot) {
             
 //        final File cacheDir = FileNames.getDir(FileNames.IMPRESSION_JOBS, context, Context.MODE_APPEND);
         
@@ -149,7 +149,7 @@ public class CacheFactory {
                 };
                 
             provider = new SynchronizedPushProvider<LinkedList<Long>>(
-                new CachedPushProvider<LinkedList<Long>>(listCache, rootProvider)
+                new CachedPushProvider<LinkedList<Long>>(queueKey, listCache, rootProvider)
             );
             
         }
