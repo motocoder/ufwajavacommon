@@ -84,24 +84,15 @@ public abstract class BatchedJobRunner<Job> {
      * @param job
      */
     public void addJob(Job job) {
-
-        logger.debug( logTag + " adding job");
         
         synchronized (jobCache) {
-            
-            logger.debug( logTag + " adding " + maxSize + " " + jobCache.size());
-
-            if(maxSize >= 0 && jobCache.size() < maxSize) {
                 
-                logger.debug(logTag + " added");
-                
-                jobCache.add(job);
-                
+            if(maxSize >= 0 && jobCache.size() < maxSize) {        
+                jobCache.add(job);                    
             }
-            
-            logger.debug( logTag + " size after add " + jobCache.size());
-            
+                    
             startInternal(false);
+            
              
         }
 
@@ -126,29 +117,17 @@ public abstract class BatchedJobRunner<Job> {
     
     private void startInternal(final boolean force) {
         
-        logger.debug(logTag + " starting " + force);
-        
         synchronized (jobCache) {
             
             if(waitForBatch && !force) {
                 
-                if(jobCache.size() < batchSize) {
-                    
-                    logger.debug(logTag + " size " + jobCache.size() + " < " + batchSize);
-                    
-                    return;
-                    
+                if(jobCache.size() < batchSize) {                    
+                    return;                    
                 }
                 
             }
             
-            logger.debug(logTag + " starting 2");
-            logger.debug(logTag + " enabled " + enabled);
-            logger.debug(logTag + " size " + jobCache.size());
-            
             if (jobCache.size() > 0 && enabled) {
-                
-                logger.debug(logTag + " starting 3");
                 
                 threads.execute(
                         
@@ -156,8 +135,6 @@ public abstract class BatchedJobRunner<Job> {
     
                         @Override
                         public void run() {
-                            
-                            logger.debug(logTag + " starting 4");
                                                         
                             List<Job> next = new ArrayList<Job>(); 
                             
@@ -171,9 +148,7 @@ public abstract class BatchedJobRunner<Job> {
                                     if(possible == null) {
                                         
                                         if(next.size() == 0) {
-                                            
-                                            logger.debug(logTag + " starting 5");
-                                            
+                                                                                        
                                             onAllJobsComplete(); 
                                             return; //nothing to do
                                             
@@ -287,8 +262,6 @@ public abstract class BatchedJobRunner<Job> {
             } 
 
         }
-        
-        logger.debug(logTag + " released");
         
     }
 
