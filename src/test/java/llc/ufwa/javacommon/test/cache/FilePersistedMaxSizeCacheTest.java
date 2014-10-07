@@ -10,19 +10,14 @@ import junit.framework.TestCase;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.Converter;
 import llc.ufwa.data.resource.InputStreamConverter;
-import llc.ufwa.data.resource.IntegerStringConverter;
 import llc.ufwa.data.resource.ReverseConverter;
 import llc.ufwa.data.resource.SerializingConverter;
 import llc.ufwa.data.resource.StringSizeConverter;
 import llc.ufwa.data.resource.cache.Cache;
-import llc.ufwa.data.resource.cache.ExpiringCache;
-import llc.ufwa.data.resource.cache.FileCache;
 import llc.ufwa.data.resource.cache.FileHashCache;
 import llc.ufwa.data.resource.cache.FilePersistedMaxSizeCache;
-import llc.ufwa.data.resource.cache.KeyEncodingCache;
-import llc.ufwa.data.resource.cache.MemoryCache;
-import llc.ufwa.data.resource.cache.SynchronizedCache;
 import llc.ufwa.data.resource.cache.ValueConvertingCache;
+import llc.ufwa.util.StringUtilities;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
@@ -348,6 +343,78 @@ public class FilePersistedMaxSizeCacheTest {
 		    
 	        TestCase.assertEquals(cache.exists(key), false);
 	        TestCase.assertEquals(cache.get(key), null);
+			
+			deleteRoot(root);
+        
+		}
+		catch (ResourceException e) {
+	        e.printStackTrace();
+			TestCase.fail();
+		}
+		
+	}
+	
+	@Test 
+    public void testFileMaxSizeCacheTest() {
+		
+		try {
+
+			Random random = new Random();
+			String appendix = String.valueOf(Math.abs(random.nextInt()));
+			
+			File root = new File("./target/test-files/temp" + appendix + "/");
+			
+			deleteRoot(root);
+			
+			final Converter<Integer, String> converter = new ReverseConverter<Integer, String>(new StringSizeConverter());
+			
+			final File dataFolder = new File(root, "data");
+	        final File tempFolder = new File(root, "temp");
+	        final File persistingFolder = new File(root, "persisting");
+	        
+			final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+			
+			final Cache<String, String> fileCache = 
+				new ValueConvertingCache<String, String, byte []>(
+					new ValueConvertingCache<String, byte [], InputStream>(
+							diskCache,
+							new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+						),
+						new SerializingConverter<String>()
+					);
+				
+			final Cache<String, String> cache =
+                new FilePersistedMaxSizeCache<String>(
+                    persistingFolder,
+                    fileCache,
+                    converter,
+                    1000
+                );
+			
+			
+			final String key = "dfslkjasdfkljsadfa";
+	        final String value = "dfsaoiuwekljflkaioklalkdsf";
+	        
+	        // TEST PUT, GET, REMOVE, and EXISTS
+	        for (int x = 0; x < 1000; x++) {
+	        	
+	        	final String keyRepeated = StringUtilities.repeat(key, x);
+	        	final String valueRepeated = StringUtilities.repeat(value, x);
+	        	
+	        	cache.put(keyRepeated, valueRepeated);
+	        	
+	        }
+	        
+	        for (int x = 0; x < 10000; x++) {
+	        	
+	        	final String keyRepeated = StringUtilities.repeat(key, x);
+	        	final String valueRepeated = StringUtilities.repeat(value, x);
+	        	
+	        	cache.put(keyRepeated, valueRepeated);
+	        	
+	        	logger.debug("Size of data " + root.length());
+	        	
+	        }
 			
 			deleteRoot(root);
         
