@@ -393,26 +393,27 @@ public class FilePersistedMaxSizeCacheTest {
 			
 			
 			final String key = "dfslkjasdfkljsadfa";
-	        final String value = "dfsaoiuwekljflkaioklalkdsf";
+	        final String value = "dfsaoiuwekljfsdfsadlkaioklalkdsf";
 	        
 	        // TEST PUT, GET, REMOVE, and EXISTS
-	        for (int x = 0; x < 1000; x++) {
+	        for (int x = 0; x < 10; x++) {
 	        	
 	        	final String keyRepeated = StringUtilities.repeat(key, x);
 	        	final String valueRepeated = StringUtilities.repeat(value, x);
 	        	
 	        	cache.put(keyRepeated, valueRepeated);
+	        	
+	        	Thread.sleep(50);
 	        	
 	        }
 	        
 	        for (int x = 0; x < 10000; x++) {
 	        	
 	        	final String keyRepeated = StringUtilities.repeat(key, x);
-	        	final String valueRepeated = StringUtilities.repeat(value, x);
 	        	
-	        	cache.put(keyRepeated, valueRepeated);
+	        	cache.put(keyRepeated, value);
 	        	
-	        	logger.debug("Size of data " + root.length());
+	        	logger.debug("Size of data " + persistingFolder.getTotalSpace());
 	        	
 	        }
 			
@@ -422,6 +423,9 @@ public class FilePersistedMaxSizeCacheTest {
 		catch (ResourceException e) {
 	        e.printStackTrace();
 			TestCase.fail();
+		}
+		catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 		
 	}

@@ -5,14 +5,14 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.Converter;
 import llc.ufwa.data.resource.InputStreamConverter;
 import llc.ufwa.data.resource.ReverseConverter;
 import llc.ufwa.data.resource.SerializingConverter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -197,6 +197,8 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
             
             {
                 int currentSize = (Integer)this.persistCache.get("currentSize");
+                
+                logger.debug("current:" + currentSize + ", maxsize: " + this.maxSize);
                
                 while(currentSize > this.maxSize) {
                      
@@ -205,7 +207,7 @@ public class FilePersistedMaxSizeCache<Value> implements Cache<String, Value> {
                     if(bottom == null) {
                         throw new RuntimeException("Size too big but there is nothing in it?");
                     }
-                   
+                    
                     final LinkedData afterBottom = (LinkedData) this.persistCache.get("linked:" + bottom.getKeyAfter()); 
                     
                     final Value valueRemoving = internal.get(bottom.getMyKey());
