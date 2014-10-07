@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -151,6 +152,9 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 }
                 
                 if(segLength < -1 || segLength == 0 || segLength > random.length()) { 
+                    
+                    logger.error("Invalid seg length " + segLength + " " + (segLength > random.length()));
+                    
                     //This segment was not initialized properly, it is bad we need to never attempt to use it, delete
                     throw new BadDataException();
                 }
@@ -883,7 +887,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 	throw new CorruptedDataException("<2> set failed, bytes read is wrong");
                 }
                 
-                random.seek(writingIndex + 4 + 4);
+                random.seek(writingIndex + 8);
                 
                  //skip the length
                 
@@ -891,7 +895,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 
                 byte [] firstKeyData = null;
                                 
-                java.util.Iterator<Entry<Key, File>> itr2 = tempFiles.iterator();
+                final Iterator<Entry<Key, File>> itr2 = tempFiles.iterator();
               
                 //write out the keys and their data
                 while (itr2.hasNext()) {
@@ -1078,6 +1082,27 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         if(fill == -1) { //encountered free segment, add it to known free.
                             
                         	if(segLength >= totalSize) {
+                        	    
+                        	    if((segLength - totalSize) > 8) {
+                        	        
+                        	        logger.debug("Splitting");
+                        	        
+                        	        final byte [] lengthData = converter.restore(totalSize);
+                                    
+                                    random.seek(blobIndex);
+                                    
+                                    random.write(lengthData);
+                                    
+                                    final byte [] secondLengthData = converter.restore(segLength - totalSize - 8);
+                                    
+                                    random.seek(blobIndex + totalSize + 8);
+                                    
+                                    random.write(secondLengthData);
+                                    
+                        	    }
+                        	    else {
+                        	        logger.debug("not splitting 2");
+                        	    }
                                 
                         	    //TODO Split segment to exact size and have another segment with empty space
                                 returnVal = blobIndex;
@@ -1085,6 +1110,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                                 
                             }
                             else {
+                                
+                                logger.debug("not splitting 1");
                                 
                                 if(previousFreeSeg > 0) {
                                     

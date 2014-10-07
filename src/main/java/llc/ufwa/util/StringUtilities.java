@@ -209,6 +209,18 @@ public final class StringUtilities {
         }
         
     }
+
+    public static String repeat(String valueOrig, int random) {
+        
+        final StringBuilder builder = new StringBuilder();
+        
+        for(int i = 0; i < random; i++) {
+            builder.append(valueOrig);
+        }
+        
+        return builder.toString();
+        
+    }
 	
 	/** from GWTStringUtils TODO remove?
 	 * 
