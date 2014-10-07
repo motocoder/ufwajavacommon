@@ -573,4 +573,77 @@ public class FileHashCacheTest {
         
     }
 	
+	@Test 
+    public void repeatingKey2Test() {
+        
+        try {
+                            
+            final File tempFolder = new File("./target/test-files/temp-data-repeatingKeyTest");
+            final File dataFolder = new File("./target/test-files/data-repeatingKeyTest");
+            final File dataFolderItem = new File("./target/test-files/data-repeatingKeyTest/data");
+            
+            deleteRoot(tempFolder);
+            deleteRoot(dataFolder);
+            dataFolderItem.delete();
+           
+            TestCase.assertFalse(dataFolderItem.exists());
+            
+            tempFolder.mkdirs();
+            dataFolder.mkdirs();
+            
+            final Cache<String, InputStream> fileCache = new FileHashCache(dataFolder, tempFolder);
+            final Cache<String, InputStream> cache = new SynchronizedCache<String, InputStream>(fileCache);
+            
+            // create varying length strings by concatenation
+            final String keyOrig = "abcdef0123456789";
+            final String valueOrig = "abcdefghiasdsadsaa";
+                        
+            for(int i = 0; i < 500; i++) {
+                             
+                if(i % 100 == 0) {
+                    logger.debug("Size of data " + dataFolderItem.length());
+                }
+                
+                {
+                    
+                    final int random = (int) (Math.random() * 100);
+                    // TEST PUT, GET, REMOVE, and EXISTS
+                    
+                    final String value = StringUtilities.repeat(valueOrig, random);
+                    final String key = StringUtilities.repeat(keyOrig, random);
+                    
+                    cache.put(key, new ByteArrayInputStream(value.getBytes()));
+                    
+                    String returnValue = getStringFromInputStream(cache.get(key));
+                    
+                    TestCase.assertEquals(value, returnValue);
+                    TestCase.assertEquals(cache.exists(key), true);
+                    
+                }
+                
+                {
+                    
+                    final int random = (int) (Math.random() * 100);
+                    
+                    final String key = StringUtilities.repeat(keyOrig, random);
+                    
+                    cache.remove(key);
+                    
+                    TestCase.assertEquals(cache.exists(key), false);
+                    TestCase.assertNull(cache.get(key));
+                    
+                }
+
+                
+            }
+                   
+        }
+        catch (ResourceException e) {
+            
+            logger.error("ERROR:", e);
+            TestCase.fail();
+        } 
+        
+    }
+	
 }
