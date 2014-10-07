@@ -1,12 +1,10 @@
 package llc.ufwa.javacommon.test.cache;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -521,6 +519,66 @@ public class FileHashCacheTest {
             
             tempFolder.mkdirs();
             dataFolder.mkdirs();
+            
+            final Cache<String, InputStream> fileCache = new FileHashCache(dataFolder, tempFolder);
+            final Cache<String, InputStream> cache = new SynchronizedCache<String, InputStream>(fileCache);
+            
+            // create varying length strings by concatenation
+            final String keyOrig = "abcdef0123456789";
+            final String valueOrig = "abcdefghiasdsadsaa";
+                        
+            for(int i = 0; i < 500; i++) {
+                
+                final int random = (int) (Math.random() * 100);
+                
+                if(i % 100 == 0) {
+                    
+                    logger.debug("Size of data " + dataFolderItem.length());
+                    
+                    for(int j = 0; j < 100; j++) {
+                        
+                        final String key = StringUtilities.repeat(keyOrig, j);
+                        
+                        cache.remove(key);
+                        
+                        TestCase.assertEquals(cache.exists(key), false);
+                        TestCase.assertNull(cache.get(key));
+                        
+                    }
+                    
+                }
+                
+                // TEST PUT, GET, REMOVE, and EXISTS
+                
+                final String value = StringUtilities.repeat(valueOrig, random);
+                final String key = StringUtilities.repeat(keyOrig, random);
+                
+                cache.put(key, new ByteArrayInputStream(value.getBytes()));
+                
+                String returnValue = getStringFromInputStream(cache.get(key));
+                
+                TestCase.assertEquals(value, returnValue);
+                TestCase.assertEquals(cache.exists(key), true);
+                
+            }
+                   
+        }
+        catch (ResourceException e) {
+            
+            logger.error("ERROR:", e);
+            TestCase.fail();
+        } 
+        
+    }
+	
+	@Test 
+    public void fileSizeTest() {
+        
+        try {
+                            
+            final File tempFolder = new File("./target/test-files/temp-data-fileSizeTest");
+            final File dataFolder = new File("./target/test-files/data-fileSizeTest");
+            final File dataFolderItem = new File("./target/test-files/data-fileSizeTest/data");
             
             final Cache<String, InputStream> fileCache = new FileHashCache(dataFolder, tempFolder);
             final Cache<String, InputStream> cache = new SynchronizedCache<String, InputStream>(fileCache);
