@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *  [SKDLP{N*[KDLP]}]
  * 
  * Where:
- * S == 4 bytes, segment length, -1 value if it has been discarded due to corruption
+ * S == 4 bytes, segment length
  * K == 4 bytes, key length, first key is -1 if the entire segment is empty
  * D == K bytes, key data, serialized
  * L == 4 bytes, data length
@@ -153,7 +153,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 
                 if(segLength < -1 || segLength == 0 || segLength > random.length()) { 
                     
-                    logger.error("Invalid seg length " + segLength + " " + (segLength > random.length()));
+                    logger.error("Invalid seg length " + segLength + " " + (segLength > random.length()) + " for index " + blobIndex);
                     
                     //This segment was not initialized properly, it is bad we need to never attempt to use it, delete
                     throw new BadDataException();
@@ -369,10 +369,6 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     }
                     
                     out.write(buffer, 0, read);
-
-                    if (out.size() != read) {
-                        throw new CorruptedDataException("output buffer wrong size - out:" + out.size() + ", read:" + read);
-                    }
                     
                     i += read;
                                                 
@@ -624,7 +620,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
      * @throws HashBlobException
      */
     public void eraseBlobs(int blobIndex) throws HashBlobException {
-        
+                
         try {
                         
             final RandomAccessFile random = new RandomAccessFile(root, "rws");
@@ -636,7 +632,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 final byte [] intIn = new byte[4];
                 
                 //read the segment length
-                final int segLength;
+                int segLength;
                 final int readSegCount;
                 
                 {
@@ -654,6 +650,52 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 final byte[] fillToWrite = converter.restore(-1);
                 random.write(fillToWrite);
                 
+                //Check subsequent segment after this one, and merge it if it is empty
+                {
+                    
+                    final int nextBlobIndex = blobIndex + 8 + segLength;
+                    
+                    if((nextBlobIndex + 8) < random.length()) {
+                        
+                        //read the segment length
+                        final int nextSegLength;
+                        final int nextReadSegCount;
+                        
+                        final int nextSegFill;
+                        final int nextReadSegFill;
+                        
+                        random.seek(nextBlobIndex);
+                        
+                        {
+                          
+                            nextReadSegCount = random.read(intIn);
+                            nextSegLength = converter.convert(intIn);
+                                                        
+                            if (nextReadSegCount != intIn.length) {
+                                throw new CorruptedDataException("cannot erase, bytes read is incorrect");
+                            }
+                            
+                            nextReadSegFill = random.read(intIn);
+                            nextSegFill = converter.convert(intIn);
+                            
+                            if (nextReadSegFill != intIn.length) {
+                                throw new CorruptedDataException("cannot erase, bytes read is incorrect");
+                            }
+                            
+                        }
+                        
+                        //next segment is empty, merge it into this one
+                        if(nextSegFill < 0) {
+                            
+                            segLength = merge(nextBlobIndex, nextSegLength, blobIndex, segLength, random);
+                            
+                        }
+                        
+                    }
+                    
+                }
+                
+                
                 Set<Integer> segs = this.freeSegments.get(segLength);
                 
                 if(segs == null) {
@@ -663,11 +705,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                     
                 }
                 
-                final boolean added = segs.add(blobIndex);
-                
-//                if (!added) {
-//                	throw new CorruptedDataException("index has already been erased");
-//                }
+                segs.add(blobIndex);
                 
             } 
             finally {
@@ -1029,7 +1067,7 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
             //Start at the beginning of the file
             int blobIndex = 0;
             //this will only contain the index of the previous segment if it was empty but not big enough.
-            int previousFreeSeg = -1;
+            int previousFreeSegIndex = -1;
             
             while(true) {
                                                 
@@ -1083,42 +1121,18 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                             
                         	if(segLength >= totalSize) {
                         	    
-                        	    if((segLength - totalSize) > 8) {
-                        	        
-                        	        logger.debug("Splitting");
-                        	        
-                        	        final byte [] lengthData = converter.restore(totalSize);
-                                    
-                                    random.seek(blobIndex);
-                                    
-                                    random.write(lengthData);
-                                    
-                                    final byte [] secondLengthData = converter.restore(segLength - totalSize - 8);
-                                    
-                                    random.seek(blobIndex + totalSize + 8);
-                                    
-                                    random.write(secondLengthData);
-                                    
-                        	    }
-                        	    else {
-                        	        logger.debug("not splitting 2");
-                        	    }
-                                
-                        	    //TODO Split segment to exact size and have another segment with empty space
                                 returnVal = blobIndex;
                                 break;
                                 
                             }
                             else {
                                 
-                                logger.debug("not splitting 1");
-                                
-                                if(previousFreeSeg > 0) {
-                                    
+                                if(previousFreeSegIndex > 0) {
+                                                                  
                                     //if previous seg was free, merge these two segments.
                                     final byte [] previousCurrentKeyIn = new byte[4];
                                     
-                                    random.seek(previousFreeSeg);
+                                    random.seek(previousFreeSegIndex);
                                     
                                     final int previousSegLength;
                                     
@@ -1132,23 +1146,19 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                                     }
                                     
                                     //if the segment length is invalid value or points to something bigger that the file, throw corrupted exception
-                                    if(previousSegLength < 0 || previousSegLength + previousFreeSeg > random.length()) {
-                                        throw new CorruptedDataException("previous seg is corrupt " + previousFreeSeg + " seg " + previousSegLength + " file length " + random.length());    
+                                    if(previousSegLength < 0 || previousSegLength + previousFreeSegIndex > random.length()) {
+                                        throw new CorruptedDataException("previous seg is corrupt " + previousFreeSegIndex + " seg " + previousSegLength + " file length " + random.length());    
                                     }
                                     
-                                    final byte [] lengthData = converter.restore(segLength + previousSegLength + 8);
+                                    final int newSegLength = merge(blobIndex, segLength, previousFreeSegIndex, previousSegLength, random);
                                     
-                                    random.seek(previousFreeSeg);
-                                    
-                                    random.write(lengthData); //merge the 2 free segments
-                                          
-                                    blobIndex = previousFreeSeg;
-                                    previousFreeSeg = -1;
-                                    segLength = segLength + previousSegLength + 8;
+                                    blobIndex = previousFreeSegIndex;
+                                    previousFreeSegIndex = -1;
+                                    segLength = newSegLength;
                                     
                                 }
                                 else {
-                                    previousFreeSeg = blobIndex;//assign previous free seg index.
+                                    previousFreeSegIndex = blobIndex;//assign previous free seg index.
                                 }
                                 
                                 Set<Integer> segs = this.freeSegments.get(segLength);
@@ -1168,11 +1178,11 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         else {
                             
                             //segment was filled so the previous one will be -1 so it wont be merged
-                            previousFreeSeg = -1;
+                            previousFreeSegIndex = -1;
                             
                         }
                         
-                        blobIndex += 8 + Math.abs(segLength); //skip to next segment
+                        blobIndex += 8 + segLength; //skip to next segment
                         
                     } 
                     finally {
@@ -1261,23 +1271,177 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 
             }
             
+            
         }
         else {
            
+            
             //use existing free segment that we already know about.
             
             Set<Integer> list = tail.get(tail.firstKey());
             
+            final Iterator<Integer> iterator = list.iterator();
             
-            if(list.size() == 1) {
+            returnVal = iterator.next();
+            iterator.remove();
+            
+            if(list.size() == 0) {
                 this.freeSegments.remove(tail.firstKey());
             }
-            
-            returnVal = list.iterator().next();
-            
+                    
         }
+        
+        splitIfPossible(totalSize, returnVal);
        
         return returnVal;
+        
+    }
+    
+    /**
+     * 
+     * @param blobIndex
+     * @param segLength
+     * @param previousFreeSegIndex
+     * @param random
+     * @return
+     * @throws IOException
+     * @throws ResourceException
+     * @throws CorruptedDataException
+     */
+    private int merge(
+        final int blobIndex, 
+        final int segLength,
+        final int previousFreeSegIndex, 
+        final int previousSegLength,
+        final RandomAccessFile random
+    ) throws IOException, ResourceException, CorruptedDataException {
+        
+        {
+            
+            final Set<Integer> oldFreeSegs = freeSegments.get(segLength);
+            
+            if(oldFreeSegs != null) {
+                
+                oldFreeSegs.remove(blobIndex);
+                
+                if(oldFreeSegs.size() == 0) {
+                    freeSegments.remove(segLength);
+                }
+                
+            }
+            
+        }
+        
+        {
+            
+            final Set<Integer> oldFreeSegs = freeSegments.get(previousSegLength);
+            
+            if(oldFreeSegs != null) {
+                
+                oldFreeSegs.remove(previousFreeSegIndex);
+                
+                if(oldFreeSegs.size() == 0) {
+                    freeSegments.remove(previousSegLength);
+                }
+                
+            }
+            
+            
+        }
+        
+        final byte [] lengthData = converter.restore(segLength + previousSegLength + 8);
+        
+        random.seek(previousFreeSegIndex);
+        
+        random.write(lengthData); //merge the 2 free segments
+        
+        random.seek(previousFreeSegIndex + 4);
+        
+        random.write(converter.restore(-1)); //merge the 2 free segments
+        
+        return segLength + previousSegLength + 8;
+        
+    }
+    
+    private void splitIfPossible(final int totalSize, final int blobIndex) throws CorruptedDataException {
+        
+        if(blobIndex >= 0) {
+            
+            try {
+                
+                final RandomAccessFile random = new RandomAccessFile(root, "rws");
+                
+                try {
+                    
+                    final byte [] currentKeyIn = new byte[4];
+                    
+                    random.seek(blobIndex);
+                    
+                    int segLength;
+                    
+                    //read in the segment lenght
+                    {
+                      
+                        random.read(currentKeyIn);
+                        
+                        segLength = converter.convert(currentKeyIn);
+                        
+                    }
+                    
+                    if((segLength - totalSize) > 8) {
+                                                                        
+                        final byte [] lengthData = converter.restore(totalSize);
+                        
+                        random.seek(blobIndex);
+                        
+                        random.write(lengthData);
+                        
+                        random.seek(blobIndex + 4);
+                        
+                        random.write(converter.restore(-1));
+                        
+                        final byte [] secondLengthData = converter.restore(segLength - totalSize - 8);
+                        
+                        random.seek(blobIndex + totalSize + 8);
+                        
+                        random.write(secondLengthData);
+                        
+                        random.seek(blobIndex + totalSize + 12);
+                        
+                        random.write(converter.restore(-1)); //merge the 2 free segments
+                    
+                    }
+                    
+                }
+                
+                finally {
+                    random.close();
+                }
+                
+            }
+            catch (FileNotFoundException e) {
+                
+                logger.error("Failed to allocate new bucket", e);
+              
+                throw new CorruptedDataException("failed to allocate new bucket");
+              
+            }
+            catch (ResourceException e) {
+                
+                logger.error("Failed to allocate new bucket3", e);
+                 
+                throw new CorruptedDataException("failed to allocate new bucket3");
+                
+            }
+            catch (IOException e) {
+              
+                logger.error("Failed to allocate new bucket2", e);
+              
+                throw new CorruptedDataException("failed to allocate new bucket2");
+              
+            }
+        
+        }
         
     }
 

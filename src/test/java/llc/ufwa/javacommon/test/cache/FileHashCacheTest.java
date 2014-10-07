@@ -529,7 +529,7 @@ public class FileHashCacheTest {
             final String keyOrig = "abcdef0123456789";
             final String valueOrig = "abcdefghiasdsadsaa";
                         
-            for(int i = 0; i < 1000; i++) {
+            for(int i = 0; i < 1000000; i++) {
                 
                 final int random = (int) (Math.random() * 100);
                 
@@ -566,6 +566,8 @@ public class FileHashCacheTest {
                    
         }
         catch (ResourceException e) {
+            
+            logger.error("ERROR:", e);
             TestCase.fail();
         } 
         
