@@ -650,8 +650,8 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                 final byte[] fillToWrite = converter.restore(-1);
                 random.write(fillToWrite);
                 
-                //Check subsequent segment after this one, and merge it if it is empty
-                {
+                //Check subsequent segments after this one, and merge them if they are empty
+                while (true) {
                     
                     final int nextBlobIndex = blobIndex + 8 + segLength;
                     
@@ -686,26 +686,37 @@ public class FileHashDataManager<Key> implements HashDataManager<Key, InputStrea
                         
                         //next segment is empty, merge it into this one
                         if(nextSegFill < 0) {
-                            
-                            segLength = merge(nextBlobIndex, nextSegLength, blobIndex, segLength, random);
-                            
+                            segLength = merge(nextBlobIndex, nextSegLength, blobIndex, segLength, random);                            
+                        }
+                        else {
+                            break;
                         }
                         
+                    }
+                    else {
+                        break;
                     }
                     
                 }
                 
+                //if this is the last blob and it is now empty, delete it.
+                if(blobIndex + 8 + segLength >= random.length()) {
+                    random.setLength(blobIndex);                    
+                }
+                else {
                 
-                Set<Integer> segs = this.freeSegments.get(segLength);
-                
-                if(segs == null) {
+                    Set<Integer> segs = this.freeSegments.get(segLength);
                     
-                    segs = new HashSet<Integer>();
-                    this.freeSegments.put(segLength, segs);
+                    if(segs == null) {
+                        
+                        segs = new HashSet<Integer>();
+                        this.freeSegments.put(segLength, segs);
+                        
+                    }
+                    
+                    segs.add(blobIndex);
                     
                 }
-                
-                segs.add(blobIndex);
                 
             } 
             finally {
