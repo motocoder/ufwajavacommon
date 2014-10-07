@@ -206,6 +206,10 @@ public class FifoCache<Item> implements Queue<Item> {
     @Override
     public boolean add(Item e) {
         
+        if(e == null) {
+            throw new NullPointerException("Cannot add null");
+        }
+        
         try {
             
             final long id = idProvider.provide();
