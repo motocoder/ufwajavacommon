@@ -18,6 +18,7 @@ import llc.ufwa.data.exception.ResourceException;
  *
  * @param <Key>
  * @param <Value>
+ * @deprecated
  */
 public class ExpiringCache<Key, Value> implements Cache<Key, Value>{
     

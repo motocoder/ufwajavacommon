@@ -24,6 +24,7 @@ import llc.ufwa.util.DataUtils;
 /**
  * This class is used for expiring the values. It only works on memory caches. This will not work on a file cache.
  * 
+ * TODO this class really has an issue with large and numerous keys. It will degrade performance with O(N)
  * @author Sean Wagner
  *
  * @param <Key>
@@ -32,9 +33,7 @@ import llc.ufwa.util.DataUtils;
 public class FilePersistedExpiringCache<Value> implements Cache<String, Value>{
     
     private static final Logger logger = LoggerFactory.getLogger(FilePersistedExpiringCache.class);
-//    private final LinkedList<Entry<Key, Long>> lastUpdated = new LinkedList<Entry<Key, Long>>();
-//    
-//    private final Map<Key, Long> lastUpdatedMap = new HashMap<Key, Long>();
+
     private static final String LAST_UPDATED_KEY = "filePersistedExpiringCache.lastUpdated";
     private static final String LAST_UPDATED_PRE_KEY = "filePersistedExpiringCache.lastUpdated.";
     
@@ -353,6 +352,8 @@ public class FilePersistedExpiringCache<Value> implements Cache<String, Value>{
 
         this.internal.remove(key);
         
+        persisting.remove(LAST_UPDATED_PRE_KEY + key);
+        
     }
 
     @Override
@@ -361,10 +362,8 @@ public class FilePersistedExpiringCache<Value> implements Cache<String, Value>{
         if(key == null) {
             throw new NullPointerException("<ExpiringCache><9>, Key cannot be null");
         }
-
         
         final long time = System.currentTimeMillis();       
-        
 
         try {
             this.persisting.put(LAST_UPDATED_PRE_KEY + key, DataUtils.serialize(time));
@@ -376,33 +375,42 @@ public class FilePersistedExpiringCache<Value> implements Cache<String, Value>{
             
         }
         
-        final LinkedList<Entry<String, Long>> lastUpdated;
-        
-        try {
-            lastUpdated = DataUtils.deserialize(persisting.get(LAST_UPDATED_KEY));
-        } 
-        catch (IOException e) {
-            
-            logger.error("ERROR PUTTING LAST UPDATED 1", e);
-            return;
-            
-        }
-        catch (ClassNotFoundException e) {
-            
-            logger.error("ERROR PUTTING LAST UPDATED 2", e);
-            return;
-            
-        }
-        catch (ResourceException e) {
-            
-            logger.error("ERROR PUTTING LAST UPDATED 3", e);
-            return;
-            
-        }
-        
-        lastUpdated.addFirst(new Entry<String, Long>(key, time));
-        
         this.internal.put(key, value);  
+        
+        if(value == null) {
+            persisting.remove(LAST_UPDATED_PRE_KEY + key);
+        }
+        else {
+
+            try {
+                
+                final LinkedList<Entry<String, Long>> lastUpdated = DataUtils.deserialize(persisting.get(LAST_UPDATED_KEY));
+                
+                lastUpdated.addFirst(new Entry<String, Long>(key, time));
+                
+                persisting.put(LAST_UPDATED_KEY, DataUtils.serialize(lastUpdated));
+                
+            } 
+            catch (IOException e) {
+                
+                logger.error("ERROR PUTTING LAST UPDATED 1", e);
+                return;
+                
+            }
+            catch (ClassNotFoundException e) {
+                
+                logger.error("ERROR PUTTING LAST UPDATED 2", e);
+                return;
+                
+            }
+            catch (ResourceException e) {
+                
+                logger.error("ERROR PUTTING LAST UPDATED 3", e);
+                return;
+                
+            }
+            
+        }
         
     }
     

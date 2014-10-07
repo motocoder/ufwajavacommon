@@ -146,94 +146,98 @@ public class FilePersistedMaxCountCache<Value> implements Cache<String, Value> {
         	this.remove(key);
         }
         
-        {
+        if(value != null) {
             
-            int currentSize = (Integer)this.persistCache.get("currentSize");
-            currentSize++;
-            
-            this.persistCache.put("currentSize", currentSize);
-            
-        }
+            {
                 
-        internal.put(key, value);
-        
-        final LinkedData topKey = (LinkedData) persistCache.get("topKey");
-        
-        if(topKey == null) {
-
-            final LinkedData myLinkedData = new LinkedData(key, null, null);
-                    
-            persistCache.put("bottomKey", myLinkedData);
-            persistCache.put("topKey", myLinkedData);
-            
-        }
-        else {
-            
-            final LinkedData myLinkedData = new LinkedData(key, topKey.getMyKey(), null);
-            
-            final LinkedData keyAfterMine = new LinkedData(topKey.getMyKey(), topKey.getKeyBefore(), myLinkedData.getMyKey());
-            
-            persistCache.put("linked:" + keyAfterMine.getMyKey(), keyAfterMine);
-            persistCache.put("topKey", myLinkedData);
-            
-            final LinkedData bottom = (LinkedData) this.persistCache.get("bottomKey");
-            
-            if (bottom.getKeyAfter() == null) {
-            
-	            final LinkedData newBottom = new LinkedData(bottom.getMyKey(), null, key);
-	            
-	            persistCache.put("bottomKey", newBottom);
-	            
+                int currentSize = (Integer)this.persistCache.get("currentSize");
+                currentSize++;
+                
+                this.persistCache.put("currentSize", currentSize);
+                
             }
+                    
+            internal.put(key, value);
             
-        }
-        
-        {
-            int currentSize = (Integer)this.persistCache.get("currentSize");
-           
-            while(currentSize > this.maxCount) {
-                 
+            final LinkedData topKey = (LinkedData) persistCache.get("topKey");
+            
+            if(topKey == null) {
+    
+                final LinkedData myLinkedData = new LinkedData(key, null, null);
+                        
+                persistCache.put("bottomKey", myLinkedData);
+                persistCache.put("topKey", myLinkedData);
+                
+            }
+            else {
+                
+                final LinkedData myLinkedData = new LinkedData(key, topKey.getMyKey(), null);
+                
+                final LinkedData keyAfterMine = new LinkedData(topKey.getMyKey(), topKey.getKeyBefore(), myLinkedData.getMyKey());
+                
+                persistCache.put("linked:" + keyAfterMine.getMyKey(), keyAfterMine);
+                persistCache.put("topKey", myLinkedData);
+                
                 final LinkedData bottom = (LinkedData) this.persistCache.get("bottomKey");
                 
-                if(bottom == null) {
-                    throw new RuntimeException("Size too big but there is nothing in it?");
-                }
-               
-                final LinkedData afterBottom = (LinkedData) this.persistCache.get("linked:" + bottom.getKeyAfter()); 
+                if (bottom.getKeyAfter() == null) {
                 
-                final Value valueRemoving = internal.get(bottom.getMyKey());
+    	            final LinkedData newBottom = new LinkedData(bottom.getMyKey(), null, key);
+    	            
+    	            persistCache.put("bottomKey", newBottom);
+    	            
+                }
+                
+            }
+            
+            {
+                int currentSize = (Integer)this.persistCache.get("currentSize");
+               
+                while(currentSize > this.maxCount) {
+                     
+                    final LinkedData bottom = (LinkedData) this.persistCache.get("bottomKey");
+                    
+                    if(bottom == null) {
+                        throw new RuntimeException("Size too big but there is nothing in it?");
+                    }
+                   
+                    final LinkedData afterBottom = (LinkedData) this.persistCache.get("linked:" + bottom.getKeyAfter()); 
+                    
+                    final Value valueRemoving = internal.get(bottom.getMyKey());
+                            
+                    if(valueRemoving != null) {
                         
-                if(valueRemoving != null) {
-                    
-                    currentSize--;
-                    
-                    if(currentSize < 0) {
-                        currentSize = 0;
+                        currentSize--;
+                        
+                        if(currentSize < 0) {
+                            currentSize = 0;
+                        }
+                        
+                        this.persistCache.put("currentSize", currentSize);
+                        
+                        final Value valueToRemove = internal.get(bottom.getMyKey());
+                        
+                        internal.remove(bottom.getMyKey());
+                        
+                        valueRemovedCallback.call(valueToRemove);
+                        
                     }
                     
-                    this.persistCache.put("currentSize", currentSize);
-                    
-                    final Value valueToRemove = internal.get(bottom.getMyKey());
-                    
-                    internal.remove(bottom.getMyKey());
-                    
-                    valueRemovedCallback.call(valueToRemove);
-                    
-                }
-                
-                if (afterBottom != null) {
-                	
-                	final LinkedData newBottom = new LinkedData(afterBottom.getMyKey(), null, afterBottom.getKeyAfter());
-
-                    persistCache.remove("linked:" + bottom.getKeyAfter());
-                    
-                    persistCache.put("bottomKey", newBottom);
-                    
-                }
-                else {
-                    
-                    if(valueRemoving == null) {
-                        throw new RuntimeException("nothing to remove and nothing in the cache now.");
+                    if (afterBottom != null) {
+                    	
+                    	final LinkedData newBottom = new LinkedData(afterBottom.getMyKey(), null, afterBottom.getKeyAfter());
+    
+                        persistCache.remove("linked:" + bottom.getKeyAfter());
+                        
+                        persistCache.put("bottomKey", newBottom);
+                        
+                    }
+                    else {
+                        
+                        if(valueRemoving == null) {
+                            throw new RuntimeException("nothing to remove and nothing in the cache now.");
+                        }
+                        
                     }
                     
                 }
