@@ -392,18 +392,18 @@ public class FilePersistedMaxSizeCacheTest {
                     persistingFolder,
                     fileCache,
                     converter,
-                    1000
+                    100000
                 );
 			
 			
-	        final String value = "dfsaoiuwekljfsdfsadlkaioklalkdsf";
+	        final String value = StringUtilities.repeat("dfsaoiuwekljfsdfsadlkaioklalkdsf", 1000);
+	        
 	        
 	        for (int x = 0; x < 10; x++) {
 	        	
 	        	final String keyRepeated = String.valueOf("x");
-	        	final String valueRepeated = StringUtilities.repeat(value, x);
 	        	
-	        	cache.put(keyRepeated, valueRepeated);
+	        	cache.put(keyRepeated, value);
 	        	
 	        	Thread.sleep(50);
 	        	
