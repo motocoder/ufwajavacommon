@@ -373,6 +373,8 @@ public class FilePersistedMaxSizeCacheTest {
 	        final File persistingFolder = new File(root, "persisting");
 	        	        
 	        final File persistingFolderData = new File(persistingFolder, "sizePersisted/data/data");
+	        final File dataFolderData = new File(root, "data/data");
+	        final File tempFolderData = new File(root, "temp/data");
 	        
 			final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
 			
@@ -414,7 +416,11 @@ public class FilePersistedMaxSizeCacheTest {
 	        	cache.put(keyRepeated, value);
 	        	
 	        	if(x % 100 == 0) {
-	        	    logger.debug(x + " Size of data " + persistingFolderData.length());
+	        	    
+	        	    logger.debug(x + " Size of persisting data " + persistingFolderData.length());
+	        	    logger.debug(x + " Size of data " + dataFolderData.length());
+	        	    logger.debug(x + " Size of temp " + tempFolderData.length());
+	        	    
 	        	}
 	        	
 	        }
