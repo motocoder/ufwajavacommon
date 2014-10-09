@@ -371,6 +371,8 @@ public class FilePersistedMaxSizeCacheTest {
 			final File dataFolder = new File(root, "data");
 	        final File tempFolder = new File(root, "temp");
 	        final File persistingFolder = new File(root, "persisting");
+	        	        
+	        final File persistingFolderData = new File(persistingFolder, "sizePersisted/data/data");
 	        
 			final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
 			
@@ -392,13 +394,11 @@ public class FilePersistedMaxSizeCacheTest {
                 );
 			
 			
-			final String key = "dfslkjasdfkljsadfa";
 	        final String value = "dfsaoiuwekljfsdfsadlkaioklalkdsf";
 	        
-	        // TEST PUT, GET, REMOVE, and EXISTS
 	        for (int x = 0; x < 10; x++) {
 	        	
-	        	final String keyRepeated = StringUtilities.repeat(key, x);
+	        	final String keyRepeated = String.valueOf("x");
 	        	final String valueRepeated = StringUtilities.repeat(value, x);
 	        	
 	        	cache.put(keyRepeated, valueRepeated);
@@ -409,11 +409,13 @@ public class FilePersistedMaxSizeCacheTest {
 	        
 	        for (int x = 0; x < 10000; x++) {
 	        	
-	        	final String keyRepeated = StringUtilities.repeat(key, x);
+	        	final String keyRepeated = String.valueOf(x);
 	        	
 	        	cache.put(keyRepeated, value);
 	        	
-	        	logger.debug("Size of data " + persistingFolder.getTotalSpace());
+	        	if(x % 100 == 0) {
+	        	    logger.debug(x + " Size of data " + persistingFolderData.length());
+	        	}
 	        	
 	        }
 			
