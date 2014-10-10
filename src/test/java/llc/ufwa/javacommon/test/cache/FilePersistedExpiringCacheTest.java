@@ -15,8 +15,10 @@ import llc.ufwa.data.resource.ReverseConverter;
 import llc.ufwa.data.resource.StringSizeConverter;
 import llc.ufwa.data.resource.cache.Cache;
 import llc.ufwa.data.resource.cache.CacheFactory;
+import llc.ufwa.util.StopWatch;
 import llc.ufwa.util.StringUtilities;
 
+import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,9 @@ public class FilePersistedExpiringCacheTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(FilePersistedExpiringCacheTest.class);
 
+	static {
+        BasicConfigurator.configure();
+    }
 	@Test
 	public void FilePersistedExpiringCacheMultithreadedTest() {
 
@@ -124,10 +129,15 @@ public class FilePersistedExpiringCacheTest {
 		}
 		catch (ResourceException e) {
 			e.printStackTrace();
+			
 			TestCase.fail();
+			
 		}
 		catch (InterruptedException e) {
+		    
 			e.printStackTrace();
+			TestCase.fail();
+			
 		}
 
 	}
@@ -148,11 +158,16 @@ public class FilePersistedExpiringCacheTest {
 					new StringSizeConverter());
 
 			final File dataFolder = new File(root, "data");
+			final File dataFolderData = new File(dataFolder, "expiringRoot/data/data");
 
 			final int expiringValue = 2000;
 
-			final Cache<String, String> cache = CacheFactory.getExpiringFileCache(expiringValue,
-					dataFolder, converter);
+			final Cache<String, String> cache = 
+			    CacheFactory.getExpiringFileCache(
+			        expiringValue,
+					dataFolder,
+					converter
+		        );
 
 			final String key = "dfslkjasdfkljsadfa";
 			final String value = "dfsaoiuwekljfsdfsadlkaioklalkdsf";
@@ -160,7 +175,7 @@ public class FilePersistedExpiringCacheTest {
 			// TEST PUT, GET, REMOVE, and EXISTS
 			for (int x = 0; x < 10; x++) {
 
-				final String keyRepeated = StringUtilities.repeat(key, x);
+				final String keyRepeated = String.valueOf(x);
 				final String valueRepeated = StringUtilities.repeat(value, x);
 
 				cache.put(keyRepeated, valueRepeated);
@@ -169,14 +184,21 @@ public class FilePersistedExpiringCacheTest {
 
 			}
 
-			for (int x = 0; x < 100; x++) {
+			for (int x = 0; x < 1000; x++) {
 
-				final String keyRepeated = StringUtilities.repeat(key, x);
+				final String keyRepeated = String.valueOf(x);
 
+				final StopWatch watch = new StopWatch();
+				watch.start();
+				
 				cache.put(keyRepeated, value);
+				
+				if(watch.getTime() > 500) {
+				    logger.debug("put took " + watch.getTime());
+				}
 
 				if ((x % 100) == 0) {
-					logger.debug("Size of data " + dataFolder.getTotalSpace());
+					logger.debug("Size of data " + dataFolderData.length());
 				}
 
 			}

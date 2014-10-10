@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -354,6 +355,31 @@ public class FilePersistedExpiringCache<Value> implements Cache<String, Value>{
         
         persisting.remove(LAST_UPDATED_PRE_KEY + key);
         
+        try {
+        
+            final LinkedList<Entry<String, Long>> lastUpdated = DataUtils.deserialize(persisting.get(LAST_UPDATED_KEY));
+            
+            final Set<Entry<String, Long>> toRemove = new HashSet<Entry<String, Long>>();
+            
+            for(final Entry<String, Long> entry : lastUpdated) {
+                
+                if(entry.getKey().equals(key)) {
+                    toRemove.add(entry);
+                }
+                
+            }
+            
+            lastUpdated.removeAll(toRemove);            
+        
+            persisting.put(LAST_UPDATED_KEY, DataUtils.serialize(lastUpdated));
+        } 
+        catch (IOException e) {
+            throw new ResourceException("failed to serialize", e);
+        } 
+        catch (ClassNotFoundException e) {
+            throw new ResourceException("failed to serialize", e);
+        }
+        
     }
 
     @Override
@@ -374,6 +400,8 @@ public class FilePersistedExpiringCache<Value> implements Cache<String, Value>{
             return;
             
         }
+        
+        this.cleanup(time);
         
         this.internal.put(key, value);  
         
@@ -423,7 +451,77 @@ public class FilePersistedExpiringCache<Value> implements Cache<String, Value>{
         }
         
         try {
+            
             lastUpdated = DataUtils.deserialize(persisting.get(LAST_UPDATED_KEY));
+        
+            final boolean wasPerformed;
+            final long timeToExpire = currentTime - this.timeout;
+            final long timeToClean = currentTime - this.cleanupTimeout;
+            
+            if(this.states.getLastCleanup() < timeToClean) { //determine if we need to clean up or not
+                
+                wasPerformed = true;
+                
+                final Set<String> toRemove = new HashSet<String>();
+                
+                while(true) {
+                    
+                    final Entry<String, Long> current;
+                    
+                    try {
+                        current = lastUpdated.removeLast();
+                    }
+                    catch(NoSuchElementException e) {
+                        break;
+                    }
+                    
+                    final long time = current.getValue();
+                    final String key = current.getKey();
+                    
+                    if(time > timeToExpire) {
+                        
+                        lastUpdated.addLast(current);
+                        break;
+                    }
+                    else {
+                        
+                        toRemove.add(key);
+                        
+                    }
+                    
+                }
+                
+                final Set<String> toRetain = new HashSet<String>();
+                
+                for(final Entry<String, Long> entry : lastUpdated) {                
+                    toRetain.add(entry.getKey());
+                }
+                
+                for(final String key : toRemove) {
+                    
+                    if(!toRetain.contains(key)) {
+                        
+                        internal.remove(key);
+                        this.persisting.remove(LAST_UPDATED_PRE_KEY + key);
+                        
+                    }
+                    else {
+                        logger.debug("not removing " + key);
+                    }
+                    
+                }
+                
+                persisting.put(LAST_UPDATED_KEY, DataUtils.serialize(lastUpdated));
+    
+                this.states.markClean();
+                    
+            }
+            else {
+                wasPerformed = false;
+            }
+            
+            return wasPerformed;
+                
         } 
         catch (IOException e) {
             
@@ -437,12 +535,6 @@ public class FilePersistedExpiringCache<Value> implements Cache<String, Value>{
             throw new ResourceException("error putting last 1");
             
         }
-        catch (NullPointerException e) {
-        	
-        	logger.error("ERROR PUTTING LAST UPDATED 3", e);
-            throw new ResourceException("error putting last 1");
-            
-        }
         catch (ResourceException e) {
             
             logger.error("ERROR PUTTING LAST UPDATED 4", e);
@@ -450,64 +542,7 @@ public class FilePersistedExpiringCache<Value> implements Cache<String, Value>{
             
         }
         
-        final boolean wasPerformed;
-        final long timeToExpire = currentTime - this.timeout;
-        final long timeToClean = currentTime - this.cleanupTimeout;
         
-        if(this.states.getLastCleanup() < timeToClean) { //determine if we need to clean up or not
-            
-            wasPerformed = true;
-            
-            final Set<String> toRemove = new HashSet<String>();
-            
-            while(true) {
-                
-                final Entry<String, Long> current;
-                
-                if(lastUpdated.size() <= 0) {
-                    break;
-                }
-                
-                current = lastUpdated.removeLast();
-                
-                final long time = current.getValue();
-                final String key = current.getKey();
-                
-                if(time > timeToExpire) {
-                    
-                    lastUpdated.addLast(current);
-                    break;
-                }
-                else {
-                    toRemove.add(key);
-                }
-                
-            }
-            
-            final Set<String> toRetain = new HashSet<String>();
-            
-            for(final Entry<String, Long> entry : lastUpdated) {
-                toRetain.add(entry.getKey());
-            }
-            
-            for(final String key : toRemove) {
-                
-                if(!toRetain.contains(key)) {
-                    
-                    internal.remove(key);
-                    this.persisting.remove(LAST_UPDATED_PRE_KEY + key);
-                    
-                }
-                
-            }
-
-            this.states.markClean();
-        }
-        else {
-            wasPerformed = false;
-        }
-        
-        return wasPerformed;
         
     }
     

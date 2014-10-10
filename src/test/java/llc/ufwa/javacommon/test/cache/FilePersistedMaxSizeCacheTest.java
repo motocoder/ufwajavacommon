@@ -610,72 +610,94 @@ public class FilePersistedMaxSizeCacheTest {
 
 	}
 
-	@Test
-	public void testFileMaxSizeCacheTest() {
+	@Test 
+    public void testFileMaxSizeCacheTest() {
+        
+        try {
 
-		try {
-
-			Random random = new Random();
-			String appendix = String.valueOf(Math.abs(random.nextInt()));
-
-			File root = new File("./target/test-files/temp" + appendix + "/");
-
-			deleteRoot(root);
-
-			final Converter<Integer, String> converter = new ReverseConverter<Integer, String>(
-					new StringSizeConverter());
-
-			final File dataFolder = new File(root, "data");
-			final File tempFolder = new File(root, "temp");
-			final File persistingFolder = new File(root, "persisting");
-
-			final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
-
-			final Cache<String, String> fileCache = new ValueConvertingCache<String, String, byte[]>(
-					new ValueConvertingCache<String, byte[], InputStream>(diskCache,
-							new ReverseConverter<byte[], InputStream>(new InputStreamConverter())),
-					new SerializingConverter<String>());
-
-			final Cache<String, String> cache = new FilePersistedMaxSizeCache<String>(
-					persistingFolder, fileCache, converter, 1000);
-
-			final String key = "dfslkjasdfkljsadfa";
-			final String value = "dfsaoiuwekljfsdfsadlkaioklalkdsf";
-
-			// TEST PUT, GET, REMOVE, and EXISTS
-			for (int x = 0; x < 10; x++) {
-
-				final String keyRepeated = StringUtilities.repeat(key, x);
-				final String valueRepeated = StringUtilities.repeat(value, x);
-
-				cache.put(keyRepeated, valueRepeated);
-
-				Thread.sleep(50);
-
-			}
-
-			for (int x = 0; x < 500; x++) {
-
-				final String keyRepeated = StringUtilities.repeat(key, x);
-
-				cache.put(keyRepeated, value);
-
-				logger.debug("Size of data " + folderSize(dataFolder));
-
-			}
-
-			deleteRoot(root);
-
-		}
-		catch (ResourceException e) {
-			e.printStackTrace();
-			TestCase.fail();
-		}
-		catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-	}
+            Random random = new Random();
+            String appendix = String.valueOf(Math.abs(random.nextInt()));
+            
+            File root = new File("./target/test-files/temp" + appendix + "/");
+            
+            deleteRoot(root);
+            
+            final Converter<Integer, String> converter = new ReverseConverter<Integer, String>(new StringSizeConverter());
+            
+            final File dataFolder = new File(root, "data");
+            final File tempFolder = new File(root, "temp");
+            final File persistingFolder = new File(root, "persisting");
+                        
+            final File persistingFolderData = new File(persistingFolder, "sizePersisted/data/data");
+            final File dataFolderData = new File(root, "data/data");
+            final File tempFolderData = new File(root, "temp/data");
+            
+            final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+            
+            final Cache<String, String> fileCache = 
+                new ValueConvertingCache<String, String, byte []>(
+                    new ValueConvertingCache<String, byte [], InputStream>(
+                            diskCache,
+                            new ReverseConverter<byte [], InputStream>(new InputStreamConverter())
+                        ),
+                        new SerializingConverter<String>()
+                    );
+                
+            final Cache<String, String> cache =
+                new FilePersistedMaxSizeCache<String>(
+                    persistingFolder,
+                    fileCache,
+                    converter,
+                    100000
+                );
+            
+            
+            final String value = StringUtilities.repeat("dfsaoiuwekljfsdfsadlkaioklalkdsf", 1000);
+            
+            
+            for (int x = 0; x < 10; x++) {
+                
+                final String keyRepeated = String.valueOf("x");
+                
+                cache.put(keyRepeated, value);
+                
+                Thread.sleep(50);
+                
+            }
+            
+            for (int x = 0; x < 10000; x++) {
+                
+                final String keyRepeated = String.valueOf(x);
+                
+                cache.put(keyRepeated, value);
+                
+                if(x % 100 == 0) {
+                    
+                    logger.debug(x + " Size of persisting data " + persistingFolderData.length());
+                    logger.debug(x + " Size of data " + dataFolderData.length());
+                    logger.debug(x + " Size of temp " + tempFolderData.length());
+                    
+                }
+                
+            }
+            
+            deleteRoot(root);
+        
+        }
+        catch (ResourceException e) {
+            
+            e.printStackTrace();
+            TestCase.fail();
+            
+        }
+        catch (InterruptedException e) {
+            
+            e.printStackTrace();
+            TestCase.fail();
+            
+        }
+        
+    }
 
 	@Test
 	public void negativeSizeTest() {
