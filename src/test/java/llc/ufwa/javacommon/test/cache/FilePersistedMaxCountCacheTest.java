@@ -55,6 +55,8 @@ public class FilePersistedMaxCountCacheTest {
 			deleteRoot(root);
 
 			final File dataFolder = new File(root, "data");
+			
+			final File countPersisted = new File(dataFolder, "data/countPersisted/data/data");
 
 			final int maxCount = 50;
 
@@ -97,11 +99,15 @@ public class FilePersistedMaxCountCacheTest {
 
 			}
 
-			for (int x = 0; x < 100; x++) {
+			for (int x = 0; x < 1000; x++) {
 
-				final String keyRepeated = StringUtilities.repeat(key, x);
+				final String keyRepeated = String.valueOf(x);
 
 				cache.put(keyRepeated, value);
+				
+				if ((x % 100) == 0) {
+                    logger.debug("Size of data " + countPersisted.length());
+                }
 
 			}
 

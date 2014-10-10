@@ -52,6 +52,8 @@ public class FilePersistedMaxSizeStreamCacheTest {
 			deleteRoot(root);
 
 			final File dataFolder = new File(root, "data");
+			
+			final File persistingFolderData = new File(dataFolder, "data/sizePersisted/data/data");
 
 			final int maxSize = 4000;
 			final int expires = 10000;
@@ -60,46 +62,27 @@ public class FilePersistedMaxSizeStreamCacheTest {
 					dataFolder, maxSize, expires);
 
 			final String key = "dfslkjasdfkljsadfa";
-			final String value = "dfsaoiuwekljfsdfsadlkaioklalkdsf";
+			final String value = StringUtilities.repeat("dfsaoiuwekljfsdfsadlkaioklalkdsf", 100);
 
-			for (int x = 0; x < 10; x++) {
+			final int KEYS = 100;
+			
+			for (int x = 0; x < KEYS; x++) {
 
-				final String keyRepeated = StringUtilities.repeat(key, x);
-				final String valueRepeated = StringUtilities.repeat(value, x);
-
-				cache.put(keyRepeated, getInputStreamFromString(valueRepeated));
-
-			}
-
-			// test exists
-			for (int x = 0; x < 10; x++) {
-
-				final String keyRepeated = StringUtilities.repeat(key, x);
-				final String valueRepeated = StringUtilities.repeat(value, x);
-
-				TestCase.assertEquals(true, cache.exists(keyRepeated));
-				TestCase.assertEquals(valueRepeated,
-						getStringFromInputStream(cache.get(keyRepeated)));
-
-			}
-
-			for (int x = 0; x < 100; x++) {
-
-				final String keyRepeated = StringUtilities.repeat(key, x);
+				final String keyRepeated = String.valueOf(x);
 
 				cache.put(keyRepeated, getInputStreamFromString((value)));
 
 				if ((x % 100) == 0) {
-					logger.debug("Size of data " + dataFolder.getTotalSpace());
+					logger.debug("Size of data " + persistingFolderData.length());
 				}
 
 			}
 
 			Thread.sleep(expires + 100);
 
-			for (int x = 0; x < 100; x++) {
+			for (int x = 0; x < KEYS; x++) {
 
-				final String keyRepeated = StringUtilities.repeat(key, x);
+				final String keyRepeated = String.valueOf(x);
 
 				TestCase.assertEquals(false, cache.exists(keyRepeated));
 

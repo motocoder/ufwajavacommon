@@ -184,7 +184,7 @@ public class FilePersistedExpiringCacheTest {
 
 			}
 
-			for (int x = 0; x < 1000; x++) {
+			for (int x = 0; x < 100; x++) {
 
 				final String keyRepeated = String.valueOf(x);
 
