@@ -92,6 +92,7 @@ public class CacheFactory {
                     new SerializingConverter<Value>()
                 );
             
+            
         final Cache<String, Value> cache =                
                 new FilePersistedMaxCountCache<Value>(
                     dataFolder,
