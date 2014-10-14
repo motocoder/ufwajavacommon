@@ -21,7 +21,6 @@ import llc.ufwa.data.exception.HashBlobException;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.ByteArrayIntegerConverter;
 import llc.ufwa.data.resource.Converter;
-import llc.ufwa.data.resource.linear.RandomAccessFileWriter;
 
 
 
@@ -431,7 +430,7 @@ public class FileHash<Key, Value> {
                 
         try {
         
-            final RandomAccessFileWriter random = new RandomAccessFileWriter(file);
+            final RandomAccessFile random = new RandomAccessFile(file, "rws");
           
             try {
                 
@@ -440,7 +439,7 @@ public class FileHash<Key, Value> {
                 random.seek(hashedIndex);
              
                 //read in key at this hash location.
-                final int read = random.read(hashedIndex, currentKeyIn);
+                final int read = random.read(currentKeyIn);
                              
                 if(read <= 0) { //file should have been initialized to hash size
                     throw new RuntimeException("hash was not initialized properly");
