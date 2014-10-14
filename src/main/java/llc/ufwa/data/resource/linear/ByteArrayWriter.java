@@ -25,7 +25,7 @@ public class ByteArrayWriter implements LinearStreamWriter {
 	@Override
 	public byte[] read(int index) throws LinearStreamException {
 
-		if ((index + bufferSize) > length()) {
+		while ((index + bufferSize) > length()) {
 			expandBuffer();
 		}
 
@@ -59,7 +59,7 @@ public class ByteArrayWriter implements LinearStreamWriter {
 	@Override
 	public void write(int index, byte[] in) throws LinearStreamException {
 
-		if ((index + in.length) > length()) {
+		while ((index + in.length) > length()) {
 			expandBuffer();
 		}
 

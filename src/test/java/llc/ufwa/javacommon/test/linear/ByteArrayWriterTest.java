@@ -14,7 +14,7 @@ public class ByteArrayWriterTest {
 	@Test 
 	public void byteArrayWriterTest() throws LinearStreamException {
 
-		final int ARRAY_SIZE = 1024;
+		final int ARRAY_SIZE = 4;
 		final String initial = "TEST-STRING";
 		final byte[] in = initial.getBytes();
 		final int size = in.length;
