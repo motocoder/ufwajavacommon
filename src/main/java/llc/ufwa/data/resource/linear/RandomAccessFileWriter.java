@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import llc.ufwa.data.exception.LinearStreamException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,12 +17,18 @@ public class RandomAccessFileWriter implements LinearStreamWriter {
 	private final RandomAccessFile random;
 	private final String ACCESS_MODE = "rws";
 	
-	public RandomAccessFileWriter(final File file) throws FileNotFoundException {
-		random = new RandomAccessFile(file, ACCESS_MODE);
+	public RandomAccessFileWriter(final File file) throws LinearStreamException {
+		
+		try {
+			random = new RandomAccessFile(file, ACCESS_MODE);
+		}
+		catch (FileNotFoundException e) {
+			throw new LinearStreamException(e);
+		}
+		
 	}
 	
-	@Override
-	public void seek(long index) {
+	private void seek(long index) {
 		try {
 			random.seek(index);
 		} 
@@ -29,8 +37,7 @@ public class RandomAccessFileWriter implements LinearStreamWriter {
 		}
 	}
 
-	@Override
-	public int read(byte[] buff) {
+	private int read(byte[] buff) throws LinearStreamException {
 		
 		int read = -1;
 		
@@ -38,7 +45,7 @@ public class RandomAccessFileWriter implements LinearStreamWriter {
 			read = random.read(buff);
 		} 
 		catch (IOException e) {
-			logger.error("IOException <2>: " + e.getMessage());
+			throw new LinearStreamException(e);
 		}
 		
 		return read;
@@ -46,33 +53,32 @@ public class RandomAccessFileWriter implements LinearStreamWriter {
 	}
 	
 	@Override
-	public int read(long index, byte[] buff) {
+	public int read(long index, byte[] buff) throws LinearStreamException {
 		this.seek(index);
 		return read(buff);
 	}
 	
-	@Override
-	public void write(byte[] in) {
+	private void write(byte[] in) throws LinearStreamException {
 		try {
 			random.write(in);
 		} 
 		catch (IOException e) {
-			logger.error("IOException <3>: " + e.getMessage());
+			throw new LinearStreamException(e);
 		}
 	}
 
 	@Override
-	public void write(long index, byte[] in) {
+	public void write(long index, byte[] in) throws LinearStreamException {
 		this.seek(index);
 		this.write(in);
 	}
 	
-	public void close() {
+	public void close() throws LinearStreamException {
 		try {
 			random.close();
 		}
 		catch (IOException e) {
-			logger.error("IOException <4>: " + e.getMessage());
+			throw new LinearStreamException(e);
 		}
 	}
 
