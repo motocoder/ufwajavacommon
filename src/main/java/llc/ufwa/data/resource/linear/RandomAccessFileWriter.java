@@ -28,12 +28,12 @@ public class RandomAccessFileWriter implements LinearStreamWriter {
 		
 	}
 	
-	private void seek(long index) {
+	private void seek(long index) throws LinearStreamException {
 		try {
 			random.seek(index);
 		} 
 		catch (IOException e) {
-			logger.error("IOException <1>: " + e.getMessage());
+			throw new LinearStreamException(e);
 		}
 	}
 
