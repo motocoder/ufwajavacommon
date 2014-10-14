@@ -46,9 +46,9 @@ public class RandomAccessFileWriter implements LinearStreamWriter {
 	}
 	
 	@Override
-	public void read(long index, byte[] buff) {
+	public int read(long index, byte[] buff) {
 		this.seek(index);
-		this.read(buff);
+		return read(buff);
 	}
 	
 	@Override
