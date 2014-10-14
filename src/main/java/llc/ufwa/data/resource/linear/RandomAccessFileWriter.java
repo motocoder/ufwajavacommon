@@ -12,12 +12,13 @@ import org.slf4j.LoggerFactory;
 
 public class RandomAccessFileWriter implements LinearStreamWriter {
 	
-	private static final Logger logger = LoggerFactory.getLogger(RandomAccessFileWriter.class);
-
 	private final RandomAccessFile random;
 	private final String ACCESS_MODE = "rws";
+	private final int bufferLength;
 	
-	public RandomAccessFileWriter(final File file) throws LinearStreamException {
+	public RandomAccessFileWriter(final File file, int bufferLength) throws LinearStreamException {
+		
+		this.bufferLength = bufferLength;
 		
 		try {
 			random = new RandomAccessFile(file, ACCESS_MODE);
@@ -36,26 +37,36 @@ public class RandomAccessFileWriter implements LinearStreamWriter {
 			throw new LinearStreamException(e);
 		}
 	}
-
-	private int read(byte[] buff) throws LinearStreamException {
-		
-		int read = -1;
-		
+	
+	@Override
+	public long length() throws LinearStreamException {
 		try {
-			read = random.read(buff);
+			return random.length();
 		} 
 		catch (IOException e) {
 			throw new LinearStreamException(e);
 		}
+	}
+
+	private byte[] read() throws LinearStreamException {
 		
-		return read;
+		final byte[] buff = new byte[bufferLength];
+		
+		try {
+			random.read(buff);
+		}
+		catch (IOException e) {
+			throw new LinearStreamException(e);
+		}
+		
+		return buff;
 		
 	}
 	
 	@Override
-	public int read(long index, byte[] buff) throws LinearStreamException {
+	public byte[] read(int index) throws LinearStreamException {
 		this.seek(index);
-		return read(buff);
+		return read();
 	}
 	
 	private void write(byte[] in) throws LinearStreamException {
@@ -68,7 +79,7 @@ public class RandomAccessFileWriter implements LinearStreamWriter {
 	}
 
 	@Override
-	public void write(long index, byte[] in) throws LinearStreamException {
+	public void write(int index, byte[] in) throws LinearStreamException {
 		this.seek(index);
 		this.write(in);
 	}
