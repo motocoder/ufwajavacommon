@@ -14,11 +14,8 @@ public class RandomAccessFileWriter implements LinearStreamWriter {
 	
 	private final RandomAccessFile random;
 	private final String ACCESS_MODE = "rws";
-	private final int bufferLength;
 	
-	public RandomAccessFileWriter(final File file, int bufferLength) throws LinearStreamException {
-		
-		this.bufferLength = bufferLength;
+	public RandomAccessFileWriter(final File file) throws LinearStreamException {
 		
 		try {
 			random = new RandomAccessFile(file, ACCESS_MODE);
@@ -29,7 +26,7 @@ public class RandomAccessFileWriter implements LinearStreamWriter {
 		
 	}
 	
-	private void seek(long index) throws LinearStreamException {
+	private void seek(final long index) throws LinearStreamException {
 		try {
 			random.seek(index);
 		} 
@@ -48,9 +45,9 @@ public class RandomAccessFileWriter implements LinearStreamWriter {
 		}
 	}
 
-	private byte[] read() throws LinearStreamException {
+	private byte[] read(final int amountToRead) throws LinearStreamException {
 		
-		final byte[] buff = new byte[bufferLength];
+		final byte[] buff = new byte[amountToRead];
 		
 		try {
 			random.read(buff);
@@ -64,12 +61,12 @@ public class RandomAccessFileWriter implements LinearStreamWriter {
 	}
 	
 	@Override
-	public byte[] read(int index) throws LinearStreamException {
+	public byte[] read(final int index, final int amountToRead) throws LinearStreamException {
 		this.seek(index);
-		return read();
+		return read(amountToRead);
 	}
 	
-	private void write(byte[] in) throws LinearStreamException {
+	private void write(final byte[] in) throws LinearStreamException {
 		try {
 			random.write(in);
 		} 
@@ -79,7 +76,7 @@ public class RandomAccessFileWriter implements LinearStreamWriter {
 	}
 
 	@Override
-	public void write(int index, byte[] in) throws LinearStreamException {
+	public void write(final int index, final byte[] in) throws LinearStreamException {
 		this.seek(index);
 		this.write(in);
 	}

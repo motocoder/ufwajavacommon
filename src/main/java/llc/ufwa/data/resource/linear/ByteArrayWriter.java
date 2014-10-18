@@ -10,10 +10,8 @@ import llc.ufwa.data.exception.LinearStreamException;
 public class ByteArrayWriter implements LinearStreamWriter {
 
 	private ByteBuffer bufferMainArray;
-	private final int bufferSize;
 
-	public ByteArrayWriter(final int originalSize, final int bufferSize) {
-		this.bufferSize = bufferSize;
+	public ByteArrayWriter(final int originalSize) {
 		this.bufferMainArray =  ByteBuffer.allocate(originalSize);
 	}
 
@@ -23,15 +21,15 @@ public class ByteArrayWriter implements LinearStreamWriter {
 	}
 
 	@Override
-	public byte[] read(int index) throws LinearStreamException {
+	public byte[] read(int index, int amountToRead) throws LinearStreamException {
 
-		while ((index + bufferSize) > length()) {
+		while ((index + amountToRead) > length()) {
 			expandBuffer();
 		}
 
 		bufferMainArray.position(index);
 
-		final byte[] buff = new byte[bufferSize];
+		final byte[] buff = new byte[amountToRead];
 
 		try {
 			bufferMainArray.get(buff, 0, buff.length);
