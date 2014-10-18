@@ -21,7 +21,7 @@ public class RandomAccessFileWriterTest {
 		final int size = in.length;
 		
 		final File file = new File("./target/test-files/temp-hash/");
-		final RandomAccessFileWriter writer = new RandomAccessFileWriter(file, size);
+		final RandomAccessFileWriter writer = new RandomAccessFileWriter(file);
 		
 		try {
 			
@@ -30,7 +30,7 @@ public class RandomAccessFileWriterTest {
 				final int index = 50;
 				writer.write(index, in);
 				
-				final String outStringAtIndex = new String(writer.read(index), "UTF8");
+				final String outStringAtIndex = new String(writer.read(index, size), "UTF8");
 				
 				TestCase.assertEquals(initial, outStringAtIndex);
 				

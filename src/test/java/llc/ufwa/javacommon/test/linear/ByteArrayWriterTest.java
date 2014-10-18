@@ -19,7 +19,7 @@ public class ByteArrayWriterTest {
 		final byte[] in = initial.getBytes();
 		final int size = in.length;
 		
-		final ByteArrayWriter writer = new ByteArrayWriter(ARRAY_SIZE, size);
+		final ByteArrayWriter writer = new ByteArrayWriter(ARRAY_SIZE);
 		
 		try {
 			
@@ -27,7 +27,7 @@ public class ByteArrayWriterTest {
 				
 				writer.write(x, in);
 				
-				final String outStringAtIndex = new String(writer.read(x), "UTF8");
+				final String outStringAtIndex = new String(writer.read(x, size), "UTF8");
 				
 				TestCase.assertEquals(initial, outStringAtIndex);
 				
@@ -41,8 +41,6 @@ public class ByteArrayWriterTest {
 			TestCase.fail(e.getLocalizedMessage());
 		}
 		finally {
-			
-			
 			
 		}
 		
