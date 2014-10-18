@@ -2,6 +2,7 @@ package llc.ufwa.data.resource.linear;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Chase Adams
  */
-public class FileCacheLinkedList<E> implements List<E> {
+public class FileCacheLinkedList<E> implements List<E> { //TODO fully implement this implements Collection<T>, List<T>, Serializable {
 
 	/*
 	 * Logger
@@ -39,6 +40,9 @@ public class FileCacheLinkedList<E> implements List<E> {
 
 	/*
 	 * Cache used to store values
+	 * 
+	 * TODO change DNode to hold the E value instead of doing 2 different cache objects. Use serialization for DNode instead of a string representation/parsing
+	 * 
 	 */
 	final Cache<String, E> cache;
 	final Cache<String, String> cacheLinkedData;
@@ -104,6 +108,8 @@ public class FileCacheLinkedList<E> implements List<E> {
 
 	/**
 	 * Generates a random key for a linked value.
+	 * 
+	 * TODO One key collision causes the entire thing to break. Lets change this to be an incrementing number persisted in the cache.
 	 * 
 	 * @return random linked key
 	 */
@@ -389,7 +395,7 @@ public class FileCacheLinkedList<E> implements List<E> {
 				e.printStackTrace();
 			}
 			catch (final FileCacheLinkedListException e) {
-				e.printStackTrace();
+				e.printStackTrace(); //TODO you need to use logger instead of e.printstack trace. You also need to bubble the exception out, throw a runtimeException of some sort.
 			}
 
 		}
@@ -437,6 +443,7 @@ public class FileCacheLinkedList<E> implements List<E> {
 			addLast(e);
 		}
 		catch (final ResourceException e1) {
+		    //TODO Never swallow an exception without at least logging it.
 
 			return false;
 		}
