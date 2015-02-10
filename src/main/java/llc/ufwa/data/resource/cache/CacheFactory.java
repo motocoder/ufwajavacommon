@@ -296,6 +296,31 @@ public class CacheFactory {
         return new SynchronizedCache<String, InputStream>(diskCache);
         
     }
+    
+    public static final Cache<String, InputStream> getMaxSizeStreamingFileCache(
+        final File cacheRoot,
+        final int maxSize
+    ) {
+        
+        final File dataFolder = new File(cacheRoot, "data");
+        final File tempFolder = new File(cacheRoot, "temp");
+        
+        final FileHashCache diskCache = new FileHashCache(dataFolder, tempFolder);
+        
+        final Cache<String, InputStream> fileCache = 
+            new SynchronizedCache<String, InputStream> (
+                diskCache
+            );
+        final Cache<String, InputStream> cache =      
+            new FilePersistedMaxSizeStreamCache(
+                dataFolder,
+                fileCache,
+                maxSize
+            );
+        
+        return new SynchronizedCache<String, InputStream>(cache);
+                
+    }
 
     
     public static final <Value> Cache<String, Value> getHashCashFileCache(
