@@ -88,6 +88,88 @@ public class WebUtil {
         } 
     }
     
+    public static byte [] doMethodBytes(
+        final URL url, 
+        final Map<String, String> headers,
+        final String method,
+        final String body, 
+        final int timeout
+    ) throws IOException, FourOhOneException {
+        
+        try {
+            
+            final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            
+            connection.setRequestMethod(method);
+            
+            if(body != null && body.length() > 0) {
+                connection.setDoOutput(true);
+            }
+            
+            connection.setReadTimeout(timeout);
+            
+            for(final Map.Entry<String, String> entry : headers.entrySet()) {
+                connection.addRequestProperty(entry.getKey(), entry.getValue());
+            }          
+            connection.connect();
+            
+            //Write the body out
+            if(body != null && body.length() > 0) {
+                
+                final OutputStream writing = connection.getOutputStream();
+                
+                try {
+                    
+                    final InputStream reading = new ByteArrayInputStream(body.getBytes("UTF-8"));
+                    
+                    StreamUtil.copyTo(reading, writing);
+                    
+                }
+                finally {
+                    writing.close();
+                }
+                
+            }
+
+            
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();            
+            final InputStream in = connection.getInputStream();
+            
+            if(connection.getResponseCode() == 401) {
+                throw new FourOhOneException();
+            }
+            
+            if(in != null) {
+                
+                try {
+                    StreamUtil.copyTo(in, out);
+                }
+                finally {
+                    in.close();
+                }
+                
+            }
+            else {
+                throw new IOException("<WebUtil><1>" + "Failed to get response");
+            }
+            
+            return out.toByteArray();
+                      
+        } 
+        catch (MalformedURLException e) {
+            
+            logger.error("<WebUtil><2>" + "ERROR:", e);
+            throw new IOException("<WebUtil><3>" + "ERROR:");
+            
+        }
+        catch (ProtocolException e) {
+            
+            logger.error("<WebUtil><4>" + "ERROR:", e);
+            throw new IOException("<WebUtil><5>" + "Error:");
+            
+        } 
+    }
+
     public static WebResponseBytes doGetBytesResponse(final URL url, final Map<String, String> headers) throws IOException, FourOhOneException {
         
         try {
@@ -140,6 +222,7 @@ public class WebUtil {
             
         } 
     }
+    
     
     public static byte [] doDeleteBytes(final URL url, final Map<String, String> headers) throws IOException, FourOhOneException {
         
