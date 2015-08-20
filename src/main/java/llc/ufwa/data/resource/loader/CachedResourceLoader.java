@@ -187,17 +187,21 @@ public class CachedResourceLoader<Key, Value> implements ResourceLoader<Key, Val
         final Value returnVal = internal.get(key);
         
         if(returnVal == null) {
+
             searchCache.put(key, false);
+
+            return null;
+
         }
         else {
             
             searchCache.put(key, true);
             valueCache.put(key, returnVal);
+
+            return valueCache.get(key);
             
         }
-        
-        return returnVal;
-        
+
     }
 
     /**
