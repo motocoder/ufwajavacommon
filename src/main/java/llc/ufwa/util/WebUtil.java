@@ -100,8 +100,6 @@ public class WebUtil {
             
             final HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             
-            connection.setRequestMethod(method);
-            
             connection.setReadTimeout(timeout);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
@@ -113,6 +111,8 @@ public class WebUtil {
             if(body != null && body.length() > 0) {
                 connection.setDoOutput(true);
             }
+            
+            connection.setRequestMethod(method);
             
             connection.connect();
             
