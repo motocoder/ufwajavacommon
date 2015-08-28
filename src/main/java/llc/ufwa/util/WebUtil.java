@@ -102,15 +102,18 @@ public class WebUtil {
             
             connection.setRequestMethod(method);
             
-            if(body != null && body.length() > 0) {
-                connection.setDoOutput(true);
-            }
-            
             connection.setReadTimeout(timeout);
             
             for(final Map.Entry<String, String> entry : headers.entrySet()) {
                 connection.addRequestProperty(entry.getKey(), entry.getValue());
             }          
+            
+            connection.setDoInput(true);
+            
+            if(body != null && body.length() > 0) {
+                connection.setDoOutput(true);
+            }
+            
             connection.connect();
             
             //Write the body out
