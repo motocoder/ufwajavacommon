@@ -138,6 +138,8 @@ public class WebUtil {
             final ByteArrayOutputStream out = new ByteArrayOutputStream();            
             final InputStream in = connection.getInputStream();
             
+            logger.info("response code " + connection.getResponseCode());
+            
             if(connection.getResponseCode() == 401) {
                 throw new FourOhOneException();
             }
