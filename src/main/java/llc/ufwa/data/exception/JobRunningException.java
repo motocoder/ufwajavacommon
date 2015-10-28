@@ -11,5 +11,9 @@ public class JobRunningException extends Exception {
     public JobRunningException(String e) {
         super(e);
     }
+
+    public JobRunningException(String string, Throwable t) {
+        super(string, t);
+    }
     
 }
