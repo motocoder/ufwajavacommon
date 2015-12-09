@@ -8,6 +8,8 @@
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
 		<maven.test.failure.ignore>false</maven.test.failure.ignore>
+		<robovm.version>1.11.1-SNAPSHOT</robovm.version>
+		<robovm.maven.version>1.11.1-SNAPSHOT</robovm.maven.version>
 	</properties>
 
 	<build>
@@ -15,10 +17,16 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.robovm</groupId>
+				<artifactId>robovm-maven-plugin</artifactId>
+				<version>${robovm.maven.version}</version>
 			</plugin>
 		</plugins>
 	</build>
