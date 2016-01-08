@@ -4,7 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
+import llc.ufwa.concurrency.SerialExecutor;
 import llc.ufwa.data.dao.exception.DAOException;
 import llc.ufwa.data.exception.ResourceException;
 import llc.ufwa.data.resource.cache.Cache;
@@ -19,11 +22,26 @@ public class FileCacheBucketDAOImpl implements BucketDAO {
 	
 	private final Cache<String, InputStream> cache;
 
+    private final Executor executors;
+
 	public FileCacheBucketDAOImpl(
 	    final Cache<String, InputStream> cache
 	) {
+	    
 		this.cache = cache;
+		this.executors = Executors.newSingleThreadExecutor();
+		
 	}
+	
+	public FileCacheBucketDAOImpl(
+        final Cache<String, InputStream> cache,
+        final Executor executors
+    ) {
+	    
+        this.cache = cache;
+        this.executors = new SerialExecutor(executors);
+        
+    }
 	
 	@Override
 	public Object get(String guid) throws DAOException {
@@ -86,7 +104,7 @@ public class FileCacheBucketDAOImpl implements BucketDAO {
 		    }
 		    else {
 		        		        
-		        final InputStream toOut = DataUtils.serializeToStream(value);
+		        final InputStream toOut = DataUtils.serializeToStream(value, executors);
 		        logger.debug("serialized");
 		        
 		        cache.put(guid, toOut);

@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
@@ -94,8 +95,24 @@ public class DataUtils {
      * @param object
      * @return
      * @throws IOException
+     * 
+     * This is deprecated use the one you pass in an executor
      */
+    @Deprecated
 	public static InputStream serializeToStream(final Object object) throws IOException {
+        
+        return serializeToStream(object, Executors.newSingleThreadExecutor());
+        
+    }
+	
+	/**
+	 * 
+	 * @param object
+	 * @param executor
+	 * @return
+	 * @throws IOException
+	 */
+	public static InputStream serializeToStream(final Object object, Executor executor) throws IOException {
         
         if(object == null) {
             throw new NullPointerException("<DataUtils><1>, " + "object cannot be null");
@@ -106,7 +123,7 @@ public class DataUtils {
         
         final ObjectOutputStream objectsOut = new ObjectOutputStream(pipedOut);
         
-        Executors.newSingleThreadExecutor().execute(
+        executor.execute(
             new Runnable() {
 
                 @Override
