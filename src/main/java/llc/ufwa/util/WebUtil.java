@@ -780,6 +780,9 @@ public class WebUtil {
         public List<String> getHeader(String headerName) {
             return headers.get(headerName);
         }
+        public Map<String, List<String>> getHeaders() {
+            return new HashMap<String, List<String>>(headers);
+        }
         
     }
     
